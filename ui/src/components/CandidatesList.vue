@@ -42,7 +42,7 @@ import moment from 'moment-timezone'
 import { mapState } from 'vuex'
 import Identicon from '@polkadot/vue-identicon'
 import Vue from 'vue'
-import { ICandidate, ICandidateListFilter } from '../types/global'
+import { ICandidate, ICandidateListFilter, ICandidateValidityItem } from '../types/global'
 
 // eslint-disable-next-line
 interface IData {
@@ -54,17 +54,20 @@ interface IData {
 // }
 
 interface IMethods {
+  // eslint-disable-next-line
   clickItem (item: any): void
   isFavourite(stash: string): boolean
+  // eslint-disable-next-line
   toggleFav (item: any): void
+  // eslint-disable-next-line
   timeAgo (d: any): string
   getScore (v: ICandidate): string|number
-  isValid (items: any[]): boolean
+  isValid (items: ICandidateValidityItem[]): boolean
 }
 
 interface IComputed {
   filteredList: ICandidate[]
-  filter: any
+  filter: ICandidateListFilter
   loading: boolean
   favourites: string[]
   // items: any[]
@@ -84,14 +87,17 @@ export default Vue.extend<IData, IMethods, IComputed>({
     }
   },
   methods: {
+    // eslint-disable-next-line
     clickItem (item: any) { this.$emit('click-item', item) },
     isFavourite (stash: string) {
       return this.favourites.includes(stash)
     },
+    // eslint-disable-next-line
     toggleFav (item: any) {
       // console.debug('toggleFav', item.stash)
       this.$store.dispatch('candidate/toggleFav', item.stash)
     },
+    // eslint-disable-next-line
     timeAgo (d: any): string {
       return moment(d).fromNow()
     },

@@ -1,6 +1,7 @@
 <template>
 
-  <v-data-table dense :loading="loading"
+  <v-data-table dense
+    :loading="loading"
     :headers="headers"
     :items="items"
     :page="options.page"
@@ -55,7 +56,7 @@ import moment from 'moment-timezone'
 import { mapState } from 'vuex'
 import Identicon from '@polkadot/vue-identicon'
 import Vue from 'vue'
-import { ICandidate } from '../types/global'
+import { ICandidate, ICandidateValidityItem } from '../types/global'
 
 interface IOptions {
   page: number
@@ -72,28 +73,47 @@ interface IFilter {
   active: boolean
 }
 
+// eslint-disable-next-line
+interface IPaginate {}
+
+interface IFilteredListItem {
+  favourite: boolean
+  stash: string
+  name: string
+  discoveredAt: string | number | Date
+  valid: boolean
+  active: boolean
+  rank: number | undefined
+  score: number | undefined
+}
+
 interface IData {
   options: IOptions
   xfilter: IFilter
 }
 
 interface IMethods {
-  isValid(validity: any): boolean
-  timeAgo(d: any): string
-  clickItem(i: any): void
-  toggleFav (item: any): void
-  handlePaginate (evt: any): void
+  isValid(validity: ICandidateValidityItem[]): boolean
+  timeAgo(d: string): string
+  clickItem(item: IFilteredListItem): void
+  toggleFav (item: IFilteredListItem): void
+  handlePaginate (evt: IPaginate): void
+  // eslint-disable-next-line
   handlePage (evt: any): void
+  // eslint-disable-next-line
   handleItemsPerPage (evt: any): void
-  handleOptions (evt: any): void
+  handleOptions (evt: IOptions): void
 }
 
 interface IComputed {
   loading: boolean
   filteredList: ICandidate[]
+  // eslint-disable-next-line
   updatedAt: any
   favourites: string[]
+  // eslint-disable-next-line
   headers: any[]
+  // eslint-disable-next-line
   items: any[]
 }
 
@@ -122,6 +142,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
           sortable: true,
           value: 'favourite',
           width: '5%',
+          // eslint-disable-next-line
           filter: (value: any) => {
             if (this.xfilter.favourite) return value
             else return true
@@ -188,10 +209,11 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
           active: item.active,
           rank: item.rank,
           score: item.score?.total
-        }
+        } as IFilteredListItem
       })
     }
   },
+  // eslint-disable-next-line
   data (): any {
     return {
       options: {
@@ -210,30 +232,32 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     }
   },
   methods: {
-    isValid (items = []) {
-      const invalid = items.find((i: any) => i.valid === false)
+    isValid (items: ICandidateValidityItem[]) {
+      const invalid = items.find((i: ICandidateValidityItem) => i.valid === false)
       return !invalid
     },
-    timeAgo (d: any): string {
+    timeAgo (d: string): string {
       return moment(d).fromNow()
     },
-    clickItem (item: any) {
+    clickItem (item: IFilteredListItem) {
       this.$emit('click-item', item)
     },
-    toggleFav (item: any) {
+    toggleFav (item: IFilteredListItem) {
       this.$store.dispatch('candidate/toggleFav', item.stash)
     },
-    handlePaginate (evt: any) {
+    handlePaginate (evt: IPaginate) {
       // console.debug(evt)
       this.$store.dispatch('candidate/paginate', evt)
     },
+    // eslint-disable-next-line
     handlePage (evt: any) {
       if (!evt) console.debug(evt)
     },
+    // eslint-disable-next-line
     handleItemsPerPage (evt: any) {
       console.debug(evt)
     },
-    handleOptions (evt: any) {
+    handleOptions (evt: IOptions) {
       this.$store.dispatch('candidate/handleOptions', evt)
     }
   }

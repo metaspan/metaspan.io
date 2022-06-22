@@ -72,7 +72,7 @@ import { mapState } from 'vuex'
 // import CandidatesTable from './CandidatesTable.vue'
 // import CandidatesList from './CandidatesList.vue'
 import Vue from 'vue'
-// import { ICandidate } from '../types/global'
+import { ICandidate } from '../types/global'
 
 interface IWindowSize {
   x: number
@@ -179,7 +179,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
       // console.debug('reload...')
       this.$store.dispatch('polkadot/nominators')
     },
-    gotoCandidate (item: any) {
+    gotoCandidate (item: ICandidate) {
       // console.debug('gotoCandidate', item)
       this.$store.dispatch('candidate/setCandidate', item.stash)
       this.$router.push('/candidate/' + item.stash)

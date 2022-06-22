@@ -1,7 +1,7 @@
 
 // import moment from 'moment-timezone'
 
-import { ICandidate, IValidator } from '@/types/global'
+import { IValidator } from '@/types/global'
 
 interface IPagination {
   page: number
@@ -20,6 +20,13 @@ interface IFilter {
   active: boolean
 }
 
+interface IMinMax {
+  min: number
+  max: number
+}
+
+type TRanges = Record<string, IMinMax>
+
 interface IState {
   updatedAt: null|Date
   loading: boolean
@@ -27,7 +34,7 @@ interface IState {
   options: IOptions,
   search: string
   filter: IFilter
-  ranges: Record<string, any>
+  ranges: TRanges // Record<string, IMinMax>
   // {
   //   rank: {
   //     min: 0,
@@ -45,7 +52,7 @@ interface IState {
 }
 
 /* eslint-disable no-new */
-const candidate = {
+const validator = {
   namespaced: true,
   modules: {
   },
@@ -76,7 +83,7 @@ const candidate = {
         min: 0,
         max: 0
       }
-    } as any,
+    } as TRanges,
     favourites: [],
     list: [],
     filteredList: [],
@@ -84,10 +91,10 @@ const candidate = {
   } as IState,
   getters: {},
   mutations: {
-    SET_LOADING (state: IState, loading: boolean) {
+    SET_LOADING (state: IState, loading: boolean): void {
       state.loading = loading
     },
-    SET_LIST (state: IState, list: IValidator[]) {
+    SET_LIST (state: IState, list: IValidator[]): void {
       console.debug('SET_LIST', list)
       state.list = list
       state.updatedAt = new Date()
@@ -98,25 +105,25 @@ const candidate = {
       // console.debug('length', udata.length, 'min:', Math.min(...udata), 'max:', Math.max(...udata))
       // state.ranges.rank = {min: Math.min(...udata), max: Math.max(...udata)}
     },
-    SET_FILTERED_LIST (state: IState, filteredList: IValidator[]) {
+    SET_FILTERED_LIST (state: IState, filteredList: IValidator[]): void {
       state.filteredList = filteredList
     },
-    SET_VALIDATOR (state: IState, model: IValidator) {
+    SET_VALIDATOR (state: IState, model: IValidator): void {
       state.validator = model
     },
-    SET_PAGINATION (state: IState, pagination: IPagination) {
+    SET_PAGINATION (state: IState, pagination: IPagination): void {
       state.pagination = pagination
     },
-    SET_OPTIONS (state: IState, options: any) {
+    SET_OPTIONS (state: IState, options: IOptions): void {
       state.options = options
     },
-    SET_FILTER (state: IState, filter: IFilter) {
+    SET_FILTER (state: IState, filter: IFilter): void {
       state.filter = filter
     },
-    SET_SEARCH (state: IState, search: string) {
+    SET_SEARCH (state: IState, search: string): void {
       state.search = search
     },
-    TOGGLE_FAV (state: IState, stash: string) {
+    TOGGLE_FAV (state: IState, stash: string): void {
       const idx = state.favourites.findIndex((v) => {
         return v === stash
       })
@@ -131,42 +138,52 @@ const candidate = {
     }
   },
   actions: {
+    // eslint-disable-next-line
     async init ({ dispatch }: any): Promise<void> {
       await dispatch('getList')
     },
+    // eslint-disable-next-line
     async loading ({ commit }: any, loading: boolean) {
       commit('SET_LOADING', loading)
     },
+    // eslint-disable-next-line
     async setList ({ commit, dispatch }: any, list: IValidator[]) {
       commit('SET_LIST', list)
       dispatch('filterList')
     },
+    // eslint-disable-next-line
     async filterList ({ commit }: any) {
       const filteredList: IValidator[] = []
       commit('SET_FILTERED_LIST', filteredList)
     },
+    // eslint-disable-next-line
     async paginate ({ commit }: any, pagination: IPagination) {
       await commit('SET_PAGINATION', pagination)
     },
+    // eslint-disable-next-line
     async handleOptions ({ commit }: any, options: any) {
       await commit('SET_OPTIONS', options)
     },
+    // eslint-disable-next-line
     async handleFilter ({ commit }: any, filter: IFilter) {
       await commit('SET_FILTER', filter)
     },
+    // eslint-disable-next-line
     async setSearch ({ commit }: any, search: string) {
       await commit('SET_SEARCH', search)
     },
+    // eslint-disable-next-line
     async setValidator ({ state, commit }: any, stash: string) {
       const v = state.list.find((i: IValidator) => {
         return i.stash === stash
       })
       await commit('SET_VALIDATOR', v)
     },
+    // eslint-disable-next-line
     async toggleFav ({ commit }: any, stash: string) {
       await commit('TOGGLE_FAV', stash)
     }
   }
 }
 
-export default candidate
+export default validator

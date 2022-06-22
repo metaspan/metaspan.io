@@ -71,22 +71,30 @@ interface IBreadCrumb {
 interface IData {
   loading: boolean
   level: number
+  // eslint-disable-next-line
   parsed: any
   breadcrumbs: IBreadCrumb[]
+  // eslint-disable-next-line
   obj: any
 }
 
 interface IComputed {
+  // eslint-disable-next-line
   object: any
   // methods: any[]
 }
 
 interface IMethods {
+  // eslint-disable-next-line
   select (v: any, l: number): void
+  // eslint-disable-next-line
   selectMethod (v: any, l: number): void
+  // eslint-disable-next-line
   deselect (v: any): void
+  // eslint-disable-next-line
   parseObj (v: any, className: string|boolean|null, depth: number|null): void
   parseBreadCrumbs (): void
+  // eslint-disable-next-line
   getFunctionDocs (func: any): string[]
 }
 // eslint-disable-next-line
@@ -95,8 +103,11 @@ interface IMethods {
 interface IObj {
   class: string
   // constructor: {},
+  // eslint-disable-next-line
   methods: Record<string, any>
+  // eslint-disable-next-line
   attributes: Record<string, any>
+  // eslint-disable-next-line
   children: Record<string, any>
 }
 
@@ -132,6 +143,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
     }
   },
   methods: {
+    // eslint-disable-next-line
     select (att: any) {
       this.level += 1
       // console.debug(att, level, this.parsed[att])
@@ -142,6 +154,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
       })
       this.parsed = this.parseObj(obj, null, null)
     },
+    // eslint-disable-next-line
     async selectMethod (att: any) {
       this.level += 1
       console.debug(att)
@@ -157,11 +170,14 @@ export default Vue.extend<IData, IMethods, IComputed>({
       this.breadcrumbs.push({ text: att, type: 'method', level: this.level })
       this.parseBreadCrumbs()
     },
+    // eslint-disable-next-line
     getFunctionDocs (func: any): string[] {
       interface IFuncMeta {
+        // eslint-disable-next-line
         storage: any
         name: string
         modifier: string
+        // eslint-disable-next-line
         type: any
         fallback: string
         docs: string[]
@@ -180,6 +196,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
       // console.debug('meta', meta)
       return meta.docs
     },
+    // eslint-disable-next-line
     deselect (evt: any) {
       console.debug(evt)
       if (!evt) {
@@ -204,6 +221,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
       // this.breadcrumbs.forEach ((b: IBreadCrumb) => {  })
       this.parsed = this.parseObj(obj, null, null)
     },
+    // eslint-disable-next-line
     parseObj (obj: any, className = false, depth = 1) {
       var ret = {
         // parseType: type,

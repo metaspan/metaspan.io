@@ -122,24 +122,52 @@ import moment from 'moment-timezone'
 import { mapState } from 'vuex'
 import Identicon from '@polkadot/vue-identicon'
 import Vue from 'vue'
-import { IValidator, ICandidateValidityItem } from '../types/global'
+import { IValidator } from '../types/global'
 
 interface ITableItem {
   favourite: boolean
   stash: string
   name: string
-  discoveredAt: any
+  discoveredAt: number | Date
   // valid: boolean
   // active: boolean
   rank: number
   totalScore: number
 }
 
+// eslint-disable-next-line
+interface IOptions {
+  page: number
+  itemsPerPage: number
+  sortBy: string[]
+  sortDesc: string[]
+}
+
+interface IFilter {
+  favourite: boolean
+  valid: boolean
+  active: boolean
+  score: number | null
+  rank: number | null
+}
+
 interface IData {
   dateTimeFormat: string
-  options: any
-  xfilter: any
+  options: IOptions
+  xfilter: IFilter
   search: string
+}
+
+// type TVueTableHeaderFilter = function(): boolean
+
+interface IVueTableHeader {
+  text: string
+  align?: string | null
+  sortable?: boolean
+  value: string
+  width?: string
+  // eslint-disable-next-line
+  filter?: Function
 }
 
 interface IComputed {
@@ -147,7 +175,7 @@ interface IComputed {
   list: IValidator[]
   updatedAt: number|Date
   favourites: string[]
-  headers: any[]
+  headers: IVueTableHeader[]
   items: ITableItem[]
   updated: string
 }
@@ -158,10 +186,12 @@ interface IMethods {
   formatDate(d: string|number, f: string): string
   timeAgo(d: string|number): string
   toggleFav(item: ITableItem): void
+// eslint-disable-next-line
   handlePaginate(evt: any): void
+// eslint-disable-next-line
   handlePage(evt: any): void
-  handleItemsPerPage(evt: any): void
-  handleOptions(evt: any): void
+  handleItemsPerPage(evt: Event): void
+  handleOptions(evt: IOptions): void
   gotoValidator(item: ITableItem): void
 }
 
@@ -173,7 +203,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
   },
   computed: {
     ...mapState('validator', ['loading', 'list', 'updatedAt', 'favourites']),
-    headers () {
+    headers (): IVueTableHeader[] {
       return [
         {
           text: 'Favourite',
@@ -218,7 +248,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
           width: '5%',
           filter: (value: number) => {
             if (!this.xfilter.rank) return true
-            return value >= parseInt(this.xfilter.rank)
+            return value >= parseInt(this.xfilter.rank.toString())
           }
         },
         {
@@ -229,7 +259,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
           width: '5%',
           filter: (value: number) => {
             if (!this.xfilter.score) return true
-            return value >= parseInt(this.xfilter.score)
+            return value >= parseInt(this.xfilter.score.toString())
           }
         }
       ]
@@ -258,14 +288,14 @@ export default Vue.extend<IData, IMethods, IComputed>({
       itemsPerPage: 10,
       sortBy: [],
       sortDesc: []
-    },
+    } as IOptions,
     xfilter: {
       favourite: false,
-      rank: '',
-      score: '',
+      rank: null,
+      score: null,
       valid: false,
       active: false
-    }
+    } as IFilter
   }),
   watch: {
     search (newval) {
@@ -313,17 +343,20 @@ export default Vue.extend<IData, IMethods, IComputed>({
     toggleFav (item: ITableItem) {
       this.$store.dispatch('validator/toggleFav', item.stash)
     },
+    // eslint-disable-next-line
     handlePaginate (evt: any) {
       // console.debug(evt)
       this.$store.dispatch('validator/paginate', evt)
     },
+    // eslint-disable-next-line
     handlePage (evt: any) {
       if (!evt) console.debug(evt)
     },
+    // eslint-disable-next-line
     handleItemsPerPage (evt: any) {
       console.debug(evt)
     },
-    handleOptions (evt: any) {
+    handleOptions (evt: IOptions) {
       this.$store.dispatch('validator/handleOptions', evt)
     },
     gotoValidator (item: ITableItem) {

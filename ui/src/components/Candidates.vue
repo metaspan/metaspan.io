@@ -177,7 +177,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
       // console.debug('reload...')
       this.$store.dispatch('candidate/getList')
     },
-    gotoCandidate (item: any) {
+    gotoCandidate (item: ICandidate) {
       // console.debug('gotoCandidate', item)
       this.$store.dispatch('candidate/setCandidate', item.stash)
       this.$router.push('/candidate/' + item.stash)

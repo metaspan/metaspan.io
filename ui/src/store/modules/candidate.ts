@@ -1,8 +1,47 @@
 
-import { ICandidate, ICandidateValidityItem, ICandidateListFilter, ICandidateListSort } from '@/types/global'
+import { ICandidate, ICandidateListFilter, ICandidateListSort } from '@/types/global'
 import axios from 'axios'
 import moment from 'moment-timezone'
 import Vue from 'vue'
+
+interface IPagination {
+  page: number
+  itemsPerPage: number
+}
+
+interface ISort {
+  sort: string
+  sortAsc: boolean
+}
+
+interface IFilter {
+  valid: boolean
+  active: boolean
+}
+
+// eslint-disable-next-line
+interface IOption {}
+
+interface IMinMax {
+  min: number
+  max: number
+}
+
+type TRanges = Record<string, IMinMax>
+
+interface IState {
+  updatedAt: null | Date
+  loading: boolean
+  pagination: IPagination
+  sort: ISort
+  search: string
+  filter: IFilter
+  ranges: TRanges
+  options: IOption[]
+  favourites: string[]
+  list: ICandidate[]
+  candidate: ICandidate
+}
 
 /* eslint-disable no-new */
 const candidate = {
@@ -49,10 +88,10 @@ const candidate = {
     // }
   },
   mutations: {
-    SET_LOADING (state: any, loading: boolean) {
+    SET_LOADING (state: IState, loading: boolean): void {
       state.loading = loading
     },
-    SET_LIST (state: any, list: any[]) {
+    SET_LIST (state: IState, list: ICandidate[]): void {
       // console.debug("SET_LIST", list)
       let udata = []
       let ranks = []
@@ -70,8 +109,8 @@ const candidate = {
       state.ranges.rank = { min: Math.min(...udata), max: Math.max(...udata) }
 
       state.ranges.score = list
-        .map((m:any) => m.score?.total)
-        .reduce(function (result: any, item: number) {
+        .map((m: ICandidate) => m.score?.total)
+        .reduce(function (result: IMinMax, item: number) {
           return item ? {
             min: Math.min(result.min, item),
             max: Math.max(result.max, item)
@@ -85,27 +124,27 @@ const candidate = {
       // console.debug('length', udata.length, 'min:', Math.min(...udata), 'max:', Math.max(...udata))
       // state.ranges.bonded = {min: Math.min(...udata), max: Math.max(...udata)}
     },
-    SET_FILTERED_LIST (state: any, flist: any[]) {
+    SET_FILTERED_LIST (state: IState, flist: ICandidate[]): void {
       console.debug('SET_FILTERED_LIST', flist.length)
       // state.filteredList = flist
       Vue.set(state, 'filteredList', flist)
     },
-    SET_CANDIDATE (state: any, model: any) {
+    SET_CANDIDATE (state: IState, model: ICandidate): void {
       state.candidate = model
     },
-    SET_PAGINATION (state: any, pagination: any) {
+    SET_PAGINATION (state: IState, pagination: IPagination): void {
       state.pagination = pagination
     },
-    SET_OPTIONS (state: any, options: any) {
+    SET_OPTIONS (state: IState, options: IOption[]): void {
       state.options = options
     },
-    SET_FILTER (state: any, filter: any) {
+    SET_FILTER (state: IState, filter: IFilter): void {
       state.filter = filter
     },
-    SET_SEARCH (state: any, search: string) {
+    SET_SEARCH (state: IState, search: string): void {
       state.search = search
     },
-    TOGGLE_FAV (state: any, stash: string) {
+    TOGGLE_FAV (state: IState, stash: string): void {
       const idx = state.favourites.findIndex((v:string) => {
         return v === stash
       })
@@ -120,10 +159,12 @@ const candidate = {
     }
   },
   actions: {
+    // eslint-disable-next-line
     async init ({ dispatch }: any) {
       // console.debug('candidate/init');
       await dispatch('getList')
     },
+    // eslint-disable-next-line
     async getList ({ state, commit, dispatch }:any) {
       let list = []
       // console.debug('candidate/getList', state.updatedAt);
@@ -158,28 +199,32 @@ const candidate = {
         console.log(`age of cache: ${moment().diff(moment(state.updatedAt), 'seconds')} seconds`)
       }
     },
+    // eslint-disable-next-line
     async paginate ({ commit }: any, pagination: any) {
       await commit('SET_PAGINATION', pagination)
     },
+    // eslint-disable-next-line
     async handleOptions ({ commit, dispatch }: any, options: any) {
       await commit('SET_OPTIONS', options)
       await dispatch('filterList')
     },
+    // eslint-disable-next-line
     async handleFilter ({ commit, dispatch }: any, filter: any) {
       await commit('SET_FILTER', filter)
       await dispatch('filterList')
     },
+    // eslint-disable-next-line
     async setSearch ({ commit, dispatch }: any, search: any) {
       await commit('SET_SEARCH', search)
       await dispatch('filterList')
     },
-
+    // eslint-disable-next-line
     async filterList ({ state, commit }: any) {
       const filter: ICandidateListFilter = state.filter
       const sort: ICandidateListSort = state.sort
       const search: string = state.search
       console.debug('filter, sort, search', filter, sort, search)
-      const isValid = (items: ICandidateValidityItem[]) => items.find((i: ICandidateValidityItem) => i.valid === false)
+      // const isValid = (items: ICandidateValidityItem[]) => items.find((i: ICandidateValidityItem) => i.valid === false)
       const flist = state.list.filter((item: ICandidate) => {
         if ((filter.favourite && !state.favourites.includes(item.stash)) ||
           (filter.valid && !item.valid) ||
@@ -213,15 +258,15 @@ const candidate = {
       })
       commit('SET_FILTERED_LIST', flist)
     },
-
+    // eslint-disable-next-line
     async setCandidate ({ state, commit }: any, stash: string) {
-      const v = state.list.find((i: any) => {
+      const v = state.list.find((i: ICandidate) => {
         return i.stash === stash
       })
       await commit('SET_CANDIDATE', v)
       // await dispatch('polkadot/get', stash, {root:true})
     },
-
+    // eslint-disable-next-line
     async toggleFav ({ commit }: any, stash: string) {
       console.debug('toggleFav()', stash)
       await commit('TOGGLE_FAV', stash)

@@ -1,7 +1,9 @@
 // import Vue from 'vue'
 import { ApiPromise, WsProvider } from '@polkadot/api'
 
-const endpoints: any = {
+type TEndpoints = Record<string, Record<string, string>>
+
+const endpoints: TEndpoints = {
   polkadot: {
     parity: 'wss://rpc.polkadot.io',
     onFinality: 'wss://polkadot.api.onfinality.io/public-ws'
@@ -18,18 +20,21 @@ const endpoints: any = {
 }
 
 class PolkadotAPI {
+  // eslint-disable-next-line
   config: any = {
     chain: 'kusama',
     endpoint: 'onFinality'
   }
 
+  // eslint-disable-next-line
   api: any
 
+  // eslint-disable-next-line
   constructor (options: any) {
     this.config = { ...this.config, ...options }
   }
 
-  async connect () {
+  async connect (): Promise<void> {
     const wsProvider = new WsProvider(endpoints[this.config.chain][this.config.endpoint])
     this.api = await ApiPromise.create({ provider: wsProvider })
     console.debug('we have an api?')

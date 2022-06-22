@@ -137,7 +137,7 @@ export default Vue.extend({
     getScore (elem: number|null|undefined) {
       return elem ? elem.toFixed(2) : 0.00
     },
-    formatDate (v: any, format: string) {
+    formatDate (v: number|string, format: string) {
       // console.debug(v, this.dateTimeFormat)
       const f = format || this.dateTimeFormat
       return moment(v).format(f)
