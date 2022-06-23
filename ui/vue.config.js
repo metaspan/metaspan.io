@@ -91,12 +91,13 @@ module.exports = {
     // domain: 'dev.local',
     host: '0.0.0.0',
     port: 8080,
+    // https to enable camera
     // https: true,
-    https: {
-      key: fs.readFileSync('./certs/dev.local+4-key.pem', 'utf-8'),
-      cert: fs.readFileSync('./certs/dev.local+4.pem', 'utf-8'),
-      // ca: fs.readFileSync('./certs/my-ca.crt')
-    },
+    // https: {
+    //   key: fs.readFileSync('./certs/dev.local+4-key.pem', 'utf-8'),
+    //   cert: fs.readFileSync('./certs/dev.local+4.pem', 'utf-8'),
+    //   // ca: fs.readFileSync('./certs/my-ca.crt')
+    // },
     disableHostCheck: true,
 
     // proxy: {

@@ -191,9 +191,17 @@ const polkadot = {
       // }
     },
     // eslint-disable-next-line
-    async setEndpoint ({ state, commit }: any, endpoint: string): Promise<void> {
+    async setEndpoint ({ state, commit, dispatch }: any, endpoint: string): Promise<void> {
       if (state.endpoints[endpoint]) {
         await commit('SET_ENDPOINT', endpoint)
+        if (window.$polkadot) {
+          // const isReady = await window.$polkadot.isReady
+          console.debug('disconnecting api')
+          await window.$polkadot.disconnect()
+        }
+        const wsProvider = new WsProvider(endpoint)
+        const api = await ApiPromise.create({ provider: wsProvider })
+        window.$polkadot = api
       }
     },
     // async getActiveEra({state}) {

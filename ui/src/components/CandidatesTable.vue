@@ -205,7 +205,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
           stash: item.stash,
           name: item.name,
           discoveredAt: item.discoveredAt,
-          valid: this.isValid(item.validity),
+          valid: item.valid,
           active: item.active,
           rank: item.rank,
           score: item.score?.total
@@ -260,6 +260,9 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     handleOptions (evt: IOptions) {
       this.$store.dispatch('candidate/handleOptions', evt)
     }
+  },
+  created () {
+    this.options = this.$store.state.candidate.options
   }
 })
 </script>

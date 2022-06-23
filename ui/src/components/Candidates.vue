@@ -180,7 +180,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
     gotoCandidate (item: ICandidate) {
       // console.debug('gotoCandidate', item)
       this.$store.dispatch('candidate/setCandidate', item.stash)
-      this.$router.push('/candidate/' + item.stash)
+      this.$router.push('/kusama/candidate/' + item.stash)
     }
     // handleResize (evt: any) {
     //   console.debug('handleResize', evt)

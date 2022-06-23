@@ -1,9 +1,17 @@
 <template>
-  <v-container>
+  <v-container fluid>
 
-    <v-toolbar>
+    <v-toolbar flat>
       <v-toolbar-title>Docs</v-toolbar-title>
     </v-toolbar>
+
+    <v-card>
+      <v-card-text>
+      <p>This is an experimental object browser for exploring the polkadot.js api object.</p>
+      <p>The polkadot.js api documantation is available <a href="https://polkadot.js.org/docs/api/start/api.query/" target="_blank">here.</a></p>
+      <p>Javascript Introspection is not complete, and won't ever be complete - it's not a goal of the language</p>
+      </v-card-text>
+    </v-card>
 
     <!-- <Main></Main> -->
 
