@@ -3,6 +3,10 @@
 a [Sails v1](https://sailsjs.com) application
 
 
+## Starting with PM2
+
+`pm2 start app.js -x -- --prod`
+
 ### Links
 
 + [Sails framework documentation](https://sailsjs.com/get-started)

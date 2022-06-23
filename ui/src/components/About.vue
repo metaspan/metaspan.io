@@ -10,27 +10,23 @@
 
 </template>
 
-<script>
-import {mapState} from 'vuex'
-export default {
-    name: '',
-    // props: ['showDialog'],
-    // computed: {
-    //     ...mapState(['showAboutDialog']),
-    // },
-    data() {
-        return {
-            // showDialog: false,
-            version: '0.1.2'
-        }
-    },
-    watch: {
-        showDialog(v) {
-            this.$store.dispatch('showAboutDialog', v)
-        },
-        showAboutDialog(v) {
-            this.showDialog = v
-        }
-    },
-}
+<script lang="ts">
+import Vue from 'vue'
+export default Vue.extend({
+  name: 'About',
+  data() {
+    return {
+      // showDialog: false,
+      version: '0.1.2'
+    }
+  },
+  watch: {
+    showDialog(v: boolean) {
+      this.$store.dispatch('showAboutDialog', v)
+    }
+    // showAboutDialog(v) {
+    //   this.showDialog = v
+    // }
+  },
+})
 </script>

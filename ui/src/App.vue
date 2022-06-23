@@ -1,41 +1,7 @@
 <template>
-  <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-    >
+  <v-app :dark="dark">
 
-      <v-toolbar-title>
-        <router-link class="none" to="/"><v-icon>mdi-web</v-icon> metaspan</router-link>
-      </v-toolbar-title>
-
-      <v-spacer></v-spacer>
-
-      <v-toolbar-items>
-        <v-btn text to="/validator">
-          <v-icon>mdi-view-list</v-icon><span class="d-none d-md-inline">Validators</span>
-        </v-btn>
-        <v-btn text to="/candidate">
-          <v-icon>mdi-basketball</v-icon><span class="d-none d-md-inline">Candidates</span>
-        </v-btn>
-
-        <v-btn text @click="settingsDialog=true">
-          <v-icon>mdi-api</v-icon><span class="d-none d-md-inline">Settings</span>
-        </v-btn>
-
-        <v-btn text to="/about">
-          <v-icon>mdi-question-mark</v-icon><span class="d-none d-md-inline">About</span>
-        </v-btn>
-
-        <v-btn class="d-none d-sm-block" text to="/docs">
-          <v-icon>mdi-text-box-search-outline</v-icon><span class="d-none d-md-inline">API Docs</span>
-        </v-btn>
-
-      </v-toolbar-items>
-
-    </v-app-bar>
-
+    <Toolbar v-on:onSettingsDialog="onSettingsDialog"></Toolbar>
     <v-main>
       <v-fade-transition mode="out-in">
         <router-view/>
@@ -49,32 +15,7 @@
       </v-btn>
     </v-snackbar> -->
 
-    <v-dialog
-      v-model="settingsDialog"
-      scrollable
-      max-width="800px"
-    >
-      <v-card>
-        <v-app-bar>Settings</v-app-bar>
-        <v-card-text>
-          <!-- <v-card-title>Settings</v-card-title> -->
-          <v-radio-group v-model="radEndpoint" :loading="loading" label="Endpoint">
-            <v-radio v-for="item in kusamaEndpoints" :key="item.id" :value="item.id" :label="item.url"></v-radio>
-          </v-radio-group>
-          <!-- <v-list>
-            <v-list-item v-for="item in kusamaEndpoints" v-bind:key="item.id">
-              <v-list-item-icon>{{item.id == endpoint? '+': '-'}}</v-list-item-icon>
-            {{item}}
-            </v-list-item>
-          </v-list> -->
-
-        </v-card-text>
-        <!-- <v-card-actions>
-          <v-btn>Save</v-btn>
-        </v-card-actions> -->
-      </v-card>
-
-    </v-dialog>
+    <SettingsDialog></SettingsDialog>
 
   </v-app>
 </template>
@@ -83,56 +24,66 @@
 import { mapState, mapGetters } from 'vuex'
 // import update from './mixins/update'
 import Vue from 'vue'
+import Toolbar from './components/Toolbar.vue'
+import SettingsDialog from './components/SettingsDialog.vue'
 
 interface IData {
   settingsDialog: boolean
-// eslint-disable-next-line
-  radEndpoint: any
+  // eslint-disable-next-line
+  matcher: any
 }
 
 // eslint-disable-next-line
 interface IComputed {}
-// eslint-disable-next-line
-interface IMethods {}
+interface IMethods {
+  // eslint-disable-next-line
+  onSettingsDialog (v: boolean): void
+  // eslint-disable-next-line
+  onDark (evt: any): void
+}
 // eslint-disable-next-line
 interface IProps {}
 
 export default Vue.extend<IData, IMethods, IComputed, IProps>({
   name: 'App',
   // mixins: [update],
-  // components: {
-  //   AboutDialog,
-  // },
+  components: {
+    Toolbar,
+    SettingsDialog
+  },
   computed: {
-    ...mapState('polkadot', ['endpoint', 'loading']),
-    ...mapGetters('polkadot', ['kusamaEndpoints'])
+    ...mapState(['dark', 'showSettingsDialog']),
+    ...mapState('polkadot', ['endpoint', 'loading'])
   },
   data (): IData {
     return {
       settingsDialog: false,
-      radEndpoint: null
+      matcher: null
     }
   },
   watch: {
     $polkadot (newval) {
       console.debug('woot, polkadot is', newval)
-    },
-    rad_endpoint (val) {
-      this.$store.dispatch('polkadot/setEndpoint', val)
     }
   },
   methods: {
-    // showAboutDialog() {
-    //   console.debug("test")
-    //   this.$store.dispatch("showAboutDialog", true)
-    // }
+    onSettingsDialog (v: boolean) {
+      this.settingsDialog = v
+    },
+    // eslint-disable-next-line
+    onDark (evt: any) {
+      this.$store.dispatch('setDark', evt.matches)
+    }
   },
   created () {
+    this.matcher = window.matchMedia('(prefers-color-scheme: dark)')
+    // set the initial state from the matcher  await this.onDark(this.matcher)
+    this.matcher.addListener(this.onDark)
+    this.onDark(this.matcher)
     this.$store.dispatch('init')
-    this.radEndpoint = this.$store.state.polkadot.endpoint
   },
   async mounted () {
-    // console.debug("mounted")
+    // console.debug('mounted')
     // console.debug(await this.$polkadot)
     await await this.$polkadot.connect()
     // const activeEra = await this.$polkadot.api.query.staking.activeEra();

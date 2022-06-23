@@ -19,69 +19,81 @@
             </tr>
           </thead>
           <tbody>
-            <tr><th>28-Era Inclusion</th><td>0.00%-85.71%</td>
-              <td>??</td>
-              <td class="text-right">{{getScore(candidate.score.spanInclusion)}} / {{denoms['spanInclusion']}}</td>
+            <tr><th>28-Era Inclusion</th>
+              <td>-<!--0.00%-85.71%--></td>
+              <td>-</td>
+              <td class="text-right">{{getScore(candidate.score.spanInclusion)}} <small>/{{denoms['spanInclusion']}}</small></td>
             </tr>
-            <tr><th>84-Era Inclusion</th><td>0.00%-86.90%</td>
-              <td>??</td>
-              <td class="text-right">{{getScore(candidate.score.inclusion)}} / {{denoms['inclusion']}}</td>
+            <tr><th>84-Era Inclusion</th>
+              <td>-<!--0.00%-86.90%--></td>
+              <td>-</td>
+              <td class="text-right">{{getScore(candidate.score.inclusion)}} <small>/{{denoms['inclusion']}}</small></td>
             </tr>
             <tr><th>First Discovered</th>
-              <td>Aug 01, 2020 - Mar 15, 2022</td>
-              <td>{{formatDate(candidate.discoveredAt, 'YYYY/MM/DD')}}</td>
-              <td class="text-right">{{getScore(candidate.score.discovered)}} / {{denoms['discovered']}}</td>
+              <td>-<!--Aug 01, 2020 - Mar 15, 2022--></td>
+              <td>{{formatDate(candidate.discoveredAt, dateFormat)}}</td>
+              <td class="text-right">{{getScore(candidate.score.discovered)}} <small>/{{denoms['discovered']}}</small></td>
             </tr>
             <tr><th>Last Nominated</th>
-              <td>{{ dateSpan(37, 'days', 'MMM DD, YYYY') }}</td>
-              <td>{{formatDate(candidate.discoveredAt, 'YYYY/MM/DD')}}</td>
-              <td class="text-right">{{getScore(candidate.score.nominated)}} / {{denoms['nominated']}}</td>
+              <td>{{ dateSpan('37', 'days', dateFormat) }}</td>
+              <td>{{formatDate(candidate.discoveredAt, dateFormat)}}</td>
+              <td class="text-right">{{getScore(candidate.score.nominated)}} <small>/{{denoms['nominated']}}</small></td>
             </tr>
             <tr><th>Rank</th>
-              <td>{{ranges.rank.min}} 12 -  {{ranges.rank.max}} 314.1</td>
+              <td>{{ranges.rank.min}} - {{ranges.rank.max}}</td>
               <td>{{candidate.rank}}</td>
-              <td class="text-right">{{getScore(candidate.score.rank)}} / {{denoms['rank']}}</td>
+              <td class="text-right">{{getScore(candidate.score.rank)}} <small>/{{denoms['rank']}}</small></td>
             </tr>
             <tr><th>Self Bonded</th>
-              <td>10.02 - 98.16 KSM</td>
-              <td>???</td>
-              <td class="text-right">{{getScore(candidate.score.bonded)}} / {{denoms['bonded']}}</td>
+              <td>-<!--10.02 - 98.16 KSM--></td>
+              <td>-</td>
+              <td class="text-right">{{getScore(candidate.score.bonded)}} <small>/{{denoms['bonded']}}</small></td>
             </tr>
-            <tr><th>Faults</th><td>0 - 7</td>
-              <td>???</td>
-              <td class="text-right">{{getScore(candidate.score.faults)}} / {{denoms['faults']}}</td>
+            <tr><th>Faults</th>
+              <td>0 - 7</td>
+              <td>-</td>
+              <td class="text-right">{{getScore(candidate.score.faults)}} <small>/{{denoms['faults']}}</small></td>
             </tr>
-            <tr><th>Offline</th><td>0 - 0</td>
-              <td>???</td>
-              <td class="text-right">{{getScore(candidate.score.offline)}} / {{denoms['offline']}}</td>
+            <tr><th>Offline</th>
+              <td>0 - 0</td>
+              <td>-</td>
+              <td class="text-right">{{getScore(candidate.score.offline)}} <small>/{{denoms['offline']}}</small></td>
             </tr>
-            <tr><th>Node Location</th><td>N/A</td>
+            <tr><th>Node Location</th>
+              <td>N/A</td>
               <td>{{candidate.location}}</td>
-              <td class="text-right">{{getScore(candidate.score.location)}} / {{denoms['location']}}</td>
+              <td class="text-right">{{getScore(candidate.score.location)}} <small>/{{denoms['location']}}</small></td>
             </tr>
-            <tr><th>Council Stake</th><td>N/A</td>
+            <tr><th>Council Stake</th>
+              <td>N/A</td>
               <td>{{candidate.councilStake}}</td>
-              <td class="text-right">{{getScore(candidate.score.councilStake)}} / {{denoms['councilStake']}}</td>
+              <td class="text-right">{{getScore(candidate.score.councilStake)}} <small>/{{denoms['councilStake']}}</small></td>
             </tr>
-            <tr><th>Democracy</th><td>N/A</td>
+            <tr><th>Democracy</th>
+              <td>N/A</td>
               <td>{{candidate.democracyVoteCount}} Votes</td>
               <td class="text-right">{{getScore(candidate.score.democracy)}}</td>
             </tr>
-            <tr><th>Unclaimed Eras</th><td>N/A</td>
+            <tr><th>Unclaimed Eras</th>
+              <td>N/A</td>
               <td>{{candidate.unclaimedEras ? candidate.unclaimedEras.length : 0}}</td>
               <td class="text-right">{{getScore(candidate.score.unclaimed)}}</td>
             </tr>
-            <tr><th>Aggregate</th><td></td>
+            <tr><th>Aggregate</th>
+              <td></td>
               <td></td>
               <td class="text-right">{{getScore(candidate.score.aggregate)}}</td>
             </tr>
-            <tr><th>Randomness</th><td></td>
+            <tr><th>Randomness</th>
+              <td></td>
               <td></td>
               <td class="text-right">{{getScore(candidate.score.randomness)}}%</td>
             </tr>
-            <tr><th>Total</th><td></td>
+            <tr><th>Total</th>
+              <td></td>
               <td>
-                <v-slider readonly v-model="candidate.score.total" :min="ranges.score.min" :max="ranges.score.max"></v-slider>
+                <!-- <v-slider readonly v-model="candidate.score.total" :min="ranges.score.min" :max="ranges.score.max"></v-slider> -->
+                <v-progress-linear :value="candidate.score.total/ranges.score.max*100"></v-progress-linear>
               </td>
               <td class="text-right">{{getScore(candidate.score.total)}}</td>
             </tr>
@@ -109,6 +121,7 @@ export default Vue.extend({
   },
   data () {
     return {
+      dateFormat: 'MMM DD',
       dateTimeFormat: 'YYYY/MM/DD hh:mm',
       denoms: {
         // "_id": "62700be629cee192f7723e41",
