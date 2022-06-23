@@ -151,6 +151,9 @@ module.exports = {
       // allowOrigins: [
       //   'https://example.com',
       // ]
+      allRoutes: true,
+      allowOrigins: '*',
+      allowCredentials: false
     },
 
   },
@@ -255,6 +258,7 @@ module.exports = {
     //   'https://staging.example.com',
     // ],
 
+    beforeConnect: true,
 
     /***************************************************************************
     *                                                                          *
