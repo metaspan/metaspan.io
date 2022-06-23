@@ -27,7 +27,7 @@ module.exports = {
         updatedAt = moment()
       }
     } else {
-      sails.log.debug('candidate.js: serving from cache - ' + updatedAt.format(DATETIME_FORMAT))
+      sails.log.debug('candidate.js: serving from cache - ' + updatedAt.toString()) //.format(DATETIME_FORMAT)
     }
 
     if (inputs.stash) {
