@@ -21,10 +21,15 @@ module.exports = {
   async fn (inputs, exits, env) {
     if (moment().diff(updatedAt, 'seconds') > CACHE_VALIDITY) {
       sails.log.debug('candidate.js: updating cache')
-      let result = await axios.get(CACHE_URL)
-      if (result.data) {
-        cache = result.data
-        updatedAt = moment()
+      try {
+        let result = await axios.get(CACHE_URL)
+        if (result.data) {
+          cache = result.data
+          updatedAt = moment()
+        }
+      } catch (err) {
+        sails.log.error(err)
+        // return exits.error({text: 'upstream server error', statusCode: err.res.statusCode, statusMessage: err.res.statusMessage})
       }
     } else {
       sails.log.debug('candidate.js: serving from cache - ' + updatedAt.toString()) //.format(DATETIME_FORMAT)
