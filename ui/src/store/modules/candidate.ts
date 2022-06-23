@@ -70,10 +70,7 @@ const candidate = {
       sortAsc: false
     },
     search: '',
-    filter: {
-      valid: false,
-      active: false
-    },
+    filter: { valid: false, active: false },
     options: {},
     ranges: {
       score: { min: 0, max: 0 },
@@ -177,7 +174,7 @@ const candidate = {
           // var res = await axios.get(`${baseUrl}/candidates`)
           res = await axios.get(
             // 'https://619wrsnit5.execute-api.eu-west-2.amazonaws.com/default/kusama-1kv-candidates'
-            'http://api.metaspan.io/api/kusama/candidate'
+            '//api.metaspan.io/api/kusama/candidate'
           )
           // console.debug(res.data)
           list = res.data.candidates
