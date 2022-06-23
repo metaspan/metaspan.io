@@ -73,7 +73,7 @@ export class Candidate implements ICandidate {
     this.discoveredAt = data.discoveredAt
     this.faults = data.faults
     this.stash = data.stash
-    this.score = data.score
+    this.score = data.score || {} as ICandidateScore
     this.rank = data.rank
     this.identity = data.identity
     this.location = data.location

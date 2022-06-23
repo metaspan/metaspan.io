@@ -16,11 +16,15 @@
       </v-btn> -->
 
       <v-btn text to="/kusama">
-        <v-icon>mdi-basketball</v-icon><span class="d-none d-sm-inline">Kusama</span>
+        <!-- <v-icon>mdi-basketball</v-icon> -->
+        <v-img :src="require('@/assets/kusama-logo.png')" width="24px" height="24px"></v-img>
+        <span class="d-none d-sm-inline">Kusama</span>
       </v-btn>
 
       <v-btn text to="/polkadot">
-        <v-icon>mdi-basketball</v-icon><span class="d-none d-sm-inline">Polkadot</span>
+        <!-- <v-icon>mdi-basketball</v-icon> -->
+        <v-img :src="require('@/assets/polkadot-logo.png')" width="24px" height="24px"></v-img>
+        <span class="d-none d-sm-inline">Polkadot</span>
       </v-btn>
 
       <!-- <v-btn text @click="showSettingsDialog=true">
