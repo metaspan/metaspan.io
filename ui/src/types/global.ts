@@ -48,8 +48,8 @@ export class Candidate implements ICandidate {
   councilStake = 0
   councilVotes = [] as number[]
   democracyVoteCount = 0
-  democracyVotes = [] as number[]
-  discoveredAt = 0
+  democracyVotes = [] as number[] | string[]
+  discoveredAt = 0 as number | Date
   faults = [] as string[]
   stash = ''
   score = { total: 0 } as ICandidateScore
@@ -57,8 +57,8 @@ export class Candidate implements ICandidate {
   identity = {} as ICandidateIdentity
   location = ''
   name = ''
-  nominatedAt = 0
-  onlineSince = 0
+  nominatedAt = 0 as number | Date
+  onlineSince = 0 as number | string
   unclaimedEras = [] as string[]
   valid = false
   validity = [] as ICandidateValidityItem[]
