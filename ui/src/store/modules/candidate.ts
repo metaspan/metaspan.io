@@ -70,10 +70,7 @@ const candidate = {
       sortAsc: false
     },
     search: '',
-    filter: {
-      valid: false,
-      active: false
-    },
+    filter: { valid: false, active: false },
     options: {},
     ranges: {
       score: { min: 0, max: 0 },
