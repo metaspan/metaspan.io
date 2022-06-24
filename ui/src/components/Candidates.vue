@@ -56,6 +56,8 @@
     <CandidatesList  v-if="windowSize.x < 600" :filter="xfilter" :search="search"
       @click-item="gotoCandidate"></CandidatesList>
 
+    <Loading :loading="loading"></Loading>
+
   </v-container>
 </template>
 
@@ -68,6 +70,7 @@ import CandidatesTable from './CandidatesTable.vue'
 import CandidatesList from './CandidatesList.vue'
 import Vue from 'vue'
 import { ICandidate } from '../types/global'
+import Loading from './Loading.vue'
 
 interface IWindowSize {
   x: number
@@ -124,7 +127,8 @@ export default Vue.extend<IData, IMethods, IComputed>({
   components: {
     // CandidatesHisto,
     CandidatesTable,
-    CandidatesList
+    CandidatesList,
+    Loading
   },
   computed: {
     ...mapState('candidate', ['loading', 'filteredList', 'updatedAt', 'favourites']),

@@ -64,25 +64,25 @@ export class Candidate implements ICandidate {
   validity = [] as ICandidateValidityItem[]
 
   constructor (data: ICandidate) {
-    this.active = data.active
-    this.commission = data.commission
-    this.councilStake = data.councilStake
-    this.councilVotes = data.councilVotes
-    this.democracyVoteCount = data.democracyVoteCount
+    this.active = !!data.active
+    this.commission = data.commission || 0
+    this.councilStake = data.councilStake || 0
+    this.councilVotes = data.councilVotes || [] as number[]
+    this.democracyVoteCount = data.democracyVoteCount || 0
     this.democracyVotes = data.democracyVotes
-    this.discoveredAt = data.discoveredAt
-    this.faults = data.faults
-    this.stash = data.stash
-    this.score = data.score || {} as ICandidateScore
-    this.rank = data.rank
-    this.identity = data.identity
-    this.location = data.location
-    this.name = data.name
-    this.nominatedAt = data.nominatedAt
-    this.onlineSince = data.onlineSince
-    this.unclaimedEras = data.unclaimedEras
-    this.valid = data.valid
-    this.validity = data.validity
+    this.discoveredAt = data.discoveredAt || 0
+    this.faults = data.faults || [] as string[]
+    this.stash = data.stash || ''
+    this.score = data.score || { total: 0 } as ICandidateScore
+    this.rank = data.rank || 0
+    this.identity = data.identity || {} as ICandidateIdentity
+    this.location = data.location || ''
+    this.name = data.name || ''
+    this.nominatedAt = data.nominatedAt || 0
+    this.onlineSince = data.onlineSince || 0
+    this.unclaimedEras = data.unclaimedEras || []
+    this.valid = !!data.valid
+    this.validity = data.validity || [] as ICandidateValidityItem[]
     this.setValid()
   }
 

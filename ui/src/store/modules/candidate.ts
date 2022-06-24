@@ -2,7 +2,8 @@
 import {
   ICandidate, ICandidateListFilter,
   ICandidateListSort,
-  Candidate
+  Candidate,
+  ICandidateValidityItem
 } from '@/types/global'
 import axios from 'axios'
 import moment from 'moment-timezone'
@@ -79,7 +80,7 @@ const candidate = {
     },
     favourites: ['HyLisujX7Cr6D7xzb6qadFdedLt8hmArB6ZVGJ6xsCUHqmx'],
     list: [],
-    candidate: {}
+    candidate: new Candidate({ valid: false, validity: [] as ICandidateValidityItem[] } as ICandidate)
   },
   getters: {
     // filteredList (state: IState): ICandidate[] {
@@ -256,11 +257,24 @@ const candidate = {
     },
     // eslint-disable-next-line
     async setCandidate ({ state, commit }: any, stash: string) {
-      const v = state.list.find((i: ICandidate) => {
+      let v = state.list.find((i: ICandidate) => {
         return i.stash === stash
       })
+      if (!v) {
+        console.debug('not in cache... axios direct')
+        await commit('SET_LOADING', true)
+        const res = await axios.get(`//api.metaspan.io/api/kusama/candidate/${stash}`)
+        if (res?.data.candidate) {
+          v = res.data.candidate
+        }
+        await commit('SET_LOADING', false)
+      }
       await commit('SET_CANDIDATE', v)
       // await dispatch('polkadot/get', stash, {root:true})
+    },
+    // eslint-disable-next-line
+    async setLoading ({ commit }: any, value: boolean) {
+      await commit('SET_LOADING', value)
     },
     // eslint-disable-next-line
     async toggleFav ({ commit }: any, stash: string) {

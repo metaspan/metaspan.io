@@ -2,6 +2,7 @@
 // import moment from 'moment-timezone'
 
 import { IValidator } from '@/types/global'
+import axios from 'axios'
 
 interface IPagination {
   page: number
@@ -174,9 +175,16 @@ const validator = {
     },
     // eslint-disable-next-line
     async setValidator ({ state, commit }: any, stash: string) {
-      const v = state.list.find((i: IValidator) => {
+      let v = state.list.find((i: IValidator) => {
         return i.stash === stash
       })
+      if (!v) {
+        console.debug('not in cache... axios direct')
+        const res = await axios.get(`//api.metaspan.io/api/validator/${stash}`)
+        if (res?.data.validator) {
+          v = res.data.validator
+        }
+      }
       await commit('SET_VALIDATOR', v)
     },
     // eslint-disable-next-line

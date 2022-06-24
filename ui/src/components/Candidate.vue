@@ -20,8 +20,9 @@
       <CandidateExternalLinks :candidate="candidate"></CandidateExternalLinks>
     </v-toolbar>
     <!-- {{candidate}} -->
-    <!-- {{balance}} -->
-    <CandidateBalance class="d-none d-md-block" :candidate="candidate"></CandidateBalance>
+    <!-- {{ loading }} <v-btn @click="test()" :loading="loading">Load</v-btn> -->
+
+    <!-- <CandidateBalance class="d-none d-md-block" :candidate="candidate"></CandidateBalance> -->
 
     <CandidateIcons class="d-block d-md-none"></CandidateIcons>
 
@@ -31,7 +32,7 @@
         <v-col class="outlined col-4 col-sm-3 col-md-2" align="center">Rank<br>{{ candidate.rank }}</v-col>
         <v-col class="col-4 col-sm-3 col-md-2" align="center">Score<br>{{ (candidate.score && candidate.score.total ) ? candidate.score.total.toFixed(2) : 0.00 }}</v-col>
         <v-col class="col-4 col-sm-3 col-md-2" align="center">Commission<br>{{ candidate.commission.toFixed(2) }}%</v-col>
-        <v-col class="col-4 col-sm-3 col-md-2" align="center">Valid<br><v-icon :color="valid?'green':'red'">mdi-{{ valid?'check-circle':'close-circle' }}</v-icon></v-col>
+        <v-col class="col-4 col-sm-3 col-md-2" align="center">Valid<br><v-icon :color="candidate.valid?'green':'red'">mdi-{{ candidate.valid?'check-circle':'close-circle' }}</v-icon></v-col>
         <v-col class="col-4 col-sm-3 col-md-2" align="center">Active<br><v-icon :color="candidate.active?'green':'grey'">mdi-{{ candidate.active?'check-circle':'minus-circle' }}</v-icon></v-col>
       </v-row>
       <v-row justify="center">
@@ -89,6 +90,7 @@
       <!-- <v-list-item>democracyVoteCount: {{candidate.democracyVoteCount}}</v-list-item> -->
       <!-- <v-list-item>democracyVotes: {{candidate.democracyVotes}}</v-list-item> -->
     </v-list>
+    <Loading :loading="loading"></Loading>
   </v-container>
 
 </template>
@@ -100,11 +102,12 @@ import Vue from 'vue'
 // import polkadot from '@/mixins/polkadot.js'
 import CandidateValidity from './CandidateValidity.vue'
 import CandidateScore from './CandidateScore.vue'
-import CandidateBalance from './CandidateBalance.vue'
+// import CandidateBalance from './CandidateBalance.vue'
 import CandidateIcons from './CandidateIcons.vue'
 import Identicon from '@polkadot/vue-identicon'
 import { ICandidate, ICandidateValidityItem } from '../types/global'
 import CandidateExternalLinks from './CandidateExternalLinks.vue'
+import Loading from './Loading.vue'
 
 // import Identicon from './identicon/Identicon.ts'
 
@@ -119,6 +122,7 @@ interface IData {
 }
 
 interface IMethods {
+  test(): void
   // eslint-disable-next-line
   isValid(x: ICandidateValidityItem[]): boolean
   // eslint-disable-next-line
@@ -132,7 +136,7 @@ interface IComputed {
   candidate: ICandidate
   // eslint-disable-next-line
   cache: Record<string, any> // CacheItem
-  valid: boolean
+  loading: boolean
   // eslint-disable-next-line
   balance: any
 }
@@ -147,16 +151,17 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     CandidateExternalLinks,
     CandidateScore,
     CandidateValidity,
-    CandidateBalance,
+    // CandidateBalance,
     CandidateIcons,
-    Identicon
+    Identicon,
+    Loading
   },
   computed: {
-    ...mapState('candidate', ['candidate', 'ranges']),
+    ...mapState('candidate', ['loading', 'candidate', 'ranges']),
     ...mapState('polkadot', { cache: 'cache' }),
-    valid (): boolean {
-      return this.isValid(this.candidate.validity)
-    },
+    // valid (): boolean {
+    //   return this.isValid(this.candidate.validity)
+    // },
     // eslint-disable-next-line
     balance (): any {
       return this.cache.items[this.candidate.stash] || {}
@@ -179,6 +184,12 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     }
   },
   methods: {
+    test () {
+      this.$store.dispatch('candidate/setLoading', true)
+      setTimeout(() => {
+        this.$store.dispatch('candidate/setLoading', false)
+      }, 5000)
+    },
     // eslint-disable-next-line
     timeAgo (d: any): string {
       return moment(d).fromNow()
@@ -197,42 +208,51 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       if (stash.length <= len * 2 + 3) return stash
       return stash.substr(0, len) + '...' + stash.substr(stash.length - len)
     }
-    // gotocandidates() {
-    //     this.$router.push("/list")
-    // }
   },
   async created () {
     // console.debug(this.$route.params)
     if (!this.candidate.stash) {
-      this.$store.dispatch('polkadot/setValidator', this.$route.params.stash)
+      console.debug('no stash?', this.$route.params)
+      await this.$store.dispatch('candidate/setCandidate', this.$route.params.stash)
     }
     // let {nonce, balance} = await this.$polkadot.api().query.system.account(this.candidate.stash)
     // console.debug(nonce, balance)
   },
   async mounted () {
     window.scrollTo(0, 0)
-    var nominators = await this.$polkadot.api.query.staking.nominators(this.candidate.stash)
-    console.debug('nominators', this.candidate.stash, nominators)
-    var vals = await this.$polkadot.api.query.staking.validators(this.candidate.stash)
-    console.debug('vals', this.candidate.stash, vals)
-    // this.$store.dispatch('polkadot/getActiveEra')
-    // const activeEra = await this.$polkadot.api.query.staking.activeEra();
-    // // let chain = await this.$polkadot.rpc.system.chain()
-    // console.debug('TEST', activeEra)
-    // this.activeEra = activeEra
+    // var count = 0
+    // var int = setInterval(async () => {
+    //   count++
+    //   if (this.$polkadot) {
+    //     var nominators = await this.$polkadot.api.query.staking.nominators(this.candidate.stash)
+    //     console.debug('nominators', this.candidate.stash, nominators)
+    //     var vals = await this.$polkadot.api.query.staking.validators(this.candidate.stash)
+    //     console.debug('vals', this.candidate.stash, vals)
+    //     clearInterval(int)
+    //   }
+    //   if (count > 10) {
+    //     console.debug('no api found, clearing interval...')
+    //     clearInterval(int)
+    //   }
+    // }, 1000)
+    // // this.$store.dispatch('polkadot/getActiveEra')
+    // // const activeEra = await this.$polkadot.api.query.staking.activeEra();
+    // // // let chain = await this.$polkadot.rpc.system.chain()
+    // // console.debug('TEST', activeEra)
+    // // this.activeEra = activeEra
 
-    // // Subscribe to the new headers on-chain. The callback is fired when new headers
-    // // are found, the call itself returns a promise with a subscription that can be
-    // // used to unsubscribe from the newHead subscription
+    // Subscribe to the new headers on-chain. The callback is fired when new headers
+    // are found, the call itself returns a promise with a subscription that can be
+    // used to unsubscribe from the newHead subscription
     // let count = 0;
     // this.unsubscribe = await this.$polkadot.api.rpc.chain.subscribeNewHeads((header) => {
-    //     console.log(`Chain is at block: #${header.number}`);
-    //     this.header = header
-    //     if (++count === 25) {
-    //         this.unsubscribe();
-    //         process.exit(0);
-    //     }
-    // });
+    //   console.log(`Chain is at block: #${header.number}`);
+    //   this.header = header
+    //   if (++count === 25) {
+    //     this.unsubscribe()
+    //     process.exit(0)
+    //   }
+    // })
   },
   beforeDestroy () {
     console.debug('unmounting...')
@@ -243,19 +263,19 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
 
 <style scoped>
 .identicon {
-    width: 24px;
-    max-width: 24px;
-    /* white-space:nowrap; */
-    display: inline-block;
+  width: 24px;
+  max-width: 24px;
+  /* white-space:nowrap; */
+  display: inline-block;
 }
 
 .none {
-    text-decoration: none;
+  text-decoration: none;
 }
 .position-relative {
-    position: relative;
-    width: 18px;
-    height: 18px;
-    overflow: hidden;
+  position: relative;
+  width: 18px;
+  height: 18px;
+  overflow: hidden;
 }
 </style>

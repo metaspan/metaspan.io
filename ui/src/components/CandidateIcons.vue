@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
     <v-row justify="center">
-      <v-col class="cicon" align="center">Valid<br><v-icon :color="valid?'green':'red'">mdi-{{ valid?'check-circle':'close-circle' }}</v-icon></v-col>
+      <v-col class="cicon" align="center">Valid<br><v-icon :color="candidate.valid?'green':'red'">mdi-{{ candidate.valid?'check-circle':'close-circle' }}</v-icon></v-col>
       <v-col class="cicon" align="center">Active<br><v-icon :color="candidate.active?'green':'grey'">mdi-{{ candidate.active?'check-circle':'minus-circle' }}</v-icon></v-col>
       <v-col class="cicon" align="center">Rank<br>{{ candidate.rank }}</v-col>
       <v-col class="cicon" align="center">Score<br>{{ candidate.score ? candidate.score.total.toFixed(2) : 0.00 }}</v-col>
@@ -54,7 +54,7 @@ interface IComputed {
   candidate: ICandidate
   // eslint-disable-next-line
   cache: Record<string, any> // CacheItem
-  valid: boolean
+  // valid: boolean
   // eslint-disable-next-line
   balance: any
 }
@@ -68,9 +68,9 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   computed: {
     ...mapState('candidate', ['candidate', 'ranges']),
     ...mapState('polkadot', { cache: 'cache' }),
-    valid (): boolean {
-      return this.isValid(this.candidate.validity)
-    },
+    // valid (): boolean {
+    //   return this.isValid(this.candidate.validity)
+    // },
     // eslint-disable-next-line
     balance (): any {
       return this.cache[this.candidate.stash] || {}

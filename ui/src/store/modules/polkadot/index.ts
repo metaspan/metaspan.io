@@ -29,11 +29,15 @@ interface IMinMax {
 }
 
 // type TRange = Record<string, IMinMax>
+interface ILoading {
+  key: 'api' | 'validator' | 'validators' | 'nominators' // string
+  loading: boolean
+}
 
 interface IState {
   endpoints: Record<string, string>,
   endpoint: string
-  loading: boolean
+  loading: ILoading[]
   api: string
   list: ICandidate[]
   cache: ICache
@@ -62,7 +66,7 @@ const polkadot = {
   state: {
     endpoints: endpoints,
     endpoint: 'parity',
-    loading: false,
+    loading: [],
     api: '',
     list: [],
     cache: { items: {} },
@@ -79,6 +83,9 @@ const polkadot = {
     favourites: []
   } as IState,
   getters: {
+    loading (state: IState): boolean {
+      return state.loading.filter(f => f.loading === true).length > 0
+    },
     // eslint-disable-next-line
     kusamaEndpoints (state: any): any {
       return Object.keys(state.endpoints.kusama).map((m) => {
@@ -90,8 +97,13 @@ const polkadot = {
     }
   },
   mutations: {
-    SET_LOADING (state: IState, loading: boolean): void {
-      state.loading = loading
+    SET_LOADING (state: IState, item: ILoading): void {
+      const idx = state.loading.findIndex(f => f.key === item.key)
+      if (idx > -1) {
+        state.loading[idx].loading = item.loading
+      } else {
+        state.loading.push(item)
+      }
     },
     // eslint-disable-next-line
     SET_API (state: IState, api: any): void {
@@ -224,7 +236,7 @@ const polkadot = {
       // console.debug('polkadot.js actions.get', stash);
       if (!state.cache[stash] || moment().diff(moment(state.cache[stash].updatedAt), 'seconds') > 60) {
         try {
-          await commit('SET_LOADING', true)
+          await commit('SET_LOADING', { key: 'validator', loading: true })
           try {
             const wsProvider = new WsProvider(endpoints.kusama[state.endpoint])
             const api = await ApiPromise.create({ provider: wsProvider })
@@ -240,7 +252,7 @@ const polkadot = {
           console.debug('OOPS, caught an error')
           console.error(err)
         } finally {
-          await commit('SET_LOADING', false)
+          await commit('SET_LOADING', { key: 'validator', loading: false })
         }
       } else {
         console.debug('cache:', stash, 'is', moment().diff(moment(state.cache[stash].updatedAt), 'seconds'), 'secs old')
@@ -248,23 +260,23 @@ const polkadot = {
     },
     // eslint-disable-next-line
     async nominators ({ state, commit }: any): Promise<void> {
-      await commit('SET_LOADING', true)
+      await commit('SET_LOADING', { key: 'nominators', loading: true })
       const wsProvider = new WsProvider(endpoints.kusama[state.endpoint])
       const api = await ApiPromise.create({ provider: wsProvider })
       const keys = await api.query.staking.nominators.keys()
       console.debug('nominators.keys', keys)
       await commit('SET_NOMINATORS', keys)
-      await commit('SET_LOADING', false)
+      await commit('SET_LOADING', { key: 'nominators', loading: false })
     },
     // eslint-disable-next-line
     async validators ({ state, commit }: any): Promise<void> {
-      await commit('SET_LOADING', true)
+      await commit('SET_LOADING', { key: 'validators', loading: true })
       const wsProvider = new WsProvider(endpoints.kusama[state.endpoint])
       const api = await ApiPromise.create({ provider: wsProvider })
       const list = await api.query.staking.validators()
       console.debug('validators', list)
       await commit('SET_VALIDATORS', list)
-      await commit('SET_LOADING', false)
+      await commit('SET_LOADING', { key: 'validators', loading: false })
     }
   }
 }

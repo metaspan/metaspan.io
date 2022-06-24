@@ -21,8 +21,7 @@
 </template>
 
 <script lang="ts">
-import { mapState, mapGetters } from 'vuex'
-// import update from './mixins/update'
+import { mapState } from 'vuex'
 import Vue from 'vue'
 import Toolbar from './components/Toolbar.vue'
 import SettingsDialog from './components/SettingsDialog.vue'
@@ -34,7 +33,10 @@ interface IData {
 }
 
 // eslint-disable-next-line
-interface IComputed {}
+interface IComputed {
+  dark: boolean
+}
+
 interface IMethods {
   // eslint-disable-next-line
   onSettingsDialog (v: boolean): void
