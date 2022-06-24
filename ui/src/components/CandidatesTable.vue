@@ -1,7 +1,7 @@
 <template>
 
   <v-data-table dense
-    :loading="loading"
+    :loading="loading || filtering"
     :headers="headers"
     :items="items"
     :page="options.page"
@@ -107,6 +107,7 @@ interface IMethods {
 
 interface IComputed {
   loading: boolean
+  filtering: boolean
   filteredList: ICandidate[]
   // eslint-disable-next-line
   updatedAt: any
@@ -133,7 +134,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     Identicon
   },
   computed: {
-    ...mapState('candidate', ['loading', 'filteredList', 'updatedAt', 'favourites']),
+    ...mapState('candidate', ['loading', 'filtering', 'filteredList', 'updatedAt', 'favourites']),
     headers () {
       return [
         {

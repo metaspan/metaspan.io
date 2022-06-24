@@ -1,11 +1,11 @@
 <template>
 
-  <v-container fluid>
+  <div>
     <v-toolbar flat>
       <v-btn small icon @click="$router.go(-1)"><v-icon>mdi-arrow-left</v-icon></v-btn>
       <!-- <v-spacer></v-spacer> -->
       <v-toolbar-title>
-        <span class="text-h5">
+        <span class="text-h7 text-sm-h6 text-md-h5">
           <span class="identicon">
             <Identicon :value="candidate.stash" :size="24" theme="polkadot"></Identicon>
           </span>
@@ -77,21 +77,14 @@
       <!-- <v-list-item>kusamaStash: {{candidate.kusamaStash}}</v-list-item> -->
       <!-- <v-list-item>commission: {{candidate.commission}}</v-list-item> -->
       <!-- <v-list-item>identity: {{candidate.identity}}</v-list-item> -->
-      <v-list-item>
-        <!-- {{candidate.validity}} -->
-        <CandidateValidity :candidate="candidate"></CandidateValidity>
-      </v-list-item>
-      <v-list-item>
-        <CandidateScore :candidate="candidate"></CandidateScore>
-      </v-list-item>
-      <!-- <v-list-item>location: {{candidate.location}}</v-list-item> -->
-      <!-- <v-list-item>councilStake: {{candidate.councilStake}}</v-list-item> -->
-      <!-- <v-list-item>councilVotes: {{candidate.councilVotes}}</v-list-item> -->
-      <!-- <v-list-item>democracyVoteCount: {{candidate.democracyVoteCount}}</v-list-item> -->
-      <!-- <v-list-item>democracyVotes: {{candidate.democracyVotes}}</v-list-item> -->
     </v-list>
+    <CandidateValidity :candidate="candidate"></CandidateValidity>
+
+    <CandidateScore :candidate="candidate"></CandidateScore>
+    <CandidateScoreList></CandidateScoreList>
+
     <Loading :loading="loading"></Loading>
-  </v-container>
+  </div>
 
 </template>
 
@@ -108,6 +101,7 @@ import Identicon from '@polkadot/vue-identicon'
 import { ICandidate, ICandidateValidityItem } from '../types/global'
 import CandidateExternalLinks from './CandidateExternalLinks.vue'
 import Loading from './Loading.vue'
+import CandidateScoreList from './CandidateScoreList.vue'
 
 // import Identicon from './identicon/Identicon.ts'
 
@@ -154,7 +148,8 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     // CandidateBalance,
     CandidateIcons,
     Identicon,
-    Loading
+    Loading,
+    CandidateScoreList
   },
   computed: {
     ...mapState('candidate', ['loading', 'candidate', 'ranges']),

@@ -3,13 +3,12 @@
   <v-menu offset-y>
 
     <template v-slot:activator="{ on, attrs }">
-      <v-btn small text
+      <v-btn icon text
         v-bind="attrs"
         v-on="on"
         >
         <v-icon>mdi-menu</v-icon>
-        <span class="d-none d-sm-inline">Links</span>
-      </v-btn>
+      </v-btn> <span class="d-none d-sm-inline">Links</span>
     </template>
 
     <v-list>

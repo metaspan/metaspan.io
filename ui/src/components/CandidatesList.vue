@@ -1,25 +1,29 @@
 <template>
 
-  <v-list :loading="loading">
+  <v-list :loading="filtering">
     <!-- <v-list-item>
         |{{search}}|
     </v-list-item> -->
     <!-- {{filter}} -->
     <!-- {{ favourites }} -->
+    {{filtering}}
     <v-list-item two-line v-for="item in filteredList" v-bind:key="item.stash">
 
-      <v-list-item-avatar>
-        <Identicon :value="item.stash" :size="36" theme="polkadot"></Identicon> &nbsp;&nbsp;
-      </v-list-item-avatar>
+      <!-- <v-list-item-avatar>
+        <Identicon :value="item.stash" :size="36" theme="polkadot"></Identicon>
+      </v-list-item-avatar> -->
 
       <v-list-item-content @click="clickItem(item)" style="cursor: pointer">
         <v-list-item-title>
+          <span class="identicon">
+            <Identicon :value="item.stash" :size="16" theme="polkadot"></Identicon>
+          </span>
           {{item.name}}
-          <v-chip x-small :color="isValid(item.validity)?'green':'red'">Valid&nbsp;<v-icon x-small dark>mdi-{{ isValid(item.validity) ? 'check-circle' : 'close-circle'}}</v-icon></v-chip>
-          <v-chip x-small :color="item.active?'green':'grey'">Active&nbsp;<v-icon x-small dark>mdi-{{ item.active ? 'check-circle' : 'minus-circle'}}</v-icon></v-chip>
+          <v-chip x-small :color="isValid(item.validity)?'green':'red'">Valid&nbsp;<v-icon class="d-none d-sm-inline" x-small dark>mdi-{{ isValid(item.validity) ? 'check-circle' : 'close-circle'}}</v-icon></v-chip>
+          <v-chip x-small :color="item.active?'green':'grey'">Active&nbsp;<v-icon class="d-none d-sm-inline" x-small dark>mdi-{{ item.active ? 'check-circle' : 'minus-circle'}}</v-icon></v-chip>
         </v-list-item-title>
         <v-list-item-subtitle>Score: {{ getScore(item) }}, Rank: {{item.rank}}</v-list-item-subtitle>
-        Discovered: {{timeAgo(item.discoveredAt)}}
+        <!-- Discovered: {{timeAgo(item.discoveredAt)}} -->
       </v-list-item-content>
 
       <v-list-item-action @click="toggleFav(item)">
@@ -27,7 +31,7 @@
         <v-btn icon><v-icon :color="isFavourite(item.stash)?'orange':'grey'">mdi-star</v-icon></v-btn>
       </v-list-item-action>
 
-      <v-list-item-action @click="clickItem(item)">
+      <v-list-item-action class="d-none d-sm-block" @click="clickItem(item)">
         <v-icon>mdi-chevron-right</v-icon>
       </v-list-item-action>
 
@@ -69,6 +73,7 @@ interface IComputed {
   filteredList: ICandidate[]
   filter: ICandidateListFilter
   loading: boolean
+  filtering: boolean
   favourites: string[]
   // items: any[]
 }
@@ -79,7 +84,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
     Identicon
   },
   computed: {
-    ...mapState('candidate', ['filteredList', 'filter', 'loading', 'favourites'])
+    ...mapState('candidate', ['filteredList', 'filter', 'loading', 'filtering', 'favourites'])
   },
   data () {
     return {
@@ -111,3 +116,12 @@ export default Vue.extend<IData, IMethods, IComputed>({
   }
 })
 </script>
+
+<style scoped>
+.identicon {
+  width: 16px;
+  max-width: 16px;
+  /* white-space:nowrap; */
+  display: inline-block;
+}
+</style>

@@ -37,6 +37,7 @@ type TRanges = Record<string, IMinMax>
 interface IState {
   updatedAt: null | Date
   loading: boolean
+  filering: boolean
   pagination: IPagination
   sort: ISort
   search: string
@@ -62,6 +63,7 @@ const candidate = {
   state: {
     updatedAt: moment().add(-1, 'day'),
     loading: false,
+    filtering: false,
     pagination: {
       page: 1,
       itemsPerPage: 15
@@ -90,6 +92,9 @@ const candidate = {
   mutations: {
     SET_LOADING (state: IState, loading: boolean): void {
       state.loading = loading
+    },
+    SET_FILTERING (state: IState, value: boolean): void {
+      state.filering = value
     },
     SET_LIST (state: IState, list: ICandidate[]): void {
       // console.debug("SET_LIST", list)
@@ -217,6 +222,7 @@ const candidate = {
     },
     // eslint-disable-next-line
     async filterList ({ state, commit }: any) {
+      commit('SET_FILTERING', true)
       const filter: ICandidateListFilter = state.filter
       const sort: ICandidateListSort = state.sort
       const search: string = state.search
@@ -254,6 +260,7 @@ const candidate = {
         }
       })
       commit('SET_FILTERED_LIST', flist)
+      commit('SET_FILTERING', false)
     },
     // eslint-disable-next-line
     async setCandidate ({ state, commit }: any, stash: string) {

@@ -14,7 +14,7 @@
         <v-icon>mdi-basketball</v-icon><span class="d-none d-sm-inline">Validators</span>
       </v-btn> -->
       <v-btn text to="/kusama/candidate">
-        <v-icon>mdi-basketball</v-icon><span class="d-none d-sm-inline">1KV</span>
+        <span class="d-none d-sm-inline"><v-icon>mdi-basketball</v-icon></span>1KV
       </v-btn>
 
       <v-spacer></v-spacer>

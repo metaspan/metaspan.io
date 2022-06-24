@@ -10,7 +10,7 @@
         <v-btn :loading="loading" icon @click="reload()">
           <v-icon>mdi-reload</v-icon>
         </v-btn>
-        <v-btn class="d-block d-sm-none" icon @click="showFilterDialog=true">
+        <v-btn class="d-block d-sm-none" :color="filterActive ? 'primary' : ''" icon @click="showFilterDialog=true">
           <v-icon>mdi-filter</v-icon>
         </v-btn>
       <v-toolbar-items>
@@ -26,26 +26,41 @@
       <v-switch v-model="xfilter.active" label="Active"></v-switch>
     </v-toolbar>
 
-    <v-dialog v-model="showFilterDialog">
-      <v-card>
-        <!-- {{xfilter}} -->
-        <v-card-title>Sort</v-card-title>
-        <v-card-text>
-          <v-select v-model="xfilter.sort" :items="sortItems" item-text="text" item-value="value" label="Sort"></v-select>
-          <v-switch v-model="xfilter.sortDir" value="asc" label="Ascending"></v-switch>
-        </v-card-text>
-      </v-card>
-      <v-card>
-        <v-card-title>Filter</v-card-title>
-        <v-card-text>
-          <v-switch v-model="xfilter.favourite" label="Fav."></v-switch>
-          <v-text-field v-model="search" label="Search" class="mx-4"></v-text-field>
-          <v-text-field v-model="xfilter.rank" label="Rank" class="mx-4"></v-text-field>
-          <v-text-field v-model="xfilter.score" label="Score" class="mx-4"></v-text-field>
-          <v-switch v-model="xfilter.valid" label="Valid"></v-switch>
-          <v-switch v-model="xfilter.active" label="Active"></v-switch>
-        </v-card-text>
-      </v-card>
+    <v-dialog v-model="showFilterDialog" width="400">
+      <v-toolbar dense :dark="!dark">
+        <v-tabs v-model="tab">
+          <v-tab>Filter</v-tab>
+          <v-tab>Sort</v-tab>
+        </v-tabs>
+        <v-spacer></v-spacer>
+        <v-btn icon @click="showFilterDialog=false"><v-icon>mdi-close</v-icon></v-btn>
+      </v-toolbar>
+
+      <v-tabs-items v-model="tab">
+        <v-tab-item key="0">
+          <v-card :loading="debouncing">
+            <v-card-title>Filter</v-card-title>
+            <v-card-text>
+              <v-switch v-model="xfilter.favourite" label="Fav."></v-switch>
+              <v-text-field v-model="search" label="Search" class="mx-4"></v-text-field>
+              <v-text-field v-model="xfilter.rank" type="number" label="Rank" class="mx-4"></v-text-field>
+              <v-text-field v-model="xfilter.score" type="number" label="Score" class="mx-4"></v-text-field>
+              <v-switch v-model="xfilter.valid" label="Valid"></v-switch>
+              <v-switch v-model="xfilter.active" label="Active"></v-switch>
+            </v-card-text>
+          </v-card>
+        </v-tab-item>
+        <v-tab-item key="1">
+          <v-card>
+            <!-- {{xfilter}} -->
+            <v-card-title>Sort</v-card-title>
+            <v-card-text>
+              <v-select v-model="xfilter.sort" :items="sortItems" item-text="text" item-value="value" label="Sort"></v-select>
+              <v-switch v-model="xfilter.sortDir" value="asc" label="Ascending"></v-switch>
+            </v-card-text>
+          </v-card>
+        </v-tab-item>
+      </v-tabs-items>
     </v-dialog>
 
     <!-- {{windowSize}} -->
@@ -71,6 +86,7 @@ import CandidatesList from './CandidatesList.vue'
 import Vue from 'vue'
 import { ICandidate } from '../types/global'
 import Loading from './Loading.vue'
+import { debounce } from 'lodash'
 
 interface IWindowSize {
   x: number
@@ -83,15 +99,18 @@ interface ISortItem {
 }
 
 interface IFilter {
-  rank: number | null
-  score: number | null
-  valid: boolean | null
-  active: boolean | null
-  favourite: boolean | null
+  rank: number
+  score: number
+  valid: boolean
+  active: boolean
+  favourite: boolean
 }
 
 interface IData {
+  tab: number
   windowSize: IWindowSize
+  debouncing: boolean
+  filterActive: boolean
   showFilterDialog: boolean
   dateTimeFormat: string
   search: string
@@ -99,9 +118,10 @@ interface IData {
   sortDir: string
   sortItems: ISortItem[]
   xfilter: IFilter
-  // options: any
 }
 interface IMethods {
+  debouncedSearch (s: string): void
+  debouncedFilter (f: IFilter): void
   // eslint-disable-next-line
   timeAgo (d: any): string
   // eslint-disable-next-line
@@ -109,12 +129,13 @@ interface IMethods {
   reload (): void
   // eslint-disable-next-line
   gotoCandidate (item: any): void
+  checkFilterActive (): void
 }
 
 interface IComputed {
   loading: boolean
-  // eslint-disable-next-line
-  filteredList: ICandidate[],
+  dark: boolean
+  filteredList: ICandidate[]
   // eslint-disable-next-line
   updatedAt: any
   favourites: string[]
@@ -132,11 +153,15 @@ export default Vue.extend<IData, IMethods, IComputed>({
   },
   computed: {
     ...mapState('candidate', ['loading', 'filteredList', 'updatedAt', 'favourites']),
+    ...mapState(['dark']),
     updated (): string { return moment(this.updatedAt as string).format(this.dateTimeFormat as string) }
   },
   data (): IData {
     return {
+      tab: 0,
       windowSize: { x: 0, y: 0 },
+      debouncing: false,
+      filterActive: false,
       showFilterDialog: false,
       dateTimeFormat: 'YYYY/MM/DD hh:mm',
       search: '',
@@ -148,28 +173,42 @@ export default Vue.extend<IData, IMethods, IComputed>({
         { text: 'Score', value: 'score' }
       ],
       xfilter: {
-        rank: null,
-        score: null,
-        valid: null,
-        active: null,
+        rank: 0,
+        score: 0,
+        valid: false,
+        active: false,
         favourite: false
       }
-      // options: {}
     }
   },
   watch: {
     search (newval: string) {
-      this.$store.dispatch('candidate/setSearch', newval)
+      this.debouncing = true
+      this.debouncedSearch(newval)
     },
     xfilter: {
       deep: true,
-      handler (newval, oldval) {
-        if (oldval === false) console.debug(newval, oldval)
-        this.$store.dispatch('candidate/handleFilter', newval)
+      handler (newval) {
+        this.debouncing = true
+        this.debouncedFilter(newval)
       }
     }
   },
   methods: {
+    debouncedSearch (s: string) {
+      console.debug(s)
+    },
+    debouncedFilter (f: IFilter) {
+      console.debug(f)
+    },
+    checkFilterActive () {
+      this.filterActive = this.xfilter.active ||
+        this.xfilter.favourite ||
+        this.xfilter.rank > 0 ||
+        this.xfilter.score > 0 ||
+        this.xfilter.valid ||
+        this.search !== ''
+    },
     // eslint-disable-next-line
     timeAgo (d: any) {
       return moment(d).fromNow()
@@ -196,6 +235,18 @@ export default Vue.extend<IData, IMethods, IComputed>({
     // this.itemsPerPage = this.$store.state.candidate.pagination.itemsPerPage
     this.xfilter = this.$store.state.candidate.filter
     this.search = this.$store.state.candidate.search
+
+    this.debouncedSearch = debounce((newVal: string) => {
+      this.checkFilterActive()
+      this.$store.dispatch('candidate/setSearch', newVal)
+      this.debouncing = false
+    }, 1000)
+
+    this.debouncedFilter = debounce((newVal: IFilter) => {
+      this.checkFilterActive()
+      this.$store.dispatch('candidate/handleFilter', newVal)
+      this.debouncing = false
+    }, 1000)
   }
 })
 </script>
