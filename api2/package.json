@@ -1,0 +1,17 @@
+{
+  "name": "api2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "updater.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "express": "^4.18.1",
+    "moment-timezone": "^0.5.34"
+  }
+}
