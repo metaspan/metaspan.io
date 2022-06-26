@@ -237,7 +237,10 @@ const candidate = {
           // console.debug('filter', filter.valid, 'item', item.valid)
           return false
         } else if (search !== '' && !(
-          item.name.toLowerCase().includes(search.toLowerCase()) || item.stash.includes(search)
+          item.name.toLowerCase().includes(search.toLowerCase()) ||
+          item.identity?.name.toLowerCase().includes(search.toLowerCase()) ||
+          // {{ candidate.identity ? candidate.identity.name : '' }}
+          item.stash.includes(search)
         )) {
           // console.debug('test:', item.stash, search, item.stash.includes(search))
           return false
