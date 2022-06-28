@@ -13,16 +13,18 @@
         <Identicon :value="item.stash" :size="36" theme="polkadot"></Identicon>
       </v-list-item-avatar> -->
 
-      <v-list-item-content @click="clickItem(item)" style="cursor: pointer">
+      <v-list-item-content @click="clickItem(item)" style="cursor: pointer" three-line>
         <v-list-item-title>
           <span class="identicon">
             <Identicon :value="item.stash" :size="16" theme="polkadot"></Identicon>
           </span>
-          {{item.name}}
-          <v-chip x-small :color="isValid(item.validity)?'green':'red'">Valid&nbsp;<v-icon class="d-none d-sm-inline" x-small dark>mdi-{{ isValid(item.validity) ? 'check-circle' : 'close-circle'}}</v-icon></v-chip>
-          <v-chip x-small :color="item.active?'green':'grey'">Active&nbsp;<v-icon class="d-none d-sm-inline" x-small dark>mdi-{{ item.active ? 'check-circle' : 'minus-circle'}}</v-icon></v-chip>
+          {{item.name}} {{item.identity ? `/ ${item.identity.name}` : ''}}
         </v-list-item-title>
         <v-list-item-subtitle>Score: {{ getScore(item) }}, Rank: {{item.rank}}</v-list-item-subtitle>
+        <div>
+          <v-chip x-small :color="isValid(item.validity)?'green':'red'">Valid&nbsp;<v-icon class="d-none d-sm-inline" x-small dark>mdi-{{ isValid(item.validity) ? 'check-circle' : 'close-circle'}}</v-icon></v-chip>
+          &nbsp;<v-chip x-small :color="item.active?'green':'grey'">Active&nbsp;<v-icon class="d-none d-sm-inline" x-small dark>mdi-{{ item.active ? 'check-circle' : 'minus-circle'}}</v-icon></v-chip>
+        </div>
         <!-- Discovered: {{timeAgo(item.discoveredAt)}} -->
       </v-list-item-content>
 
