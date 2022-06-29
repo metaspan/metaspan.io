@@ -27,10 +27,10 @@
         <v-list-item-icon>
           <v-icon :color="item.type">mdi-alert</v-icon>
         </v-list-item-icon>
-        <v-list-item-text>
+        <v-list-item-content>
           <v-list-item-title>{{item.title}}</v-list-item-title>
           <v-list-item-subtitle>{{item.text}}</v-list-item-subtitle>
-        </v-list-item-text>
+        </v-list-item-content>
         <v-list-item-action>
           <v-btn small icon @click="delAlert(item)"><v-icon>mdi-close</v-icon></v-btn>
         </v-list-item-action>
