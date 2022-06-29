@@ -3,7 +3,6 @@
     app
     :dark="dark"
   >
-
     <v-toolbar-title>
       <router-link :class="`toolbar-title${dark ? '-dark' : ''}`" to="/"><v-icon>mdi-web</v-icon> metaspan.io</router-link>
     </v-toolbar-title>
@@ -43,6 +42,23 @@
 
     <v-spacer></v-spacer>
 
+    <v-tooltip>
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn
+          small icon
+          v-bind="attrs"
+          v-on="on"
+        >
+          <v-icon :color="apiConnected ? 'primary' : ''">mdi-api{{apiConnected ? '' : '-off'}}</v-icon>
+        </v-btn>
+        </template>
+      <span>API connected: {{apiConnected}}</span>
+    </v-tooltip>
+
+    <Alerts></Alerts>
+
+    <v-app-bar-nav-icon disabled></v-app-bar-nav-icon>
+
   </v-app-bar>
 
 </template>
@@ -50,13 +66,15 @@
 <script lang="ts">
 import Vue from 'vue'
 import { mapState } from 'vuex'
+import Alerts from './Alerts.vue'
 export default Vue.extend({
   computed: {
     ...mapState({ dark: 'dark', settingsDialog: 'showSettingsDialog' })
   },
   data () {
     return {
-      showSettingsDialog: false
+      showSettingsDialog: false,
+      apiConnected: false
     }
   },
   watch: {
@@ -68,7 +86,26 @@ export default Vue.extend({
       this.$store.dispatch('setShowSettingsDialog', val)
     }
   },
-  methods: {}
+  methods: {},
+  components: { Alerts },
+  mounted () {
+    var count = 0
+    var int = setInterval(async () => {
+      count++
+      if (this.$polkadot) {
+        // var nominators = await this.$polkadot.api.query.staking.nominators(this.candidate.stash)
+        // console.debug('nominators', this.candidate.stash, nominators)
+        // var vals = await this.$polkadot.api.query.staking.validators(this.candidate.stash)
+        // console.debug('vals', this.candidate.stash, vals)
+        this.apiConnected = true
+        clearInterval(int)
+      }
+      if (count > 10) {
+        console.debug('no api found, clearing interval...')
+        clearInterval(int)
+      }
+    }, 1000)
+  }
 })
 </script>
 

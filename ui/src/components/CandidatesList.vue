@@ -6,7 +6,7 @@
     </v-list-item> -->
     <!-- {{filter}} -->
     <!-- {{ favourites }} -->
-    {{filtering}}
+    <!-- {{filtering}} -->
     <v-list-item two-line v-for="item in filteredList" v-bind:key="item.stash">
 
       <!-- <v-list-item-avatar>

@@ -1,110 +1,82 @@
 <template>
-
-  <v-system-bar color="lilac">
-    <!-- <v-row class="text-align-center"> -->
-    <!-- |{{balance}}| -->
-    <!-- |{{loading}}| -->
-    <v-spacer></v-spacer>
-    Balance: {{ toKSM(balance.free)}}
-    / {{ toKSM(balance?balance.reserved:0) }}
-    / {{ toKSM(balance?balance.miscFrozen:0) }}
-    / {{ toKSM(balance?balance.feeFrozen:0) }}
-    / ({{ timeAgo(updatedAt) }})
-    <v-btn icon x-small :loading="loading"></v-btn>
-    <v-spacer></v-spacer>
-  </v-system-bar>
-
+  <v-card height="100%" elevation="1" :loading="loading">
+    <v-card-title>Balance</v-card-title>
+    <v-card-text>
+      <table width="100%">
+        <tr>
+          <td>free</td><td class="text-right">{{toKSM(account.balance.free)}}</td>
+        </tr>
+        <tr>
+          <td>reserved</td><td class="text-right">{{toKSM(account.balance.reserved)}}</td>
+        </tr>
+        <tr>
+          <td>miscFrozen</td><td class="text-right">{{toKSM(account.balance.miscFrozen)}}</td>
+        </tr>
+        <tr>
+          <td>feeFrozen</td><td class="text-right">{{toKSM(account.balance.feeFrozen)}}</td>
+        </tr>
+      </table>
+    </v-card-text>
+    <Loading :loading="loading" :absolute="true" :size="75"></Loading>
+  </v-card>
 </template>
 
 <script lang="ts">
-import moment from 'moment-timezone'
-import { mapState } from 'vuex'
 import Vue from 'vue'
-import { ICandidate, ICache, IWalletBalance } from '../types/global'
-
-interface IData {
-  balance: IWalletBalance | null
-  dateTimeFormat: string
-}
-
-interface IMethods {
-  // isValid(): boolean
-  timeAgo(v: number|string): string
-  toKSM(v: number): string
-  getBalance(): void
-  formatDate(v: number|string): string
-}
-
-interface IComputed {
-  candidate: ICandidate
-  cache: ICache
-  loading: boolean
-  // valid: boolean
-  updatedAt: Date | number | null
-}
-
-interface IProps {
-  candidate: ICandidate
-}
-
-export default Vue.extend<IData, IMethods, IComputed, IProps>({
+import Loading from './Loading.vue'
+export default Vue.extend({
   name: 'CandidateBalance',
-  // props: { candidate: ICandidate },
-  components: {},
-  computed: {
-    ...mapState('candidate', ['candidate']),
-    ...mapState('polkadot', ['cache', 'loading']),
-    // balance() {
-    //     // console.debug(this.cache[this.candidate.stash])
-    //     return this.cache[this.candidate.stash]?.model ? this.cache[this.candidate.stash].model.data : { free: 0 }
-    // },
-    updatedAt () {
-      return (this.candidate.stash in this.cache.items) ? this.cache.items[this.candidate.stash].updatedAt : null
+  props: {
+    stash: {
+      type: String,
+      required: true
     }
   },
   data () {
     return {
-      balance: {
-        free: 0, reserved: 0, miscFrozen: 0, feeFrozen: 0
-      },
-      dateTimeFormat: 'YYYY/MM/DD HH:mm'
-    }
-  },
-  watch: {
-    cache: {
-      deep: true,
-      async handler (newval) {
-        console.debug('cache', newval)
-        this.getBalance()
+      loading: true,
+      account: {
+        nonce: 0,
+        balance: {
+          free: 0,
+          reserved: 0,
+          miscFrozen: 0,
+          feeFrozen: 0
+        }
       }
     }
   },
   methods: {
-    toKSM (val: number): string {
-      return (val / 1000000000000).toLocaleString('en-GB') + ' KSM'
-    },
-    getBalance (): void {
-      this.balance = this.cache.items[this.candidate.stash]?.model ? this.cache.items[this.candidate.stash]?.model.data : {}
-    },
-    timeAgo (d) {
-      return moment(d).fromNow()
-    },
-    formatDate (v: number|string): string {
-      // console.debug(v, this.dateTimeFormat)
-      return moment(v).format(this.dateTimeFormat)
+    toKSM (v: number) {
+      return v / 1000000000000
     }
-    // formatStash(stash, len=8) {
-    //     if(stash.length <= len*2+3) return stash
-    //     return stash.substr(0,len)+"..."+stash.substr(stash.length - len)
-    // },
   },
-  // created() {
-  //     // this.$store.dispatch('')
-  //     console.debug(this.$route.params)
-  //     this.$store.dispatch('polkadot/get', this.candidate.stash)
-  // },
-  mounted () {
-    this.getBalance()
-  }
+  async created () {
+    var count = 0
+    var int = setInterval(async () => {
+      count++
+      if (this.$polkadot) {
+        // var nominators = await this.$polkadot.api.query.staking.nominators(this.candidate.stash)
+        // console.debug('nominators', this.candidate.stash, nominators)
+        // var vals = await this.$polkadot.api.query.staking.validators(this.candidate.stash)
+        // console.debug('vals', this.candidate.stash, vals)
+        // api.query.system.account(<accountId>).
+        const acct = await this.$polkadot.api.query.system.account(this.stash)
+        // console.debug(acct)
+        const now = await this.$polkadot.api.query.timestamp.now()
+        const { nonce, data: balance } = acct
+        console.log(`${now}: balance of ${balance.free} and a nonce of ${nonce}`)
+        this.account.balance = balance
+        this.account.nonce = nonce.toNumber()
+        this.loading = false
+        clearInterval(int)
+      }
+      if (count > 10) {
+        console.debug('no api found, clearing interval...')
+        clearInterval(int)
+      }
+    }, 1000)
+  },
+  components: { Loading }
 })
 </script>

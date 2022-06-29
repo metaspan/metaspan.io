@@ -35,12 +35,12 @@ interface IMinMax {
 type TRanges = Record<string, IMinMax>
 
 interface IState {
-  updatedAt: null | Date
+  updatedAt: null | moment.Moment
   loading: boolean
-  filering: boolean
   pagination: IPagination
   sort: ISort
   search: string
+  filtering: boolean
   filter: IFilter
   ranges: TRanges
   options: IOption[]
@@ -49,41 +49,58 @@ interface IState {
   candidate: ICandidate
 }
 
-// function checkValid (valid: boolean, validity: ICandidateValidityItem[]): boolean {
-//   return valid
-//     ? true
-//     : validity.filter(f => f.valid === false).length === 0
-// }
+const initialState = {
+  updatedAt: moment().add(-1, 'day'),
+  loading: false,
+  filtering: false,
+  pagination: {
+    page: 1,
+    itemsPerPage: 15
+  },
+  sort: {
+    sort: 'totalScore',
+    sortAsc: false
+  },
+  search: '',
+  filter: { valid: false, active: false },
+  options: {} as IOption[],
+  ranges: {
+    score: { min: 0, max: 0 },
+    rank: { min: 0, max: 0 },
+    bonded: { min: 0, max: 0 }
+  },
+  favourites: ['HyLisujX7Cr6D7xzb6qadFdedLt8hmArB6ZVGJ6xsCUHqmx'],
+  list: [],
+  candidate: new Candidate({ valid: false, validity: [{ valid: false }] as ICandidateValidityItem[] } as ICandidate)
+} as IState
+
+const STORAGE_KEY = 'candidate'
+
+function saveState (state: IState) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+}
+
+function clearState () {
+  localStorage.removeItem(STORAGE_KEY)
+}
+
+function getState () {
+  const savedState = localStorage.getItem(STORAGE_KEY)
+  if (savedState) {
+    console.debug('store/modules/candidate.ts: getState(): restoring from localStorage')
+    return JSON.parse(savedState)
+  } else {
+    console.debug('store/modules/candidate.ts: getState(): restoring from localStorage')
+    return initialState
+  }
+}
 
 /* eslint-disable no-new */
 const candidate = {
   namespaced: true,
   modules: {
   },
-  state: {
-    updatedAt: moment().add(-1, 'day'),
-    loading: false,
-    filtering: false,
-    pagination: {
-      page: 1,
-      itemsPerPage: 15
-    },
-    sort: {
-      sort: 'totalScore',
-      sortAsc: false
-    },
-    search: '',
-    filter: { valid: false, active: false },
-    options: {},
-    ranges: {
-      score: { min: 0, max: 0 },
-      rank: { min: 0, max: 0 },
-      bonded: { min: 0, max: 0 }
-    },
-    favourites: ['HyLisujX7Cr6D7xzb6qadFdedLt8hmArB6ZVGJ6xsCUHqmx'],
-    list: [],
-    candidate: new Candidate({ valid: false, validity: [] as ICandidateValidityItem[] } as ICandidate)
-  },
+  state: getState(),
   getters: {
     // filteredList (state: IState): ICandidate[] {
     //   return state.list.filteredList
@@ -94,14 +111,15 @@ const candidate = {
       state.loading = loading
     },
     SET_FILTERING (state: IState, value: boolean): void {
-      state.filering = value
+      state.filtering = value
+      saveState(state)
     },
     SET_LIST (state: IState, list: ICandidate[]): void {
       // console.debug("SET_LIST", list)
       let udata = []
       let ranks = []
       Vue.set(state, 'list', list.map((m: ICandidate) => new Candidate(m)))
-      state.updatedAt = new Date()
+      state.updatedAt = moment()
 
       ranks = list.map((m) => {
         return m.rank
@@ -128,26 +146,33 @@ const candidate = {
       // udata = udata.slice(udata.length*0.055, udata.length*0.854)
       // console.debug('length', udata.length, 'min:', Math.min(...udata), 'max:', Math.max(...udata))
       // state.ranges.bonded = {min: Math.min(...udata), max: Math.max(...udata)}
+      saveState(state)
     },
     SET_FILTERED_LIST (state: IState, flist: ICandidate[]): void {
       // console.debug('SET_FILTERED_LIST', flist.length)
       // state.filteredList = flist
       Vue.set(state, 'filteredList', flist)
+      saveState(state)
     },
     SET_CANDIDATE (state: IState, model: ICandidate): void {
       state.candidate = model
+      saveState(state)
     },
     SET_PAGINATION (state: IState, pagination: IPagination): void {
       state.pagination = pagination
+      saveState(state)
     },
     SET_OPTIONS (state: IState, options: IOption[]): void {
       state.options = options
+      saveState(state)
     },
     SET_FILTER (state: IState, filter: IFilter): void {
       state.filter = filter
+      saveState(state)
     },
     SET_SEARCH (state: IState, search: string): void {
       state.search = search
+      saveState(state)
     },
     TOGGLE_FAV (state: IState, stash: string): void {
       const idx = state.favourites.findIndex((v:string) => {
@@ -161,6 +186,7 @@ const candidate = {
       } else {
         state.favourites.push(stash)
       }
+      saveState(state)
     }
   },
   actions: {
@@ -197,6 +223,7 @@ const candidate = {
         }
         await dispatch('filterList')
       } else {
+        dispatch('addAlert', { id: moment().valueOf(), type: 'warning', title: 'Cache age < 60 seconds', text: 'Serving from local cache' }, { root: true })
         console.log(`age of cache: ${moment().diff(moment(state.updatedAt), 'seconds')} seconds`)
       }
     },

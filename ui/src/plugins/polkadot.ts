@@ -37,7 +37,7 @@ class PolkadotAPI {
   async connect (): Promise<void> {
     const wsProvider = new WsProvider(endpoints[this.config.chain][this.config.endpoint])
     this.api = await ApiPromise.create({ provider: wsProvider })
-    console.debug('we have an api?')
+    console.debug('plugins/polkadot.ts: connect(): we have an api...')
   }
 }
 

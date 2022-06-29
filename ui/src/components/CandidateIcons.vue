@@ -1,29 +1,32 @@
 <template>
-  <v-container fluid>
-    <v-row justify="center">
-      <v-col class="cicon" align="center">Valid<br><v-icon :color="candidate.valid?'green':'red'">mdi-{{ candidate.valid?'check-circle':'close-circle' }}</v-icon></v-col>
-      <v-col class="cicon" align="center">Active<br><v-icon :color="candidate.active?'green':'grey'">mdi-{{ candidate.active?'check-circle':'minus-circle' }}</v-icon></v-col>
-      <v-col class="cicon" align="center">Rank<br>{{ candidate.rank }}</v-col>
-      <v-col class="cicon" align="center">Score<br>{{ candidate.score ? candidate.score.total.toFixed(2) : 0.00 }}</v-col>
-      <v-col class="cicon" align="center">Commission<br>{{ candidate.commission.toFixed(2) }}%</v-col>
-      <v-col class="cicon" align="center">Discovered<br>{{ timeAgo(candidate.discoveredAt) }}</v-col>
-      <v-col class="cicon" align="center">Nominated<br>{{ timeAgo(candidate.nominatedAt) }}</v-col>
-      <v-col class="cicon" align="center">Online<br>{{ timeAgo(candidate.onlineSince) }}</v-col>
-      <v-col class="cicon" align="center">Node version<br>TBC</v-col>
-      <v-col class="cicon" align="center">Stash<br>{{ formatStash(candidate.stash) }}</v-col>
-      <v-col class="cicon" align="center">Controller<br>TBC</v-col>
-      <v-col class="cicon" align="center">Queued key<br>TBC</v-col>
-      <v-col class="cicon" align="center">Next Key<br>TBC</v-col>
-      <v-col class="cicon" align="center">Location<br>{{ candidate.location }}</v-col>
-      <v-col class="cicon" align="center">Reward Dest.<br>TBC</v-col>
-      <v-col class="cicon" align="center">Faults<br>{{candidate.faults}}</v-col>
-      <v-col class="cicon" align="center">Unclaimed Eras<br>{{candidate.unclaimedEras ? candidate.unclaimedEras.length : 0}}</v-col>
-      <v-col class="cicon" align="center">Democracy Vote Count<br>{{ candidate.democracyVoteCount }}</v-col>
-      <v-col class="cicon" align="center">Council Stake<br>{{candidate.councilStake}}</v-col>
-      <v-col class="cicon" align="center">Council Votes<br>{{candidate.councilVotes ? candidate.councilVotes.length : 0}}</v-col>
-      <v-col class="cicon" align="center">Democracy Votes<br>{{candidate.democracyVotes}}</v-col>
-    </v-row>
-  </v-container>
+  <v-card elevation="1">
+    <v-card-title>Details</v-card-title>
+    <v-card-text>
+      <v-row justify="center">
+        <v-col class="cicon" align="center">Valid<br><v-icon :color="candidate.valid?'green':'red'">mdi-{{ candidate.valid?'check-circle':'close-circle' }}</v-icon></v-col>
+        <v-col class="cicon" align="center">Active<br><v-icon :color="candidate.active?'green':'grey'">mdi-{{ candidate.active?'check-circle':'minus-circle' }}</v-icon></v-col>
+        <v-col class="cicon" align="center">Rank<br>{{ candidate.rank }}</v-col>
+        <v-col class="cicon" align="center">Score<br>{{ candidate.score ? candidate.score.total.toFixed(2) : 0.00 }}</v-col>
+        <v-col class="cicon" align="center">Commission<br>{{ candidate.commission.toFixed(2) }}%</v-col>
+        <v-col class="cicon" align="center">Discovered<br>{{ timeAgo(candidate.discoveredAt) }}</v-col>
+        <v-col class="cicon" align="center">Nominated<br>{{ timeAgo(candidate.nominatedAt) }}</v-col>
+        <v-col class="cicon" align="center">Online<br>{{ timeAgo(candidate.onlineSince) }}</v-col>
+        <v-col class="cicon" align="center">Node version<br>TBC</v-col>
+        <v-col class="cicon" align="center">Stash<br>{{ formatStash(candidate.stash) }}</v-col>
+        <v-col class="cicon" align="center">Controller<br>TBC</v-col>
+        <v-col class="cicon" align="center">Queued key<br>TBC</v-col>
+        <v-col class="cicon" align="center">Next Key<br>TBC</v-col>
+        <v-col class="cicon" align="center">Location<br>{{ candidate.location }}</v-col>
+        <v-col class="cicon" align="center">Reward Dest.<br>TBC</v-col>
+        <v-col class="cicon" align="center">Faults<br>{{candidate.faults}}</v-col>
+        <v-col class="cicon" align="center">Unclaimed Eras<br>{{candidate.unclaimedEras ? candidate.unclaimedEras.length : 0}}</v-col>
+        <v-col class="cicon" align="center">Democracy Vote Count<br>{{ candidate.democracyVoteCount }}</v-col>
+        <v-col class="cicon" align="center">Council Stake<br>{{candidate.councilStake}}</v-col>
+        <v-col class="cicon" align="center">Council Votes<br>{{candidate.councilVotes ? candidate.councilVotes.length : 0}}</v-col>
+        <v-col class="cicon" align="center">Democracy Votes<br>{{candidate.democracyVotes}}</v-col>
+      </v-row>
+    </v-card-text>
+  </v-card>
 </template>
 
 <script lang="ts">

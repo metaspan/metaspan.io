@@ -29,6 +29,12 @@
       </div>
     </template>
 
+    <template v-slot:item.identity_name="{item}">
+      <div style="cursor:pointer" @click="clickItem(item)">
+        {{item.identity_name}}
+      </div>
+    </template>
+
     <template v-slot:item.discoveredAt="{item}">
       {{timeAgo(item.discoveredAt) }}
     </template>
@@ -149,7 +155,8 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
             else return true
           }
         },
-        { text: 'Name', align: null, sortable: true, value: 'name', width: '25%' },
+        { text: 'Name', align: null, sortable: true, value: 'name', width: '15%' },
+        { text: 'Identity', align: null, sortable: true, value: 'identity_name', width: '15%' },
         { text: 'Discovered', align: null, sortable: true, value: 'discoveredAt', width: '10%' },
         {
           text: 'Valid',
@@ -205,6 +212,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
           favourite: this.favourites.includes(item.stash),
           stash: item.stash,
           name: item.name,
+          identity_name: item.identity.name,
           discoveredAt: item.discoveredAt,
           valid: item.valid,
           active: item.active,

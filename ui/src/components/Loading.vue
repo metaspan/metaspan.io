@@ -1,9 +1,9 @@
 <template>
   <v-fade-transition>
-    <v-overlay :value="loading">
+    <v-overlay :value="loading" :absolute="absolute">
       <v-container fluid>
         <v-progress-circular
-        :size="150"
+        :size="size"
         color="primary"
         indeterminate
       ></v-progress-circular>
@@ -22,17 +22,24 @@ export default Vue.extend({
     loading: {
       type: Boolean,
       required: true
+    },
+    size: {
+      type: Number,
+      required: false,
+      default: 150
+    },
+    absolute: {
+      type: Boolean,
+      required: false,
+      default: false
     }
-  },
-  // computed: {
-  //   ...mapState(['loading'])
-  // }
-  created () {
-    console.debug('Loading.vue: created')
-  },
-  mounted () {
-    console.debug('Loading.vue: mounted')
   }
+  // created () {
+  //   console.debug('Loading.vue: created')
+  // },
+  // mounted () {
+  //   console.debug('Loading.vue: mounted')
+  // }
 })
 </script>
 

@@ -24,6 +24,15 @@
 
     <!-- <CandidateBalance class="d-none d-md-block" :candidate="candidate"></CandidateBalance> -->
 
+    <v-row>
+      <v-col>
+        <CandidateIdentity :stash="candidate.stash"></CandidateIdentity>
+      </v-col>
+      <v-col>
+        <CandidateBalance :stash="candidate.stash"></CandidateBalance>
+      </v-col>
+    </v-row>
+
     <CandidateIcons class="d-block d-md-none"></CandidateIcons>
 
     <!-- {{ranges}} -->
@@ -102,6 +111,8 @@ import { ICandidate, ICandidateValidityItem } from '../types/global'
 import CandidateExternalLinks from './CandidateExternalLinks.vue'
 import Loading from './Loading.vue'
 import CandidateScoreList from './CandidateScoreList.vue'
+import CandidateBalance from './CandidateBalance.vue'
+import CandidateIdentity from './CandidateIdentity.vue'
 
 // import Identicon from './identicon/Identicon.ts'
 
@@ -110,9 +121,9 @@ interface IData {
   unsubscribe(): any|null
   dateTimeFormat: string
   // eslint-disable-next-line
-  activeEra: any,
+  activeEra: any
   // eslint-disable-next-line
-  header: any,
+  header: any
 }
 
 interface IMethods {
@@ -149,7 +160,9 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     CandidateIcons,
     Identicon,
     Loading,
-    CandidateScoreList
+    CandidateScoreList,
+    CandidateBalance,
+    CandidateIdentity
   },
   computed: {
     ...mapState('candidate', ['loading', 'candidate', 'ranges']),
@@ -209,27 +222,14 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     if (!this.candidate.stash) {
       console.debug('no stash?', this.$route.params)
       await this.$store.dispatch('candidate/setCandidate', this.$route.params.stash)
+      console.debug(this.candidate)
     }
     // let {nonce, balance} = await this.$polkadot.api().query.system.account(this.candidate.stash)
     // console.debug(nonce, balance)
   },
   async mounted () {
     window.scrollTo(0, 0)
-    // var count = 0
-    // var int = setInterval(async () => {
-    //   count++
-    //   if (this.$polkadot) {
-    //     var nominators = await this.$polkadot.api.query.staking.nominators(this.candidate.stash)
-    //     console.debug('nominators', this.candidate.stash, nominators)
-    //     var vals = await this.$polkadot.api.query.staking.validators(this.candidate.stash)
-    //     console.debug('vals', this.candidate.stash, vals)
-    //     clearInterval(int)
-    //   }
-    //   if (count > 10) {
-    //     console.debug('no api found, clearing interval...')
-    //     clearInterval(int)
-    //   }
-    // }, 1000)
+
     // // this.$store.dispatch('polkadot/getActiveEra')
     // // const activeEra = await this.$polkadot.api.query.staking.activeEra();
     // // // let chain = await this.$polkadot.rpc.system.chain()

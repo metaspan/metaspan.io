@@ -17,13 +17,15 @@
       </v-toolbar-items>
     </v-toolbar>
 
-    <v-toolbar class="d-none d-sm-block" dense flat elevation="0">
+    <v-toolbar class="d-none d-sm-block" dense flat elevation="0" :loading="debouncing">
       <v-switch v-model="xfilter.favourite" label="Fav."></v-switch>
       <v-text-field v-model="search" label="Search" class="mx-4"></v-text-field>
       <v-text-field v-model="xfilter.rank" label="Rank" class="mx-4"></v-text-field>
       <v-text-field v-model="xfilter.score" label="Score" class="mx-4"></v-text-field>
       <v-switch v-model="xfilter.valid" label="Valid"></v-switch>
       <v-switch v-model="xfilter.active" label="Active"></v-switch>
+      <v-progress-linear striped absolute
+        bottom v-show="debouncing" :indeterminate="debouncing"></v-progress-linear>
     </v-toolbar>
 
     <v-dialog v-model="showFilterDialog" width="400">

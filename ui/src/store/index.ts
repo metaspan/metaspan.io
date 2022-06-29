@@ -7,10 +7,18 @@ import candidate from './modules/candidate'
 
 Vue.use(Vuex)
 
+interface IAlert {
+  id: string
+  type: 'info' | 'warning' | 'error'
+  title?: string
+  text: string
+}
+
 export default new Vuex.Store({
   state: {
     dark: false,
-    showSettingsDialog: false
+    showSettingsDialog: false,
+    alerts: [] as IAlert[]
   },
   mutations: {
     SET_DARK (state, value) {
@@ -19,6 +27,14 @@ export default new Vuex.Store({
     SET_SHOW_SETTINGS_DIALOG (state, value) {
       // console.debug('SET_SHOW_SETTINGS_DIALOG', value)
       state.showSettingsDialog = value
+    },
+    ADD_ALERT (state, alert: IAlert) {
+      // console.debug('SET_SHOW_SETTINGS_DIALOG', value)
+      state.alerts.push(alert)
+    },
+    CLEAR_ALERT (state, alert) {
+      // console.debug('SET_SHOW_SETTINGS_DIALOG', value)
+      state.alerts = state.alerts.filter(f => f.id !== alert.id)
     }
   },
   actions: {
@@ -32,6 +48,12 @@ export default new Vuex.Store({
     },
     setShowSettingsDialog ({ commit }, value) {
       commit('SET_SHOW_SETTINGS_DIALOG', value)
+    },
+    addAlert ({ commit }, alert: IAlert) {
+      commit('ADD_ALERT', alert)
+    },
+    clearAlert ({ commit }, alert: IAlert) {
+      commit('CLEAR_ALERT', alert)
     }
   },
   modules: {

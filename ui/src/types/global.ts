@@ -7,7 +7,10 @@ export interface IWalletBalance {
 }
 
 export interface ICandidateIdentity {
+  _id: string
   name: string
+  verified: boolean
+  sub: string
 }
 
 export interface ICandidateScore {
@@ -75,6 +78,7 @@ export class Candidate implements ICandidate {
     this.stash = data.stash || ''
     this.score = data.score || { total: 0 } as ICandidateScore
     this.rank = data.rank || 0
+    // console.debug('identity', JSON.stringify(Object.keys(data.identity ? data.identity : {})))
     this.identity = data.identity || {} as ICandidateIdentity
     this.location = data.location || ''
     this.name = data.name || ''

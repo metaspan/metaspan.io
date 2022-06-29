@@ -43,6 +43,17 @@
       </v-list-item>
 
       <v-list-item>
+        <v-list-item-icon>
+          <img width="18px" heithg="18px" src="https://polkadot.js.org/apps/static/subscan.11e2654a..svg">
+        </v-list-item-icon>
+        <v-list-item-title>
+          <!-- <v-btn small text> -->
+          <a class="none" :href="`https://kusama.subscan.io/account/${candidate.stash}?tab=reward`" target="_blank"> subscan Rewards</a>
+          <!-- </v-btn> -->
+        </v-list-item-title>
+      </v-list-item>
+
+      <v-list-item>
         <v-list-item-icon class="position-relative">
           <img class="polkastats-logo" src="https://kusama.polkastats.io/img/polkastats_logo_dark@1x.png">
         </v-list-item-icon>
@@ -85,7 +96,6 @@ export default {
 
 .cls-1{
   height: 24px;
-
   font-size: large;
   fill:#000000;
 }
