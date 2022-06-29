@@ -1,7 +1,9 @@
 import express from 'express'
+import cors from 'cors'
 import fs from 'fs'
 
 var app = express()
+app.use(cors())
 
 import config from './config.js'
 import { slog } from './utils.js'
