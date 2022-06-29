@@ -57,7 +57,7 @@
 
     <Alerts></Alerts>
 
-    <v-app-bar-nav-icon disabled></v-app-bar-nav-icon>
+    <v-app-bar-nav-icon @click="toggleNavBar()"></v-app-bar-nav-icon>
 
   </v-app-bar>
 
@@ -86,7 +86,11 @@ export default Vue.extend({
       this.$store.dispatch('setShowSettingsDialog', val)
     }
   },
-  methods: {},
+  methods: {
+    toggleNavBar () {
+      this.$store.dispatch('toggleNavBar')
+    }
+  },
   components: { Alerts },
   mounted () {
     var count = 0

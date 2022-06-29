@@ -81,6 +81,7 @@ function saveState (state: IState) {
 }
 
 function clearState () {
+  console.debug('store/modules/candidate.ts: clearState()', STORAGE_KEY)
   localStorage.removeItem(STORAGE_KEY)
 }
 
@@ -90,7 +91,7 @@ function getState () {
     console.debug('store/modules/candidate.ts: getState(): restoring from localStorage')
     return JSON.parse(savedState)
   } else {
-    console.debug('store/modules/candidate.ts: getState(): restoring from localStorage')
+    console.debug('store/modules/candidate.ts: getState(): using initialState')
     return initialState
   }
 }
@@ -317,6 +318,10 @@ const candidate = {
     async toggleFav ({ commit }: any, stash: string) {
       // console.debug('toggleFav()', stash)
       await commit('TOGGLE_FAV', stash)
+    },
+    async resetCache (): Promise<void> {
+      console.debug('store/modules/candidate.ts: actions.resetCache()')
+      clearState()
     }
   }
 }

@@ -1,6 +1,6 @@
 <template>
   <v-app :dark="dark">
-
+    <NavDrawer app></NavDrawer>
     <Toolbar v-on:onSettingsDialog="onSettingsDialog"></Toolbar>
     <v-main>
       <v-fade-transition mode="out-in">
@@ -25,6 +25,7 @@ import { mapState } from 'vuex'
 import Vue from 'vue'
 import Toolbar from './components/Toolbar.vue'
 import SettingsDialog from './components/SettingsDialog.vue'
+import NavDrawer from '@/components/NavDrawer.vue'
 
 interface IData {
   settingsDialog: boolean
@@ -51,7 +52,8 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   // mixins: [update],
   components: {
     Toolbar,
-    SettingsDialog
+    SettingsDialog,
+    NavDrawer
   },
   computed: {
     ...mapState(['dark', 'showSettingsDialog']),

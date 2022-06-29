@@ -18,6 +18,7 @@ export default new Vuex.Store({
   state: {
     dark: false,
     showSettingsDialog: false,
+    showNavBar: false,
     alerts: [] as IAlert[]
   },
   mutations: {
@@ -27,6 +28,10 @@ export default new Vuex.Store({
     SET_SHOW_SETTINGS_DIALOG (state, value) {
       // console.debug('SET_SHOW_SETTINGS_DIALOG', value)
       state.showSettingsDialog = value
+    },
+    SET_SHOW_NAVBAR (state, value) {
+      // console.debug('SET_SHOW_SETTINGS_DIALOG', value)
+      state.showNavBar = value
     },
     ADD_ALERT (state, alert: IAlert) {
       // console.debug('SET_SHOW_SETTINGS_DIALOG', value)
@@ -54,6 +59,16 @@ export default new Vuex.Store({
     },
     clearAlert ({ commit }, alert: IAlert) {
       commit('CLEAR_ALERT', alert)
+    },
+    showNavBar ({ commit }, value) {
+      commit('SET_SHOW_NAVBAR', value)
+    },
+    toggleNavBar ({ commit, state }) {
+      commit('SET_SHOW_NAVBAR', !state.showNavBar)
+    },
+    resetCache ({ dispatch }) {
+      console.debug('store/index.ts: actions.resetCache()')
+      dispatch('candidate/resetCache', {}, { root: true })
     }
   },
   modules: {
