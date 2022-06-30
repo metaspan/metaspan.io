@@ -93,8 +93,8 @@ export default Vue.extend({
   },
   components: { Alerts },
   mounted () {
-    var count = 0
-    var int = setInterval(async () => {
+    let count = 0
+    const int = setInterval(async () => {
       count++
       if (this.$polkadot) {
         // var nominators = await this.$polkadot.api.query.staking.nominators(this.candidate.stash)

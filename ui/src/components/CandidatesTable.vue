@@ -15,13 +15,13 @@
     @update:page="handlePage"
     @update:items-per-page="handleItemsPerPage">
 
-    <template v-slot:item.favourite="{item}">
+    <template v-slot:[`item.favourite`]="{item}">
       <v-btn small icon @click="toggleFav(item)">
       <v-icon small :color="item.favourite?'orange':'grey'">mdi-star</v-icon>
       </v-btn>
     </template>
 
-    <template v-slot:item.name="{item}">
+    <template v-slot:[`item.name`]="{item}">
       <div style="cursor:pointer" @click="clickItem(item)">
         <span class="identicon">
           <Identicon :value="item.stash" :size="16"></Identicon>
@@ -29,27 +29,27 @@
       </div>
     </template>
 
-    <template v-slot:item.identity_name="{item}">
+    <template v-slot:[`item.identity_name`]="{item}">
       <div style="cursor:pointer" @click="clickItem(item)">
         {{item.identity_name}}
       </div>
     </template>
 
-    <template v-slot:item.discoveredAt="{item}">
+    <template v-slot:[`item.discoveredAt`]="{item}">
       {{timeAgo(item.discoveredAt) }}
     </template>
 
-    <template v-slot:item.valid="{item}">
+    <template v-slot:[`item.valid`]="{item}">
       <div align="center">
       <v-icon small :color="item.valid?'green':'red'">mdi-{{ item.valid ? 'check-circle' : 'close-circle'}}</v-icon>
       </div>
     </template>
 
-    <template v-slot:item.active="{item}">
+    <template v-slot:[`item.active`]="{item}">
       <v-icon small :color="item.active?'green':'grey'">mdi-{{ item.active ? 'check-circle' : 'minus-circle'}}</v-icon>
     </template>
 
-    <template v-slot:item.score="{item}">
+    <template v-slot:[`item.score`]="{item}">
       {{item.score ? item.score.toFixed(2) : 0.00 }}
     </template>
 

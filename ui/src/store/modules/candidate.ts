@@ -117,8 +117,8 @@ const candidate = {
     },
     SET_LIST (state: IState, list: ICandidate[]): void {
       // console.debug("SET_LIST", list)
-      let udata = []
-      let ranks = []
+      let udata = [] as number[]
+      let ranks = [] as number[]
       Vue.set(state, 'list', list.map((m: ICandidate) => new Candidate(m)))
       state.updatedAt = moment()
 
@@ -135,10 +135,12 @@ const candidate = {
       state.ranges.score = list
         .map((m: ICandidate) => m.score?.total)
         .reduce(function (result: IMinMax, item: number) {
-          return item ? {
-            min: Math.min(result.min, item),
-            max: Math.max(result.max, item)
-          } : result
+          return item
+            ? {
+                min: Math.min(result.min, item),
+                max: Math.max(result.max, item)
+              }
+            : result
         }, { min: 50, max: 0 })
 
       // // TODO work out the selfStake / bonded from the api...
@@ -202,7 +204,8 @@ const candidate = {
       // console.debug('candidate/getList', state.updatedAt);
       if (!state.updatedAt || moment().diff(moment(state.updatedAt), 'seconds') > 60) {
         try {
-          let res = null
+          // eslint-disable-next-line
+          let res = null as any
           await commit('SET_LOADING', true)
           // var res = await axios.get(`${baseUrl}/candidates`)
           res = await axios.get(

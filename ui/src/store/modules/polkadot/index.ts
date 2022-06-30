@@ -115,8 +115,8 @@ const polkadot = {
     },
     SET_LIST (state: IState, list: ICandidate[]): void {
       // console.debug("SET_LIST", list)
-      let udata = []
-      let ranks = []
+      let udata = [] as number[]
+      let ranks = [] as number[]
       state.list = list
       state.updatedAt = new Date()
 

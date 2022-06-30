@@ -25,7 +25,7 @@ import { mapState } from 'vuex'
 import Vue from 'vue'
 import Toolbar from './components/Toolbar.vue'
 import SettingsDialog from './components/SettingsDialog.vue'
-import NavDrawer from '@/components/NavDrawer.vue'
+import NavDrawer from './components/NavDrawer.vue'
 
 interface IData {
   settingsDialog: boolean

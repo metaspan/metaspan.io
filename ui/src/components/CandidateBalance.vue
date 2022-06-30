@@ -52,8 +52,8 @@ export default Vue.extend({
     }
   },
   async created () {
-    var count = 0
-    var int = setInterval(async () => {
+    let count = 0
+    const int = setInterval(async () => {
       count++
       if (this.$polkadot) {
         // var nominators = await this.$polkadot.api.query.staking.nominators(this.candidate.stash)
@@ -61,18 +61,23 @@ export default Vue.extend({
         // var vals = await this.$polkadot.api.query.staking.validators(this.candidate.stash)
         // console.debug('vals', this.candidate.stash, vals)
         // api.query.system.account(<accountId>).
-        const acct = await this.$polkadot.api.query.system.account(this.stash)
-        // console.debug(acct)
-        const now = await this.$polkadot.api.query.timestamp.now()
-        const { nonce, data: balance } = acct
-        console.log(`${now}: balance of ${balance.free} and a nonce of ${nonce}`)
-        this.account.balance = balance
-        this.account.nonce = nonce.toNumber()
-        this.loading = false
-        clearInterval(int)
+        try {
+          const acct = await this.$polkadot.api.query.system.account(this.stash)
+          // console.debug(acct)
+          const now = await this.$polkadot.api.query.timestamp.now()
+          const { nonce, data: balance } = acct
+          console.log(`${now}: balance of ${balance.free} and a nonce of ${nonce}`)
+          this.account.balance = balance
+          this.account.nonce = nonce.toNumber()
+          this.loading = false
+          clearInterval(int)
+        } catch (err) {
+          console.debug('CandidateBalance.vue: OOPS')
+          console.error(err)
+        }
       }
       if (count > 10) {
-        console.debug('no api found, clearing interval...')
+        console.debug('CandidateBalance.vue: no api found, clearing interval...')
         clearInterval(int)
       }
     }, 1000)

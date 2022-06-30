@@ -156,7 +156,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
       this.level += 1
       // console.debug(att, level, this.parsed[att])
       this.breadcrumbs.push({ text: att, type: 'attribute', level: this.level })
-      var obj = this.$polkadot
+      let obj = this.$polkadot
       this.breadcrumbs.forEach((b: IBreadCrumb, idx: number) => {
         if (idx !== 0) obj = obj[b.text]
       })
@@ -166,8 +166,8 @@ export default Vue.extend<IData, IMethods, IComputed>({
     async selectMethod (att: any) {
       this.level += 1
       console.debug(att)
-      var obj = this.$polkadot
-      for (var i = 1; i < this.breadcrumbs.length; i++) {
+      let obj = this.$polkadot
+      for (let i = 1; i < this.breadcrumbs.length; i++) {
         // console.debug('::', this.breadcrumbs[i].text)
         obj = obj[this.breadcrumbs[i].text]
       }
@@ -198,7 +198,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
       //   "fallback":"0x0000000000000000000000000000000000000000000000000000000000000000",
       //   "docs":[" Map of block numbers to block hashes."]
       // }
-      var tmp = JSON.stringify(func)
+      const tmp = JSON.stringify(func)
       // console.debug('tmp', tmp)
       const meta: IFuncMeta = JSON.parse(tmp)
       // console.debug('meta', meta)
@@ -214,15 +214,15 @@ export default Vue.extend<IData, IMethods, IComputed>({
       } else {
         console.debug(evt)
         this.level = evt.level
-        for (var i = this.breadcrumbs.length; i > evt.level; i--) {
+        for (let i = this.breadcrumbs.length; i > evt.level; i--) {
           this.breadcrumbs.pop()
         }
         this.parseBreadCrumbs()
       }
     },
     parseBreadCrumbs () {
-      var obj = this.$polkadot
-      for (var i = 1; i < this.breadcrumbs.length; i++) {
+      let obj = this.$polkadot
+      for (let i = 1; i < this.breadcrumbs.length; i++) {
         console.debug('::', this.breadcrumbs[i].text)
         obj = obj[this.breadcrumbs[i].text]
       }
@@ -231,7 +231,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
     },
     // eslint-disable-next-line
     parseObj (obj: any, className = false, depth = 1) {
-      var ret = {
+      const ret = {
         // parseType: type,
         class: className || obj.name,
         // constructor: {},

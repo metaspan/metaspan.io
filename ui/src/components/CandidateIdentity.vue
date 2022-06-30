@@ -54,8 +54,8 @@ export default Vue.extend({
     }
   },
   async created () {
-    var count = 0
-    var int = setInterval(async () => {
+    let count = 0
+    const int = setInterval(async () => {
       count++
       if (this.$polkadot) {
         // console.debug('CandidateIdentity', this.$store.state.candidate.candidate.identity)
@@ -101,12 +101,12 @@ export default Vue.extend({
           this.loading = false
           clearInterval(int)
         } catch (err) {
-          console.debug('OOPs')
+          console.debug('CandidnateIdentity.vue: OOPs')
           console.error(err)
         }
       }
       if (count > 10) {
-        console.debug('no api found, clearing interval...')
+        console.debug('CandidnateIdentity.vue: no api found, clearing interval...')
         this.loading = false
         clearInterval(int)
       }
