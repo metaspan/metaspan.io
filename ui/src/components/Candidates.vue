@@ -4,6 +4,7 @@
     <v-toolbar flat dense>
       <v-toolbar-title>Candidates</v-toolbar-title>
       <v-spacer></v-spacer>
+        <!-- {{chain}} -->
         <v-btn text class="text-none">
           <span class="d-none d-sm-inline">Updated: </span>{{ timeAgo(updatedAt) }}
         </v-btn>
@@ -234,7 +235,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       this.$store.dispatch('candidate/getList', { chain: this.chain })
     },
     gotoCandidate (item: ICandidate) {
-      // console.debug('gotoCandidate', item)
+      console.debug('gotoCandidate', this.chain, item)
       this.$store.dispatch('candidate/setCandidate', { chain: this.chain, stash: item.stash })
       this.$router.push(`/chain/${this.chain}/candidate/${item.stash}`)
     }
@@ -244,8 +245,8 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   },
   async created () {
     console.debug('Candidates.vue: created()', this.chain)
-    if (this.$store.state.candidate.chain !== this.chain) {
-      await this.$store.dispatch('candidate/setChain', this.chain)
+    if (this.$route.params.chain !== this.chain) {
+      await this.$store.dispatch('candidate/setChain', this.$route.params.chain)
     }
     this.windowSize = { x: window.innerWidth, y: window.innerHeight }
     // this.options = this.$store.state.candidate.options // .pagination.page
