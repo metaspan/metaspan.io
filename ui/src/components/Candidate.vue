@@ -24,7 +24,7 @@
 
     <!-- <CandidateBalance class="d-none d-md-block" :candidate="candidate"></CandidateBalance> -->
 
-    <v-row v-show="false">
+    <v-row>
       <v-col>
         <CandidateIdentity :chain="chain" :stash="candidate.stash"></CandidateIdentity>
       </v-col>
