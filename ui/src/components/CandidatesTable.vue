@@ -24,7 +24,7 @@
     <template v-slot:[`item.name`]="{item}">
       <div style="cursor:pointer" @click="clickItem(item)">
         <span class="identicon">
-          <Identicon :value="item.stash" :size="16"></Identicon>
+          <Identicon :value="item.stash" :size="16" theme="polkadot"></Identicon>
         </span> {{item.name}}
       </div>
     </template>
