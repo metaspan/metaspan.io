@@ -65,11 +65,11 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       matcher: null
     }
   },
-  watch: {
-    $polkadot (newval) {
-      console.debug('woot, polkadot is', newval)
-    }
-  },
+  // watch: {
+  //   $polkadot (newval) {
+  //     console.debug('woot, polkadot is', newval)
+  //   }
+  // },
   methods: {
     onSettingsDialog (v: boolean) {
       this.settingsDialog = v
@@ -87,12 +87,12 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     this.$store.dispatch('init')
   },
   async mounted () {
-    // console.debug('mounted')
-    // console.debug(await this.$polkadot)
-    await await this.$polkadot.connect()
-    // const activeEra = await this.$polkadot.api.query.staking.activeEra();
-    // // let chain = await this.$polkadot.rpc.system.chain()
-    // console.debug('TEST', activeEra)
+  //   // console.debug('mounted')
+  //   // console.debug(await this.$polkadot)
+    await await this.$substrate.connect()
+  //   // const activeEra = await this.$polkadot.api.query.staking.activeEra();
+  //   // // let chain = await this.$polkadot.rpc.system.chain()
+  //   // console.debug('TEST', activeEra)
   }
 })
 </script>

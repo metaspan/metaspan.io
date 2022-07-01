@@ -70,7 +70,7 @@
     <CandidatesTable v-if="windowSize.x >= 600" :filter="xfilter" :search="search"
       @click-item="gotoCandidate"></CandidatesTable>
 
-    <CandidatesList  v-if="windowSize.x < 600" :filter="xfilter" :search="search"
+    <CandidatesList v-if="windowSize.x < 600" :filter="xfilter" :search="search"
       @click-item="gotoCandidate"></CandidatesList>
 
     <Loading :loading="loading"></Loading>
@@ -80,7 +80,7 @@
 
 <script lang="ts">
 import moment from 'moment-timezone'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 // import * as d3 from 'd3'
 // import CandidatesHisto from './CandidatesHisto.vue'
 import CandidatesTable from './CandidatesTable.vue'
@@ -135,17 +135,21 @@ interface IMethods {
 }
 
 interface IComputed {
+  chain: string
   loading: boolean
   dark: boolean
-  filteredList: ICandidate[]
+  // filteredList: ICandidate[]
   // eslint-disable-next-line
   updatedAt: any
   favourites: string[]
-  updated: string
+  // updated: string
 }
-// interface IProps {}
+// eslint-disable-next-line
+interface IProps {
+  // chain: string
+}
 
-export default Vue.extend<IData, IMethods, IComputed>({
+export default Vue.extend<IData, IMethods, IComputed, IProps>({
   name: 'Candidates',
   components: {
     // CandidatesHisto,
@@ -153,10 +157,17 @@ export default Vue.extend<IData, IMethods, IComputed>({
     CandidatesList,
     Loading
   },
+  // props: {
+  //   chain: {
+  //     type: String,
+  //     required: true
+  //   }
+  // },
   computed: {
-    ...mapState('candidate', ['loading', 'filteredList', 'updatedAt', 'favourites']),
-    ...mapState(['dark']),
-    updated (): string { return moment(this.updatedAt as string).format(this.dateTimeFormat as string) }
+    ...mapState('candidate', ['chain']),
+    ...mapGetters('candidate', ['loading', 'updatedAt', 'favourites']),
+    ...mapState(['dark'])
+    // updated (): string { return moment(this.updatedAt as string).format(this.dateTimeFormat as string) }
   },
   data (): IData {
     return {
@@ -220,35 +231,44 @@ export default Vue.extend<IData, IMethods, IComputed>({
     },
     reload () {
       // console.debug('reload...')
-      this.$store.dispatch('candidate/getList')
+      this.$store.dispatch('candidate/getList', { chain: this.chain })
     },
     gotoCandidate (item: ICandidate) {
       // console.debug('gotoCandidate', item)
-      this.$store.dispatch('candidate/setCandidate', item.stash)
-      this.$router.push('/kusama/candidate/' + item.stash)
+      this.$store.dispatch('candidate/setCandidate', { chain: this.chain, stash: item.stash })
+      this.$router.push(`/chain/${this.chain}/candidate/${item.stash}`)
     }
     // handleResize (evt: any) {
     //   console.debug('handleResize', evt)
     // }
   },
-  created () {
+  async created () {
+    console.debug('Candidates.vue: created()', this.chain)
+    if (this.$store.state.candidate.chain !== this.chain) {
+      await this.$store.dispatch('candidate/setChain', this.chain)
+    }
     this.windowSize = { x: window.innerWidth, y: window.innerHeight }
     // this.options = this.$store.state.candidate.options // .pagination.page
     // this.itemsPerPage = this.$store.state.candidate.pagination.itemsPerPage
-    this.xfilter = this.$store.state.candidate.filter
-    this.search = this.$store.state.candidate.search
 
     this.debouncedSearch = debounce((newVal: string) => {
       this.checkFilterActive()
-      this.$store.dispatch('candidate/setSearch', newVal)
+      this.$store.dispatch('candidate/setSearch', { chain: this.chain, search: newVal })
       this.debouncing = false
     }, 1000)
 
     this.debouncedFilter = debounce((newVal: IFilter) => {
       this.checkFilterActive()
-      this.$store.dispatch('candidate/handleFilter', newVal)
+      this.$store.dispatch('candidate/handleFilter', { chain: this.chain, filter: newVal })
       this.debouncing = false
     }, 1000)
+  },
+  mounted () {
+    console.debug('Candidates.vue: mounted()', this.chain)
+    const state = this.$store.state.candidate // [this.chain]
+    console.debug('state', state)
+    this.xfilter = state[this.chain].filter
+    this.search = state[this.chain].search
   }
 })
 </script>

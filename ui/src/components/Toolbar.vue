@@ -14,13 +14,13 @@
         <v-icon>mdi-view-list</v-icon><span class="d-none d-md-inline">Validators</span>
       </v-btn> -->
 
-      <v-btn text to="/kusama">
+      <v-btn text to="/chain/kusama">
         <!-- <v-icon>mdi-basketball</v-icon> -->
         <v-img :src="require('@/assets/kusama-logo.png')" width="24px" height="24px"></v-img>
         <span class="d-none d-sm-inline">Kusama</span>
       </v-btn>
 
-      <v-btn text to="/polkadot">
+      <v-btn text to="/chain/polkadot">
         <!-- <v-icon>mdi-basketball</v-icon> -->
         <v-img :src="require('@/assets/polkadot-logo.png')" width="24px" height="24px"></v-img>
         <span class="d-none d-sm-inline">Polkadot</span>
@@ -96,16 +96,16 @@ export default Vue.extend({
     let count = 0
     const int = setInterval(async () => {
       count++
-      if (this.$polkadot) {
-        // var nominators = await this.$polkadot.api.query.staking.nominators(this.candidate.stash)
+      if (this.$substrate.polkadot) {
+        // var nominators = await this.$substrate.polkadot.api.query.staking.nominators(this.candidate.stash)
         // console.debug('nominators', this.candidate.stash, nominators)
-        // var vals = await this.$polkadot.api.query.staking.validators(this.candidate.stash)
+        // var vals = await this.$substrate.polkadot.api.query.staking.validators(this.candidate.stash)
         // console.debug('vals', this.candidate.stash, vals)
         this.apiConnected = true
         clearInterval(int)
       }
       if (count > 10) {
-        console.debug('no api found, clearing interval...')
+        console.debug('Toolbar.vue: no api found, clearing interval...')
         clearInterval(int)
       }
     }, 1000)

@@ -31,7 +31,7 @@
 
 <script lang="ts">
 import moment from 'moment-timezone'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import Vue from 'vue'
 import { ICandidate } from '../types/global'
 
@@ -69,7 +69,8 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   // props: ['model'],
   // mixins: [polkadot],
   computed: {
-    ...mapState('candidate', ['candidate', 'ranges']),
+    ...mapState('candidate', ['chain']),
+    ...mapGetters('candidate', ['candidate', 'ranges']),
     ...mapState('polkadot', { cache: 'cache' }),
     // valid (): boolean {
     //   return this.isValid(this.candidate.validity)

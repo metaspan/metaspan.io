@@ -175,33 +175,33 @@ const polkadot = {
     }
   },
   actions: {
-    async init (): Promise<void> {
-      console.warn('store/modules/polkadot.ts: init() we dont need this')
-      if (window.$polkadot) {
-        // const isReady = await window.$polkadot.isReady
-        // console.debug('isReady', isReady)
-        await window.$polkadot.disconnect()
-      }
-      // try {
-      //   await commit('SET_LOADING', true)
-      //   // let res = await axios.get(`${baseUrl}/candidates`)
-      //   // let res = ApiPromise()
-      //   const wsProvider = new WsProvider(endpoints.kusama[state.endpoint] as string)
-      //   const api = await ApiPromise.create({ provider: wsProvider })
-      //   api.on('error', (ctx: any) => {
-      //     console.debug('api error', ctx)
-      //   })
-      //   await commit('SET_API', api)
-      //   // // console.debug(res.data)
-      //   // if(res.data) await commit('SET_LIST', res.data)
-      //   // console.debug('committed');
-      // } catch (err) {
-      //   console.debug('OOPS, caught an error')
-      //   console.error(err)
-      // } finally {
-      //   await commit('SET_LOADING', false)
-      // }
-    },
+    // async init (): Promise<void> {
+    //   console.warn('store/modules/polkadot.ts: init() we dont need this')
+    //   if (window.$polkadot) {
+    //     // const isReady = await window.$polkadot.isReady
+    //     // console.debug('isReady', isReady)
+    //     await window.$polkadot.disconnect()
+    //   }
+    //   // try {
+    //   //   await commit('SET_LOADING', true)
+    //   //   // let res = await axios.get(`${baseUrl}/candidates`)
+    //   //   // let res = ApiPromise()
+    //   //   const wsProvider = new WsProvider(endpoints.kusama[state.endpoint] as string)
+    //   //   const api = await ApiPromise.create({ provider: wsProvider })
+    //   //   api.on('error', (ctx: any) => {
+    //   //     console.debug('api error', ctx)
+    //   //   })
+    //   //   await commit('SET_API', api)
+    //   //   // // console.debug(res.data)
+    //   //   // if(res.data) await commit('SET_LIST', res.data)
+    //   //   // console.debug('committed');
+    //   // } catch (err) {
+    //   //   console.debug('OOPS, caught an error')
+    //   //   console.error(err)
+    //   // } finally {
+    //   //   await commit('SET_LOADING', false)
+    //   // }
+    // },
     // eslint-disable-next-line
     async setEndpoint ({ state, commit, dispatch }: any, endpoint: string): Promise<void> {
       if (state.endpoints[endpoint]) {

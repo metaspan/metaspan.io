@@ -59,7 +59,7 @@
 
 <script lang="ts">
 import moment from 'moment-timezone'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import Identicon from '@polkadot/vue-identicon'
 import Vue from 'vue'
 import { ICandidate, ICandidateValidityItem } from '../types/global'
@@ -112,6 +112,7 @@ interface IMethods {
 }
 
 interface IComputed {
+  chain: string
   loading: boolean
   filtering: boolean
   filteredList: ICandidate[]
@@ -125,12 +126,17 @@ interface IComputed {
 }
 
 interface IProps {
+  // chain: string
   search: string
   filter: IFilter
 }
 
 export default Vue.extend<IData, IMethods, IComputed, IProps>({
   props: {
+    // chain: {
+    //   type: String,
+    //   required: true
+    // },
     search: { type: String },
     // 'list': {type: Array},
     filter: { type: Object }
@@ -140,7 +146,8 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     Identicon
   },
   computed: {
-    ...mapState('candidate', ['loading', 'filtering', 'filteredList', 'updatedAt', 'favourites']),
+    ...mapState('candidate', ['chain']),
+    ...mapGetters('candidate', ['filtering', 'updatedAt', 'filteredList', 'favourites', 'loading']),
     headers () {
       return [
         {
@@ -252,11 +259,11 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       this.$emit('click-item', item)
     },
     toggleFav (item: IFilteredListItem) {
-      this.$store.dispatch('candidate/toggleFav', item.stash)
+      this.$store.dispatch('candidate/toggleFav', { chain: this.chain, stash: item.stash })
     },
     handlePaginate (evt: IPaginate) {
       // console.debug(evt)
-      this.$store.dispatch('candidate/paginate', evt)
+      this.$store.dispatch('candidate/paginate', { chain: this.chain, pagination: evt })
     },
     // eslint-disable-next-line
     handlePage (evt: any) {
@@ -267,11 +274,12 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       console.debug(evt)
     },
     handleOptions (evt: IOptions) {
-      this.$store.dispatch('candidate/handleOptions', evt)
+      console.debug('CandidatesTable.vue: ', evt)
+      this.$store.dispatch('candidate/handleOptions', { chain: this.chain, options: evt })
     }
   },
   created () {
-    this.options = this.$store.state.candidate.options
+    this.options = this.$store.state.candidate[this.chain].options
   }
 })
 </script>

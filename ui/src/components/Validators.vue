@@ -195,11 +195,21 @@ interface IMethods {
   gotoValidator(item: ITableItem): void
 }
 
-export default Vue.extend<IData, IMethods, IComputed>({
+interface IProps {
+  chain: string
+}
+
+export default Vue.extend<IData, IMethods, IComputed, IProps>({
   name: 'Validators',
   components: {
     // ValidatorsHisto,
     Identicon
+  },
+  props: {
+    chain: {
+      type: String,
+      required: true
+    }
   },
   computed: {
     ...mapState('validator', ['loading', 'list', 'updatedAt', 'favourites']),
@@ -323,18 +333,18 @@ export default Vue.extend<IData, IMethods, IComputed>({
     async getList () {
       console.debug('getList')
       await this.$store.dispatch('validator/loading', true)
-      const era = await this.$polkadot.api.query.staking.activeEra()
+      const era = await this.$substrate.polkadot.api.query.staking.activeEra()
       console.debug('era', era)
-      // let vals = await this.$polkadot.api.query.staking.erasValidatorPrefs.entries(era.value.index)
-      // let vals = await this.$polkadot.api.query.staking.validators(account_hash_stash)
-      // let vals = await this.$polkadot.api.query.session.validators()
-      // const vals = await this.$polkadot.api.query.staking.validators.entries()
-      // const vals = await this.$polkadot.api.query.staking.validators.at(era)
-      const countForVals = await this.$polkadot.api.query.staking.counterForValidators()
-      const countForNoms = await this.$polkadot.api.query.staking.counterForNominators()
+      // let vals = await this.$substrate.polkadot.api.query.staking.erasValidatorPrefs.entries(era.value.index)
+      // let vals = await this.$substrate.polkadot.api.query.staking.validators(account_hash_stash)
+      // let vals = await this.$substrate.polkadot.api.query.session.validators()
+      // const vals = await this.$substrate.polkadot.api.query.staking.validators.entries()
+      // const vals = await this.$substrate.polkadot.api.query.staking.validators.at(era)
+      const countForVals = await this.$substrate.polkadot.api.query.staking.counterForValidators()
+      const countForNoms = await this.$substrate.polkadot.api.query.staking.counterForNominators()
       console.debug('vals', countForVals.toNumber(), countForNoms.toNumber())
 
-      const vals = await this.$polkadot.api.query.session.validators()
+      const vals = await this.$substrate.polkadot.api.query.session.validators()
       console.debug('vals', vals)
 
       // await this.$store.dispatch('validator/setList', vals)
@@ -366,6 +376,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
     }
   },
   created () {
+    console.debug('Validators.vue: chain: ' + this.chain)
     this.options = this.$store.state.validator.options
     // this.itemsPerPage = this.$store.state.validator.pagination.itemsPerPage
     this.xfilter = this.$store.state.validator.filter
@@ -376,7 +387,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
       this.getList()
     // } else {
     //   await this.$store.dispatch('validator/loading', false)
-    //   this.$polkadot.api.query.validators()
+    //   this.$substrate.polkadot.api.query.validators()
     }
     // console.debug("List mounted")
     // this.$store.dispatch("init")

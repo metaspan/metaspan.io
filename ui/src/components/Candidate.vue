@@ -24,12 +24,12 @@
 
     <!-- <CandidateBalance class="d-none d-md-block" :candidate="candidate"></CandidateBalance> -->
 
-    <v-row>
+    <v-row v-show="false">
       <v-col>
-        <CandidateIdentity :stash="candidate.stash"></CandidateIdentity>
+        <CandidateIdentity :chain="chain" :stash="candidate.stash"></CandidateIdentity>
       </v-col>
       <v-col>
-        <CandidateBalance :stash="candidate.stash"></CandidateBalance>
+        <CandidateBalance :chain="chain" :stash="candidate.stash"></CandidateBalance>
       </v-col>
     </v-row>
 
@@ -99,7 +99,7 @@
 
 <script lang="ts">
 import moment from 'moment-timezone'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import Vue from 'vue'
 // import polkadot from '@/mixins/polkadot.js'
 import CandidateValidity from './CandidateValidity.vue'
@@ -138,6 +138,7 @@ interface IMethods {
 }
 
 interface IComputed {
+  chain: string
   candidate: ICandidate
   // eslint-disable-next-line
   cache: Record<string, any> // CacheItem
@@ -146,7 +147,9 @@ interface IComputed {
   balance: any
 }
 // eslint-disable-next-line
-interface IProps {}
+interface IProps {
+  // chain: string
+}
 
 export default Vue.extend<IData, IMethods, IComputed, IProps>({
   name: 'Candidate',
@@ -164,8 +167,15 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     CandidateBalance,
     CandidateIdentity
   },
+  props: {
+    // chain: {
+    //   type: String,
+    //   required: true
+    // }
+  },
   computed: {
-    ...mapState('candidate', ['loading', 'candidate', 'ranges']),
+    ...mapGetters('candidate', ['loading', 'candidate', 'ranges']),
+    ...mapState('candidate', ['chain']),
     ...mapState('polkadot', { cache: 'cache' }),
     // valid (): boolean {
     //   return this.isValid(this.candidate.validity)
@@ -193,9 +203,9 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   },
   methods: {
     test () {
-      this.$store.dispatch('candidate/setLoading', true)
+      this.$store.dispatch('candidate/setLoading', { chain: this.chain, value: true })
       setTimeout(() => {
-        this.$store.dispatch('candidate/setLoading', false)
+        this.$store.dispatch('candidate/setLoading', { chain: this.chain, value: false })
       }, 5000)
     },
     // eslint-disable-next-line
@@ -218,10 +228,14 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     }
   },
   async created () {
-    // console.debug(this.$route.params)
-    if (!this.candidate.stash) {
+    console.debug('Candidate.vue: created()', this.candidate, this.$route.params)
+    if (!this.chain) {
+      console.debug('no chain?', this.$route.params)
+      await this.$store.dispatch('candidate/setChain', this.$route.params.chain)
+    }
+    if (!this.candidate) {
       console.debug('no stash?', this.$route.params)
-      await this.$store.dispatch('candidate/setCandidate', this.$route.params.stash)
+      await this.$store.dispatch('candidate/setCandidate', { chain: this.chain, stash: this.$route.params.stash })
       console.debug(this.candidate)
     }
     // let {nonce, balance} = await this.$polkadot.api().query.system.account(this.candidate.stash)

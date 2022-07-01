@@ -23,6 +23,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { mapState } from 'vuex'
 import Loading from './Loading.vue'
 export default Vue.extend({
   name: 'CandidateBalance',
@@ -31,6 +32,9 @@ export default Vue.extend({
       type: String,
       required: true
     }
+  },
+  computed: {
+    ...mapState('candidate', ['chain'])
   },
   data () {
     return {
@@ -55,16 +59,16 @@ export default Vue.extend({
     let count = 0
     const int = setInterval(async () => {
       count++
-      if (this.$polkadot) {
+      if (this.$substrate[this.chain]) {
         // var nominators = await this.$polkadot.api.query.staking.nominators(this.candidate.stash)
         // console.debug('nominators', this.candidate.stash, nominators)
         // var vals = await this.$polkadot.api.query.staking.validators(this.candidate.stash)
         // console.debug('vals', this.candidate.stash, vals)
         // api.query.system.account(<accountId>).
         try {
-          const acct = await this.$polkadot.api.query.system.account(this.stash)
+          const acct = await this.$substrate[this.chain].query.system.account(this.stash)
           // console.debug(acct)
-          const now = await this.$polkadot.api.query.timestamp.now()
+          const now = await this.$substrate[this.chain].query.timestamp.now()
           const { nonce, data: balance } = acct
           console.log(`${now}: balance of ${balance.free} and a nonce of ${nonce}`)
           this.account.balance = balance

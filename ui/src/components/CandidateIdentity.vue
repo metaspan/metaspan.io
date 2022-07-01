@@ -27,7 +27,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import Loading from '@/components/Loading.vue'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import { hexToString } from '@polkadot/util'
 
 export default Vue.extend({
@@ -35,8 +35,15 @@ export default Vue.extend({
   components: {
     Loading
   },
+  // props: {
+  //   chain: {
+  //     type: String,
+  //     required: true
+  //   }
+  // },
   computed: {
-    ...mapState('candidate', ['candidate'])
+    ...mapState('candidate', ['chain']),
+    ...mapGetters('candidate', ['candidate'])
   },
   data () {
     return {
@@ -54,14 +61,15 @@ export default Vue.extend({
     }
   },
   async created () {
+    console.debug(`CandidateIdentity.vue created(): chain=${this.chain}`)
     let count = 0
     const int = setInterval(async () => {
       count++
-      if (this.$polkadot) {
+      if (this.$substrate[this.chain]) {
         // console.debug('CandidateIdentity', this.$store.state.candidate.candidate.identity)
-        // const superOf = await this.$polkadot.api.query.identity.superOf(this.candidate.stash)
+        // const superOf = await this.$substrate.polkadot.api.query.identity.superOf(this.candidate.stash)
         // console.debug('superOf', superOf)
-        // const subsOf = await this.$polkadot.api.query.identity.subsOf(this.candidate.stash)
+        // const subsOf = await this.$substrate.polkadot.api.query.identity.subsOf(this.candidate.stash)
         // console.debug('subsOf', subsOf)
 
         // const ex = {
@@ -80,7 +88,7 @@ export default Vue.extend({
         //   }
         // }
         try {
-          const id = await this.$polkadot.api.query.identity.identityOf(this.candidate.stash)
+          const id = await this.$substrate[this.chain].query.identity.identityOf(this.candidate.stash)
           console.debug('id', id)
           const idj = id.toJSON()
           console.debug('idj', idj)
@@ -104,9 +112,11 @@ export default Vue.extend({
           console.debug('CandidnateIdentity.vue: OOPs')
           console.error(err)
         }
+      } else {
+        console.debug('not connected?', this.chain)
       }
       if (count > 10) {
-        console.debug('CandidnateIdentity.vue: no api found, clearing interval...')
+        console.debug('CandidateIdentity.vue: no api found, clearing interval...')
         this.loading = false
         clearInterval(int)
       }

@@ -45,7 +45,7 @@
 
 <script lang="ts">
 import moment from 'moment-timezone'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import Identicon from '@polkadot/vue-identicon'
 import Vue from 'vue'
 import { ICandidate, ICandidateListFilter, ICandidateValidityItem } from '../types/global'
@@ -72,6 +72,7 @@ interface IMethods {
 }
 
 interface IComputed {
+  chain: string
   filteredList: ICandidate[]
   filter: ICandidateListFilter
   loading: boolean
@@ -80,13 +81,25 @@ interface IComputed {
   // items: any[]
 }
 
-export default Vue.extend<IData, IMethods, IComputed>({
+// eslint-disable-next-line
+interface IProps {
+  // chain: string
+}
+
+export default Vue.extend<IData, IMethods, IComputed, IProps>({
   name: 'CandidatesList',
   components: {
     Identicon
   },
+  props: {
+    // chain: {
+    //   type: String,
+    //   required: true
+    // }
+  },
   computed: {
-    ...mapState('candidate', ['filteredList', 'filter', 'loading', 'filtering', 'favourites'])
+    ...mapState('candidate', ['chain']),
+    ...mapGetters('candidate', ['filteredList', 'filter', 'loading', 'filtering', 'favourites'])
   },
   data () {
     return {
@@ -102,7 +115,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
     // eslint-disable-next-line
     toggleFav (item: any) {
       // console.debug('toggleFav', item.stash)
-      this.$store.dispatch('candidate/toggleFav', item.stash)
+      this.$store.dispatch('candidate/toggleFav', { chain: this.chain, stash: item.stash })
     },
     // eslint-disable-next-line
     timeAgo (d: any): string {

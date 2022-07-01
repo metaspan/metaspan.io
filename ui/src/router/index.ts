@@ -4,6 +4,7 @@ import VueRouter, { RouteConfig } from 'vue-router'
 import Home from '../views/Home.vue'
 
 import KusamaHome from '@/components/kusama/KusamaHome.vue'
+import PolkadotHome from '@/components/polkadot/PolkadotHome.vue'
 
 import Validators from '@/components/Validators.vue'
 import Nominators from '@/components/Nominators.vue'
@@ -32,19 +33,52 @@ const routes: Array<RouteConfig> = [
     component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
   },
   {
-    path: '/kusama',
+    path: '/chain/:chain',
     name: 'KusamaHome',
     component: KusamaHome,
+    props: true,
     children: [
-      { path: 'pool', name: 'Pools', component: ComingSoon, meta: { title: 'metaspan.io - kusama pools' } },
-      { path: 'validator', name: 'Validators', component: Validators },
-      { path: 'validator/:stash', name: 'Validator', component: ComingSoon, props: true },
-      { path: 'nominator', name: 'Nominators', component: Nominators },
-      { path: 'candidate', name: 'Candidates', component: Candidates, meta: { title: 'metaspan.io - kusama 1kv' } },
+      // { path: 'pool', name: 'Pools', component: ComingSoon, meta: { title: 'metaspan.io - kusama pools' } },
+      // { path: 'validator', name: 'Validators', component: Validators },
+      // { path: 'validator/:stash', name: 'Validator', component: ComingSoon, props: true },
+      // { path: 'nominator', name: 'Nominators', component: Nominators },
+      {
+        path: 'candidate',
+        name: 'Candidates',
+        component: Candidates,
+        meta: { title: 'metaspan.io - 1kv' },
+        props: true
+        // props: { chain: 'kusama' }
+      },
       { path: 'candidate/:stash', name: 'Candidate', component: Candidate, props: true, meta: { title: 'metaspan.io - kusama 1kv' } }
     ]
   },
-  { path: '/polkadot', name: 'PolkadotHome', component: ComingSoon },
+  // { path: '/polkadot', name: 'PolkadotHome', component: ComingSoon },
+  // {
+  //   path: '/polkadot',
+  //   name: 'PolkadotHome',
+  //   component: PolkadotHome,
+  //   children: [
+  //     // { path: 'pool', name: 'Pools', component: ComingSoon, meta: { title: 'metaspan.io - kusama pools' } },
+  //     // { path: 'validator', name: 'Validators', component: Validators, props: { chain: 'polkadot' } },
+  //     // { path: 'validator/:stash', name: 'PolkadotValidator', component: ComingSoon, props: true },
+  //     // { path: 'nominator', name: 'Nominators', component: Nominators },
+  //     {
+  //       path: 'candidate',
+  //       name: 'PolkadotCandidates',
+  //       component: Candidates,
+  //       props: { chain: 'polkadot' },
+  //       meta: { title: 'metaspan.io - kusama 1kv' }
+  //     },
+  //     {
+  //       path: 'candidate/:stash',
+  //       name: 'PolkadotCandidate',
+  //       component: Candidate,
+  //       props: { chain: 'polkadot' },
+  //       meta: { title: 'metaspan.io - kusama 1kv' }
+  //     }
+  //   ]
+  // },
   // {
   //   path: '/nominator',
   //   name: 'Nominators',

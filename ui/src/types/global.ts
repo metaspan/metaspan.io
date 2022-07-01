@@ -24,6 +24,7 @@ export interface ICandidateValidityItem {
 }
 
 export interface ICandidate {
+  chain?: string
   active: boolean
   commission: number
   councilStake: number

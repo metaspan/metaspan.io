@@ -57,6 +57,7 @@ export default Vue.extend({
       // this.showSettingsDialog = val
     },
     rad_endpoint (val) {
+      console.warn('DEPRICATED: rad_endpoint()')
       this.$store.dispatch('polkadot/setEndpoint', val)
     }
   },

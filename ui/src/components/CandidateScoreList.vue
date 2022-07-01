@@ -32,7 +32,7 @@
 
 <script lang="ts">
 import moment from 'moment-timezone'
-import { mapState } from 'vuex'
+import { mapGetters } from 'vuex'
 // import * as vbe from 'github:w3f/1k-validators-be'
 // const {vbe} = require('../../node_modules/1k-validators-be/src/score.ts')
 import Vue from 'vue'
@@ -64,7 +64,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   name: 'CandidateScoreList',
   // props: ['candidate'],
   computed: {
-    ...mapState('candidate', ['candidate', 'ranges'])
+    ...mapGetters('candidate', ['candidate', 'ranges'])
   },
   data () {
     return {

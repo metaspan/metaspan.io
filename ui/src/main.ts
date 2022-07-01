@@ -6,8 +6,8 @@ import store from './store'
 
 import vuetify from './plugins/vuetify'
 
-import { PolkadotAPI } from './plugins/polkadot'
-Vue.prototype.$polkadot = new PolkadotAPI({ chain: 'kusama' })
+import { SubstrateAPI } from './plugins/substrate'
+Vue.prototype.$substrate = new SubstrateAPI({ chain: 'kusama' })
 
 Vue.config.productionTip = false
 

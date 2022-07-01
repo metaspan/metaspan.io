@@ -146,7 +146,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
   watch: {
     obj (val) {
       this.loading = true
-      this.parseObj(this.$polkadot.api[val], null, null)
+      this.parseObj(this.$substrate.polkadot.api[val], null, null)
       this.loading = false
     }
   },
@@ -156,7 +156,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
       this.level += 1
       // console.debug(att, level, this.parsed[att])
       this.breadcrumbs.push({ text: att, type: 'attribute', level: this.level })
-      let obj = this.$polkadot
+      let obj = this.$substrate.polkadot
       this.breadcrumbs.forEach((b: IBreadCrumb, idx: number) => {
         if (idx !== 0) obj = obj[b.text]
       })
@@ -166,7 +166,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
     async selectMethod (att: any) {
       this.level += 1
       console.debug(att)
-      let obj = this.$polkadot
+      let obj = this.$substrate.polkadot
       for (let i = 1; i < this.breadcrumbs.length; i++) {
         // console.debug('::', this.breadcrumbs[i].text)
         obj = obj[this.breadcrumbs[i].text]
@@ -210,7 +210,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
       if (!evt) {
         this.level = 1
         this.breadcrumbs = [{ text: 'Polkadot', disabled: true, type: 'object', level: 0 }]
-        this.parsed = this.parseObj(this.$polkadot, false, 1)
+        this.parsed = this.parseObj(this.$substrate.polkadot, false, 1)
       } else {
         console.debug(evt)
         this.level = evt.level
@@ -221,7 +221,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
       }
     },
     parseBreadCrumbs () {
-      let obj = this.$polkadot
+      let obj = this.$substrate.polkadot
       for (let i = 1; i < this.breadcrumbs.length; i++) {
         console.debug('::', this.breadcrumbs[i].text)
         obj = obj[this.breadcrumbs[i].text]
@@ -280,7 +280,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
     }
   },
   mounted () {
-    this.parsed = this.parseObj(this.$polkadot, false, 1)
+    this.parsed = this.parseObj(this.$substrate.polkadot, false, 1)
   }
 })
 </script>
