@@ -12,16 +12,18 @@ app.get('/', function(req, res){
   res.send('Hello')
 })
 
-app.get('/api/kusama/candidate', function(req, res) {
-  slog('GET /api/kusama/candidate')
-  const cache = fs.readFileSync(config.cache, 'utf-8')
+app.get('/api/:chain/candidate', function(req, res) {
+  const chain = req.params.chain
+  slog(`GET /api/${chain}/candidate`)
+  const cache = fs.readFileSync(`${chain}-${config.cache}`, 'utf-8')
   res.json(JSON.parse(cache))
 })
 
-app.get('/api/kusama/candidate/:stash', function(req, res) {
+app.get('/api/:chain/candidate/:stash', function(req, res) {
+  const chain = req.params.chain
   const stash = req.params.stash
-  slog(`GET /api/kusama/candidate/${stash}`)
-  var cache = fs.readFileSync(config.cache, 'utf-8')
+  slog(`GET /api/${chain}/candidate/${stash}`)
+  var cache = fs.readFileSync(`${chain}-${config.cache}`, 'utf-8')
   cache = JSON.parse(cache)
   const c = cache.candidates.find(f => f.stash === stash)
   if (c) {

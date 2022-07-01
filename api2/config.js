@@ -7,7 +7,14 @@ const config = {
   updater: {
     interval: 30 * 60 * 1000, // mins * secs * millis
     // url: 'https://api.metaspan.io/api/kusama/candidate',
-    url: 'https://kusama.w3f.community/candidates'
+    chains: {
+      kusama: {
+        url: 'https://kusama.w3f.community/candidates'
+      },
+      polkadot: {
+        url: 'https://polkadot.w3f.community/candidates'
+      }
+    }
   },
 
   server: {
