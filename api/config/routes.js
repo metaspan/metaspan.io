@@ -33,7 +33,14 @@ module.exports.routes = {
   *                                                                          *
   ***************************************************************************/
 
-   '/api/kusama/candidate': 'kusama/candidate',
-   '/api/kusama/candidate/:stash': 'kusama/candidate'
+  '/api/kusama/candidate': 'kusama/candidate',
+  '/api/kusama/candidate/:stash': 'kusama/candidate',
+  '/api/kusama/nominator': 'kusama/nominator',
+  '/api/kusama/nominator/:stash': 'kusama/nominator',
+
+  '/api/polkadot/candidate': 'polkadot/candidate',
+  '/api/polkadot/candidate/:stash': 'polkadot/candidate',
+  '/api/polkadot/nominator': 'polkadot/nominator',
+  '/api/polkadot/nominator/:stash': 'polkadot/nominator'
 
 }
