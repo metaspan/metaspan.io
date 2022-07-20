@@ -9,10 +9,12 @@ const config = {
     // url: 'https://api.metaspan.io/api/kusama/candidate',
     chains: {
       kusama: {
-        url: 'https://kusama.w3f.community/candidates'
+        candidates_url: 'https://kusama.w3f.community/candidates',
+        nominators_url: 'https://kusama.w3f.community/nominators'
       },
       polkadot: {
-        url: 'https://polkadot.w3f.community/candidates'
+        candidates_url: 'https://polkadot.w3f.community/candidates',
+        nominators_url: 'https://polkadot.w3f.community/nominators'
       }
     }
   },
