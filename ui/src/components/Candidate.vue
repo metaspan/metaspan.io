@@ -198,6 +198,11 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       unsubscribe () {}
     }
   },
+  watch: {
+    chain (val) {
+      this.$router.push(`/${val}/candidate`)
+    }
+  },
   filters: {
     // eslint-disable-next-line
     formatDate (v: any): string {

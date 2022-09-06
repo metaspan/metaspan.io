@@ -10,6 +10,9 @@ import axios from 'axios'
 import moment from 'moment-timezone'
 import { IndexedDB } from './idb'
 
+// import { apolloClient } from '../../graphql/apollo'
+// import { GET_CANDIDATES, GET_CANDIDATE } from '../../graphql/queries/candidates'
+
 const idb = new IndexedDB('candidates')
 
 interface IPagination {
@@ -346,6 +349,37 @@ const candidate = {
     async apiStatus ({ commit }, { connected, chain }) {
       await commit('API_STATUS', { connected, chain })
     },
+    // async getListNew ({ rootState, state, commit, dispatch }) {
+    //   const variables = {
+    //     chain: rootState.chain,
+    //     search: state.search
+    //     // sort: state.options.sortBy,
+    //     // sortDir: state.options.sortDir, // asc / desc
+    //     // offset: (state.pagination.page - 1) * state.pagination.itemsPerPage || 0,
+    //     // limit: state.pagination.itemsPerPage || 10
+    //   }
+    //   try {
+    //     // const res = await axios.get(`/function/w3f-validators-${chain}`, { params })
+    //     const res = await apolloClient.query({
+    //       query: GET_CANDIDATES,
+    //       variables
+    //     })
+    //     if (res.data) {
+    //       // console.log('got data', res.data)
+    //       await commit('SET_LIST', {
+    //         list: res.data.Validators,
+    //         count: res.data.ValidatorCount
+    //         // limit: variables.limit,
+    //         // offset: variables.offset
+    //       })
+    //       await dispatch('filterList')
+    //     }
+    //   } catch (err) {
+    //     console.error(err)
+    //   } finally {
+    //     await commit('SET_LOADING', false)
+    //   }
+    // },
     // eslint-disable-next-line
     async getList ({ rootState, state, commit, dispatch }: any) {
       console.debug('store/modules/candidate.ts: getList()', state.chain, 'initial:', state.initial)

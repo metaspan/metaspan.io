@@ -25,6 +25,7 @@
 import Vue from 'vue'
 import { mapState, mapGetters } from 'vuex'
 import Loading from './Loading.vue'
+
 export default Vue.extend({
   name: 'CandidateBalance',
   props: {
@@ -36,6 +37,7 @@ export default Vue.extend({
   components: { Loading },
   computed: {
     ...mapState(['chain']),
+    ...mapState('substrate', ['decimals']),
     ...mapGetters('substrate', ['chainInfo'])
   },
   data () {
@@ -49,21 +51,6 @@ export default Vue.extend({
           miscFrozen: 0,
           feeFrozen: 0
         }
-      },
-      decimals: {
-        0: 1,
-        1: 10,
-        2: 100,
-        3: 1000,
-        4: 10000,
-        5: 100000,
-        6: 1000000,
-        7: 10000000,
-        8: 100000000,
-        9: 1000000000,
-        10: 10000000000,
-        11: 100000000000,
-        12: 1000000000000
       }
     }
   },
@@ -72,22 +59,31 @@ export default Vue.extend({
       // return v / 1000000000000
       console.debug('decimals', this.chainInfo?.tokenDecimals?.toJSON()[0])
       const decimalPlaces = this.chainInfo?.tokenDecimals?.toJSON()[0]
+      console.debug('decimalPlaces', decimalPlaces)
       return v / this.decimals[decimalPlaces]
     }
   },
   async created () {
     console.debug('CandidateBalance.vue created()', this.chain)
+    if (!this.$substrate[this.chain]) {
+      await this.$substrate.connect(this.chain)
+    }
+    if (!this.chainInfo) {
+      const chainInfo = await this.$substrate[this.chain].registry.getChainProperties()
+      console.log('chainInfo.tokenDecimals', chainInfo.tokenDecimals.toJSON()[0])
+      await this.$store.dispatch('substrate/setChainInfo', { chain: this.chain, chainInfo })
+    }
     let count = 0
     const int = setInterval(async () => {
       count++
       if (this.$substrate[this.chain]) {
-        await this.$substrate[this.chain].isReady
         // var nominators = await this.$polkadot.api.query.staking.nominators(this.candidate.stash)
         // console.debug('nominators', this.candidate.stash, nominators)
         // var vals = await this.$polkadot.api.query.staking.validators(this.candidate.stash)
         // console.debug('vals', this.candidate.stash, vals)
         // api.query.system.account(<accountId>).
         try {
+          await this.$substrate[this.chain].isReady
           const acct = await this.$substrate[this.chain].query.system.account(this.stash)
           // console.debug(acct)
           const now = await this.$substrate[this.chain].query.timestamp.now()

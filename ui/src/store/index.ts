@@ -31,6 +31,7 @@ interface IAlert {
 
 export default new Vuex.Store({
   state: {
+    loading: false,
     baseUrl: process.env.NODE_ENV === 'production'
       ? 'https://api.metaspan.io'
       : `//${window.location.hostname}:${window.location.port}`,
@@ -42,6 +43,9 @@ export default new Vuex.Store({
     chain: 'kusama'
   },
   mutations: {
+    SET_LOADING (state, loading) {
+      state.loading = loading
+    },
     SET_DARK (state, value) {
       state.dark = value
     },
@@ -71,6 +75,9 @@ export default new Vuex.Store({
       dispatch('substrate/init', {}, { root: true })
       dispatch('candidate/init', {}, { root: true })
       dispatch('pool/init', {}, { root: true })
+    },
+    setLoading ({ commit }, loading) {
+      commit('SET_LOADING', loading)
     },
     setDark ({ commit }, dark) {
       commit('SET_DARK', dark)

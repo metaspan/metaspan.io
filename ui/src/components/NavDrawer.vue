@@ -23,6 +23,7 @@
 import Vue from 'vue'
 import { mapState } from 'vuex'
 export default Vue.extend({
+  name: 'NavDrawer',
   computed: {
     ...mapState(['showNavBar'])
   },

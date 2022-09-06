@@ -1,7 +1,7 @@
 <template>
 
   <v-data-table dense
-    :loading="loading || filtering"
+    :loading="loading"
     :headers="headers"
     :items="items"
     :page="options.page"
@@ -9,11 +9,12 @@
     :sort-by="options.sortBy"
     :sort-desc="options.sortDesc"
     item-key="id"
-
+    loading-text="Loading candidates..."
     @pagination="handlePaginate"
     @update:options="handleOptions"
     @update:page="handlePage"
-    @update:items-per-page="handleItemsPerPage">
+    @update:items-per-page="handleItemsPerPage"
+    :footer-props="{'items-per-page-options': [10, 20, 30, 40, 50]}">
 
     <template v-slot:[`item.favourite`]="{item}">
       <v-btn small icon @click="toggleFav(item)">

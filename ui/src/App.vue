@@ -16,6 +16,7 @@
     </v-snackbar> -->
 
     <SettingsDialog></SettingsDialog>
+    <Loading :loading="appLoading"></Loading>
 
   </v-app>
 </template>
@@ -26,6 +27,7 @@ import Vue from 'vue'
 import Toolbar from './components/Toolbar.vue'
 import SettingsDialog from './components/SettingsDialog.vue'
 import NavDrawer from './components/NavDrawer.vue'
+import Loading from './components/Loading.vue'
 
 interface IData {
   settingsDialog: boolean
@@ -36,6 +38,7 @@ interface IData {
 // eslint-disable-next-line
 interface IComputed {
   dark: boolean
+  appLoading: boolean
   chain: string
 }
 
@@ -54,12 +57,13 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   components: {
     Toolbar,
     SettingsDialog,
-    NavDrawer
+    NavDrawer,
+    Loading
   },
   computed: {
     ...mapState(['dark', 'showSettingsDialog']),
     ...mapState('polkadot', ['loading']),
-    ...mapState(['chain'])
+    ...mapState({ chain: 'chain', appLoading: 'loading' })
   },
   data (): IData {
     return {
@@ -68,11 +72,12 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     }
   },
   watch: {
-    // async chain (newval) {
-    //   console.debug('woot, chain is', newval)
-    //   // const chainInfo = await this.$substrate[this.chain].registry.getChainProperties()
-    //   // console.log(chainInfo)
-    // }
+    async chain (newval) {
+      console.debug('woot, chain is', newval)
+      await this.$substrate.connect(this.chain)
+      // const chainInfo = await this.$substrate[this.chain].registry.getChainProperties()
+      // console.log(chainInfo)
+    }
   },
   methods: {
     onSettingsDialog (v: boolean) {
@@ -89,9 +94,14 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     // set the initial state from the matcher  await this.onDark(this.matcher)
     this.matcher.addListener(this.onDark)
     this.onDark(this.matcher)
-    setTimeout(() => {
+    this.$store.dispatch('setLoading', true)
+    setTimeout(async () => {
+      await this.$substrate.connect(this.chain)
+      await this.$store.dispatch('setChain', { chain: this.chain })
       console.debug('App.vue: dispatching store init()')
-      this.$store.dispatch('init')
+      await this.$store.dispatch('init')
+      await this.$store.dispatch('setLoading', false)
+      console.debug('App Loading done')
     }, 3000)
   },
   async mounted () {

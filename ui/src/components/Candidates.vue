@@ -8,7 +8,7 @@
         <v-btn text class="text-none">
           <span class="d-none d-sm-inline">Updated: </span>{{ timeAgo(updatedAt) }}
         </v-btn>
-        {{apiConnected}}
+        <!-- {{apiConnected}} -->
         <v-btn :loading="loading" icon @click="reload()">
           <v-icon>mdi-reload</v-icon>
         </v-btn>
@@ -21,13 +21,13 @@
 
     <v-toolbar class="d-none d-sm-block" dense flat elevation="0" :loading="debouncing">
       <v-switch v-model="xfilter.favourite" label="Fav."></v-switch>
-      <v-text-field v-model="search" label="Search" class="mx-4"></v-text-field>
+      <v-text-field v-model="search" label="Search" :loading="searching" class="mx-4"></v-text-field>
       <v-text-field v-model="xfilter.rank" label="Rank" class="mx-4"></v-text-field>
       <v-text-field v-model="xfilter.score" label="Score" class="mx-4"></v-text-field>
       <v-switch v-model="xfilter.valid" label="Valid"></v-switch>
       <v-switch v-model="xfilter.active" label="Active"></v-switch>
-      <v-progress-linear striped absolute
-        bottom v-show="debouncing" :indeterminate="debouncing"></v-progress-linear>
+      <!-- <v-progress-linear striped absolute
+        bottom v-show="debouncing" :indeterminate="debouncing"></v-progress-linear> -->
     </v-toolbar>
 
     <v-dialog v-model="showFilterDialog" width="400">
@@ -118,6 +118,7 @@ interface IData {
   showFilterDialog: boolean
   dateTimeFormat: string
   search: string
+  searching: boolean
   sort: string
   sortDir: string
   sortItems: ISortItem[]
@@ -181,6 +182,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       showFilterDialog: false,
       dateTimeFormat: 'YYYY/MM/DD hh:mm',
       search: '',
+      searching: false,
       sort: 'rank', // {text: 'Rank', value: 'rank'},
       sortDir: 'asc',
       sortItems: [
@@ -203,6 +205,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     },
     search (newval: string) {
       this.debouncing = true
+      this.searching = true
       this.debouncedSearch(newval)
     },
     xfilter: {
@@ -261,12 +264,14 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       this.checkFilterActive()
       this.$store.dispatch('candidate/setSearch', { chain: this.chain, search: newVal })
       this.debouncing = false
+      this.searching = false
     }, 1000)
 
     this.debouncedFilter = debounce((newVal: IFilter) => {
       this.checkFilterActive()
       this.$store.dispatch('candidate/handleFilter', { chain: this.chain, filter: newVal })
       this.debouncing = false
+      this.searching = false
     }, 1000)
 
     if (!this.chain || this.chain === undefined) {

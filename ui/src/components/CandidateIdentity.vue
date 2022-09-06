@@ -62,6 +62,9 @@ export default Vue.extend({
   },
   async created () {
     console.debug(`CandidateIdentity.vue created(): chain=${this.chain}`)
+    if (!this.$substrate[this.chain]) {
+      await this.$substrate.connect(this.chain)
+    }
     await this.$substrate[this.chain].isReady
     let count = 0
     const int = setInterval(async () => {
