@@ -29,7 +29,7 @@
         <CandidateIdentity :chain="chain" :stash="candidate.stash"></CandidateIdentity>
       </v-col>
       <v-col>
-        <CandidateBalance :chain="chain" :stash="candidate.stash"></CandidateBalance>
+        <CandidateBalance :stash="candidate.stash"></CandidateBalance>
       </v-col>
     </v-row>
 
@@ -89,6 +89,8 @@
     </v-list>
     <CandidateValidity :candidate="candidate"></CandidateValidity>
 
+    <CandidateNominators :stash="candidate.stash"></CandidateNominators>
+
     <CandidateScore :candidate="candidate"></CandidateScore>
     <CandidateScoreList></CandidateScoreList>
 
@@ -113,6 +115,7 @@ import Loading from './Loading.vue'
 import CandidateScoreList from './CandidateScoreList.vue'
 import CandidateBalance from './CandidateBalance.vue'
 import CandidateIdentity from './CandidateIdentity.vue'
+import CandidateNominators from './CandidateNominators.vue'
 
 // import Identicon from './identicon/Identicon.ts'
 
@@ -165,7 +168,8 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     Loading,
     CandidateScoreList,
     CandidateBalance,
-    CandidateIdentity
+    CandidateIdentity,
+    CandidateNominators
   },
   props: {
     // chain: {
@@ -175,7 +179,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   },
   computed: {
     ...mapGetters('candidate', ['loading', 'candidate', 'ranges']),
-    ...mapState('candidate', ['chain']),
+    ...mapState(['chain']),
     ...mapState('polkadot', { cache: 'cache' }),
     // valid (): boolean {
     //   return this.isValid(this.candidate.validity)
@@ -231,7 +235,11 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     console.debug('Candidate.vue: created()', this.candidate, this.$route.params)
     if (!this.chain) {
       console.debug('no chain?', this.$route.params)
-      await this.$store.dispatch('candidate/setChain', this.$route.params.chain)
+      await this.$store.dispatch('setChain', { chain: this.$route.params.chain })
+      console.debug('App.vue: reading chain info()...')
+      const chainInfo = await this.$substrate[this.chain].registry.getChainProperties()
+      console.log('chainInfo.tokenDecimals', chainInfo.tokenDecimals.toJSON()[0])
+      await this.$store.dispatch('substrate/setChainInfo', { chain: this.chain, chainInfo })
     }
     if (!this.candidate) {
       console.debug('no stash?', this.$route.params)

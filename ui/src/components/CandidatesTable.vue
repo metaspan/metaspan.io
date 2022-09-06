@@ -8,7 +8,7 @@
     :items-per-page="options.itemsPerPage"
     :sort-by="options.sortBy"
     :sort-desc="options.sortDesc"
-    item-key="stash"
+    item-key="id"
 
     @pagination="handlePaginate"
     @update:options="handleOptions"
@@ -146,7 +146,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     Identicon
   },
   computed: {
-    ...mapState('candidate', ['chain']),
+    ...mapState(['chain']),
     ...mapGetters('candidate', ['filtering', 'updatedAt', 'filteredList', 'favourites', 'loading']),
     headers () {
       return [
@@ -214,8 +214,9 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     },
     items () {
       const list = this.filteredList as ICandidate[]
-      return list.map((item: ICandidate) => {
+      return list.map((item: ICandidate, idx: number) => {
         return {
+          id: `${item.stash}-${idx}`,
           favourite: this.favourites.includes(item.stash),
           stash: item.stash,
           name: item.name,
@@ -259,11 +260,11 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       this.$emit('click-item', item)
     },
     toggleFav (item: IFilteredListItem) {
-      this.$store.dispatch('candidate/toggleFav', { chain: this.chain, stash: item.stash })
+      this.$store.dispatch('candidate/toggleFav', { stash: item.stash })
     },
     handlePaginate (evt: IPaginate) {
       // console.debug(evt)
-      this.$store.dispatch('candidate/paginate', { chain: this.chain, pagination: evt })
+      this.$store.dispatch('candidate/paginate', { pagination: evt })
     },
     // eslint-disable-next-line
     handlePage (evt: any) {
@@ -275,10 +276,11 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     },
     handleOptions (evt: IOptions) {
       console.debug('CandidatesTable.vue: ', evt)
-      this.$store.dispatch('candidate/handleOptions', { chain: this.chain, options: evt })
+      this.$store.dispatch('candidate/handleOptions', { options: evt })
     }
   },
   created () {
+    console.debug('CandidatesTable.vue: created()', this.chain, this.$store.state.candidate[this.chain].options)
     this.options = this.$store.state.candidate[this.chain].options
   }
 })

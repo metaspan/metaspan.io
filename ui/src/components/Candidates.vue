@@ -8,6 +8,7 @@
         <v-btn text class="text-none">
           <span class="d-none d-sm-inline">Updated: </span>{{ timeAgo(updatedAt) }}
         </v-btn>
+        {{apiConnected}}
         <v-btn :loading="loading" icon @click="reload()">
           <v-icon>mdi-reload</v-icon>
         </v-btn>
@@ -136,6 +137,7 @@ interface IMethods {
 }
 
 interface IComputed {
+  apiConnected: boolean
   chain: string
   loading: boolean
   dark: boolean
@@ -165,8 +167,8 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   //   }
   // },
   computed: {
-    ...mapState('candidate', ['chain']),
-    ...mapGetters('candidate', ['loading', 'updatedAt', 'favourites']),
+    ...mapState(['chain']),
+    ...mapGetters('candidate', ['apiConnected', 'loading', 'updatedAt', 'favourites']),
     ...mapState(['dark'])
     // updated (): string { return moment(this.updatedAt as string).format(this.dateTimeFormat as string) }
   },
@@ -196,6 +198,9 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     }
   },
   watch: {
+    chain (val) {
+      this.$router.push(`/${val}/candidate`)
+    },
     search (newval: string) {
       this.debouncing = true
       this.debouncedSearch(newval)
@@ -232,12 +237,12 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     },
     reload () {
       // console.debug('reload...')
-      this.$store.dispatch('candidate/getList', { chain: this.chain })
+      this.$store.dispatch('candidate/getList')
     },
     gotoCandidate (item: ICandidate) {
       console.debug('gotoCandidate', this.chain, item)
       this.$store.dispatch('candidate/setCandidate', { chain: this.chain, stash: item.stash })
-      this.$router.push(`/chain/${this.chain}/candidate/${item.stash}`)
+      this.$router.push(`/${this.chain}/candidate/${item.stash}`)
     }
     // handleResize (evt: any) {
     //   console.debug('handleResize', evt)
@@ -245,9 +250,9 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   },
   async created () {
     console.debug('Candidates.vue: created()', this.chain)
-    if (this.$route.params.chain !== this.chain) {
-      await this.$store.dispatch('candidate/setChain', this.$route.params.chain)
-    }
+    // if (this.$route.params.chain !== this.chain) {
+    //   await this.$store.dispatch('setChain', { chain: this.$route.params.chain })
+    // }
     this.windowSize = { x: window.innerWidth, y: window.innerHeight }
     // this.options = this.$store.state.candidate.options // .pagination.page
     // this.itemsPerPage = this.$store.state.candidate.pagination.itemsPerPage
@@ -263,13 +268,21 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       this.$store.dispatch('candidate/handleFilter', { chain: this.chain, filter: newVal })
       this.debouncing = false
     }, 1000)
+
+    if (!this.chain || this.chain === undefined) {
+      console.debug('setting chain to', this.$route.params.chain)
+      await this.$store.dispatch('setChain', { chain: this.$route.params.chain })
+    }
   },
-  mounted () {
-    console.debug('Candidates.vue: mounted()', this.chain)
-    const state = this.$store.state.candidate // [this.chain]
-    console.debug('state', state)
-    this.xfilter = state[this.chain].filter
-    this.search = state[this.chain].search
+  async mounted () {
+    console.debug('Candidates.vue: mounted()', this.chain, this.$route.params)
+    // const state = this.$store.state.candidate // [this.chain]
+    // console.debug('state', state)
+    this.xfilter = this.$store.state.candidate[this.chain].filter
+    this.search = this.$store.state.candidate[this.chain].search
+  },
+  async beforeDestroy () {
+    console.debug('Candidates.vue: beforeDestroy()')
   }
 })
 </script>

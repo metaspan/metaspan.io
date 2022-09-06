@@ -42,7 +42,7 @@ export default Vue.extend({
   //   }
   // },
   computed: {
-    ...mapState('candidate', ['chain']),
+    ...mapState(['chain']),
     ...mapGetters('candidate', ['candidate'])
   },
   data () {
@@ -62,6 +62,7 @@ export default Vue.extend({
   },
   async created () {
     console.debug(`CandidateIdentity.vue created(): chain=${this.chain}`)
+    await this.$substrate[this.chain].isReady
     let count = 0
     const int = setInterval(async () => {
       count++

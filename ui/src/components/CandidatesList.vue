@@ -98,7 +98,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     // }
   },
   computed: {
-    ...mapState('candidate', ['chain']),
+    ...mapState(['chain']),
     ...mapGetters('candidate', ['filteredList', 'filter', 'loading', 'filtering', 'favourites'])
   },
   data () {

@@ -14,17 +14,15 @@
         <v-icon>mdi-view-list</v-icon><span class="d-none d-md-inline">Validators</span>
       </v-btn> -->
 
-      <v-btn text to="/chain/kusama">
-        <!-- <v-icon>mdi-basketball</v-icon> -->
+      <!-- <v-btn text to="/kusama">
         <v-img :src="require('@/assets/kusama-logo.png')" width="24px" height="24px"></v-img>
         <span class="d-none d-sm-inline">Kusama</span>
-      </v-btn>
+      </v-btn> -->
 
-      <v-btn text to="/chain/polkadot">
-        <!-- <v-icon>mdi-basketball</v-icon> -->
+      <!-- <v-btn text to="/polkadot">
         <v-img :src="require('@/assets/polkadot-logo.png')" width="24px" height="24px"></v-img>
         <span class="d-none d-sm-inline">Polkadot</span>
-      </v-btn>
+      </v-btn> -->
 
       <!-- <v-btn text @click="showSettingsDialog=true">
         <v-icon>mdi-api</v-icon><span class="d-none d-sm-inline">Settings</span>
@@ -37,6 +35,15 @@
       <v-btn text to="/about">
         <v-icon>mdi-question-mark</v-icon><span class="d-none d-md-inline">About</span>
       </v-btn> -->
+      <!-- <v-btn text :to="`/${chain}/pool`">
+        <v-icon>mdi-waves</v-icon><span class="d-none d-sm-inline">Pools</span>
+      </v-btn> -->
+
+      <v-btn text :to="`/${chain}/candidate`">
+        <span class="d-none d-sm-inline"><v-icon>mdi-basketball</v-icon></span>1KV
+      </v-btn>
+
+      <ChainMenu></ChainMenu>
 
     </v-toolbar-items>
 
@@ -66,10 +73,32 @@
 <script lang="ts">
 import Vue from 'vue'
 import { mapState } from 'vuex'
+import ChainMenu from './ChainMenu.vue'
 import Alerts from './Alerts.vue'
-export default Vue.extend({
+
+interface IData {
+  showSettingsDialog: boolean
+  apiConnected: boolean
+}
+// eslint-disable-next-line
+interface IMethods {
+  toggleNavBar(): void
+}
+interface IComputed {
+  chain: string
+  dark: boolean
+  settingsDialog: boolean
+}
+// eslint-disable-next-line
+interface IProps {}
+
+export default Vue.extend<IData, IMethods, IComputed, IProps>({
+  components: {
+    Alerts,
+    ChainMenu
+  },
   computed: {
-    ...mapState({ dark: 'dark', settingsDialog: 'showSettingsDialog' })
+    ...mapState({ chain: 'chain', dark: 'dark', settingsDialog: 'showSettingsDialog' })
   },
   data () {
     return {
@@ -91,7 +120,6 @@ export default Vue.extend({
       this.$store.dispatch('toggleNavBar')
     }
   },
-  components: { Alerts },
   mounted () {
     let count = 0
     const int = setInterval(async () => {

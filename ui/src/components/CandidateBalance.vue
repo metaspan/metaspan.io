@@ -4,16 +4,16 @@
     <v-card-text>
       <table width="100%">
         <tr>
-          <td>free</td><td class="text-right">{{toKSM(account.balance.free)}}</td>
+          <td>free</td><td class="text-right">{{toCoin(account.balance.free)}}</td>
         </tr>
         <tr>
-          <td>reserved</td><td class="text-right">{{toKSM(account.balance.reserved)}}</td>
+          <td>reserved</td><td class="text-right">{{toCoin(account.balance.reserved)}}</td>
         </tr>
         <tr>
-          <td>miscFrozen</td><td class="text-right">{{toKSM(account.balance.miscFrozen)}}</td>
+          <td>miscFrozen</td><td class="text-right">{{toCoin(account.balance.miscFrozen)}}</td>
         </tr>
         <tr>
-          <td>feeFrozen</td><td class="text-right">{{toKSM(account.balance.feeFrozen)}}</td>
+          <td>feeFrozen</td><td class="text-right">{{toCoin(account.balance.feeFrozen)}}</td>
         </tr>
       </table>
     </v-card-text>
@@ -23,7 +23,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import Loading from './Loading.vue'
 export default Vue.extend({
   name: 'CandidateBalance',
@@ -33,8 +33,10 @@ export default Vue.extend({
       required: true
     }
   },
+  components: { Loading },
   computed: {
-    ...mapState('candidate', ['chain'])
+    ...mapState(['chain']),
+    ...mapGetters('substrate', ['chainInfo'])
   },
   data () {
     return {
@@ -47,19 +49,39 @@ export default Vue.extend({
           miscFrozen: 0,
           feeFrozen: 0
         }
+      },
+      decimals: {
+        0: 1,
+        1: 10,
+        2: 100,
+        3: 1000,
+        4: 10000,
+        5: 100000,
+        6: 1000000,
+        7: 10000000,
+        8: 100000000,
+        9: 1000000000,
+        10: 10000000000,
+        11: 100000000000,
+        12: 1000000000000
       }
     }
   },
   methods: {
-    toKSM (v: number) {
-      return v / 1000000000000
+    toCoin (v: number) {
+      // return v / 1000000000000
+      console.debug('decimals', this.chainInfo?.tokenDecimals?.toJSON()[0])
+      const decimalPlaces = this.chainInfo?.tokenDecimals?.toJSON()[0]
+      return v / this.decimals[decimalPlaces]
     }
   },
   async created () {
+    console.debug('CandidateBalance.vue created()', this.chain)
     let count = 0
     const int = setInterval(async () => {
       count++
       if (this.$substrate[this.chain]) {
+        await this.$substrate[this.chain].isReady
         // var nominators = await this.$polkadot.api.query.staking.nominators(this.candidate.stash)
         // console.debug('nominators', this.candidate.stash, nominators)
         // var vals = await this.$polkadot.api.query.staking.validators(this.candidate.stash)
@@ -82,10 +104,10 @@ export default Vue.extend({
       }
       if (count > 10) {
         console.debug('CandidateBalance.vue: no api found, clearing interval...')
+        this.loading = false
         clearInterval(int)
       }
     }, 1000)
-  },
-  components: { Loading }
+  }
 })
 </script>

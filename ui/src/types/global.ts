@@ -137,6 +137,55 @@ export interface ICandidateListSort {
 //   data: Record<string, Item>
 // }
 
+interface IPoolNominee {
+  stash: string
+}
+
+interface IPoolMembers {
+  stash: string
+  reward: string
+}
+
+export interface IPoolRoles {
+  creator: undefined | string
+  root: undefined | string
+  nominator: undefined | string
+  stateToggler: undefined | string
+}
+
+export interface IPool {
+  id: number
+  name: undefined | string
+  roles: IPoolRoles
+  state: undefined | string
+  points: number
+  claimable: number
+  nominees: IPoolNominee[]
+  members: IPoolMembers
+}
+
+export class Pool implements IPool {
+  id = 0
+  name = ''
+  roles = {
+    creator: undefined,
+    root: undefined,
+    nominator: undefined,
+    stateToggler: undefined
+  }
+
+  state = undefined
+  points = 0
+  claimable = 0
+  nominees = [] as IPoolNominee[]
+  members = {} as IPoolMembers
+
+  constructor (id: number, name: string) {
+    this.id = id
+    this.name = name
+  }
+}
+
 export interface IValidator {
   // active: boolean
   commission: number

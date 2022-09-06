@@ -1,5 +1,11 @@
 const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
+
+  // publicPath: process.env.NODE_ENV === 'production'
+  //   ? '/production'
+  //   : '/',
+  // outputDir: '../metaspan.github.io',
+  
   transpileDependencies: true,
   runtimeCompiler: true,
   devServer: {
@@ -15,11 +21,12 @@ module.exports = defineConfig({
     // },
     // disableHostCheck: true, // not allowed in vite?
 
-    // proxy: {
-    //   '^/api': {
-    //     target: 'http://localhost:1337',
-    //     changeOrigin: true
-    //   },
-    // }
+    proxy: {
+      '^/api': {
+        // target: 'http://localhost:1337',
+        target: 'https://api.metaspan.io',
+        changeOrigin: true
+      },
+    }
   }
 })

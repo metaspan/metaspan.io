@@ -7,9 +7,9 @@ import store from './store'
 import vuetify from './plugins/vuetify'
 
 import { SubstrateAPI } from './plugins/substrate'
-Vue.prototype.$substrate = new SubstrateAPI({ chain: 'kusama' })
+Vue.prototype.$substrate = new SubstrateAPI({ lite: false, endpoint: 'dwellir' })
 
-Vue.config.productionTip = false
+Vue.config.productionTip = true // false
 
 new Vue({
   router,

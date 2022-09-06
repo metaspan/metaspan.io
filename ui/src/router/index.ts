@@ -3,13 +3,15 @@ import VueRouter, { RouteConfig } from 'vue-router'
 
 import Home from '../views/Home.vue'
 
-import KusamaHome from '@/components/kusama/KusamaHome.vue'
-import PolkadotHome from '@/components/polkadot/PolkadotHome.vue'
+import ChainHome from '@/components/ChainHome.vue'
+// import PolkadotHome from '@/components/polkadot/PolkadotHome.vue'
 
 import Validators from '@/components/Validators.vue'
 import Nominators from '@/components/Nominators.vue'
 import Candidates from '@/components/Candidates.vue'
 import Candidate from '@/components/Candidate.vue'
+import Pools from '@/components/Pools.vue'
+import Pool from '@/components/Pool.vue'
 import Docs from '@/components/Docs.vue'
 
 import ComingSoon from '@/components/ComingSoon.vue'
@@ -33,26 +35,42 @@ const routes: Array<RouteConfig> = [
     component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
   },
   {
-    path: '/chain/:chain',
+    path: '/kusama',
     name: 'KusamaHome',
-    component: KusamaHome,
-    props: true,
+    component: ChainHome,
+    props: { chain: 'kusama' },
     children: [
-      // { path: 'pool', name: 'Pools', component: ComingSoon, meta: { title: 'metaspan.io - kusama pools' } },
-      // { path: 'validator', name: 'Validators', component: Validators },
-      // { path: 'validator/:stash', name: 'Validator', component: ComingSoon, props: true },
-      // { path: 'nominator', name: 'Nominators', component: Nominators },
-      {
-        path: 'candidate',
-        name: 'Candidates',
-        component: Candidates,
-        meta: { title: 'metaspan.io - 1kv' },
-        props: true
-        // props: { chain: 'kusama' }
-      },
-      { path: 'candidate/:stash', name: 'Candidate', component: Candidate, props: true, meta: { title: 'metaspan.io - kusama 1kv' } }
+      { path: 'candidate', name: 'KusamaCandidates', component: Candidates, meta: { title: 'metaspan.io - 1kv' }, props: { chain: 'kusama' } },
+      { path: 'candidate/:stash', name: 'KusamaCandidate', component: Candidate, props: true, meta: { title: 'metaspan.io - kusama 1kv' } },
+      { path: 'pool', name: 'KusamaPools', component: Pools, meta: { title: 'metaspan.io - pools' }, props: true },
+      { path: 'pool/:id', name: 'KusamaPool', component: Pool, props (route) { return { id: parseInt(route.params.id) } }, meta: { title: 'metaspan.io - kusama pool' } }
     ]
   },
+  {
+    path: '/polkadot',
+    name: 'PolkadotHome',
+    component: ChainHome,
+    props: { chain: 'polkadot' },
+    children: [
+      { path: 'candidate', name: 'PolkadotCandidates', component: Candidates, meta: { title: 'metaspan.io - 1kv' }, props: { chain: 'polkadot' } },
+      { path: 'candidate/:stash', name: 'PolkadotCandidate', component: Candidate, props: true, meta: { title: 'metaspan.io - polkadot 1kv' } },
+      { path: 'pool', name: 'PolkadotPools', component: Pools, meta: { title: 'metaspan.io - pools' }, props: true }
+    ]
+  },
+  // {
+  //   path: '/chain/:chain',
+  //   name: 'KusamaHome',
+  //   component: KusamaHome,
+  //   props: true,
+  //   children: [
+  //     // { path: 'pool', name: 'Pools', component: ComingSoon, meta: { title: 'metaspan.io - kusama pools' } },
+  //     // { path: 'validator', name: 'Validators', component: Validators },
+  //     // { path: 'validator/:stash', name: 'Validator', component: ComingSoon, props: true },
+  //     // { path: 'nominator', name: 'Nominators', component: Nominators },
+  //     { path: 'candidate', name: 'Candidates', component: Candidates, meta: { title: 'metaspan.io - 1kv' }, props: true },
+  //     { path: 'candidate/:stash', name: 'Candidate', component: Candidate, props: true, meta: { title: 'metaspan.io - kusama 1kv' } }
+  //   ]
+  // },
   // { path: '/polkadot', name: 'PolkadotHome', component: ComingSoon },
   // {
   //   path: '/polkadot',
@@ -78,11 +96,6 @@ const routes: Array<RouteConfig> = [
   //       meta: { title: 'metaspan.io - kusama 1kv' }
   //     }
   //   ]
-  // },
-  // {
-  //   path: '/nominator',
-  //   name: 'Nominators',
-  //   component: Nominators
   // },
   // {
   //   path: '/validator',

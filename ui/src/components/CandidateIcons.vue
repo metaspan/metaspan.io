@@ -69,7 +69,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   // props: ['model'],
   // mixins: [polkadot],
   computed: {
-    ...mapState('candidate', ['chain']),
+    ...mapState(['chain']),
     ...mapGetters('candidate', ['candidate', 'ranges']),
     ...mapState('polkadot', { cache: 'cache' }),
     // valid (): boolean {

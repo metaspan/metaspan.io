@@ -36,6 +36,7 @@ interface IData {
 // eslint-disable-next-line
 interface IComputed {
   dark: boolean
+  chain: string
 }
 
 interface IMethods {
@@ -57,7 +58,8 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   },
   computed: {
     ...mapState(['dark', 'showSettingsDialog']),
-    ...mapState('polkadot', ['endpoint', 'loading'])
+    ...mapState('polkadot', ['loading']),
+    ...mapState(['chain'])
   },
   data (): IData {
     return {
@@ -65,11 +67,13 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       matcher: null
     }
   },
-  // watch: {
-  //   $polkadot (newval) {
-  //     console.debug('woot, polkadot is', newval)
-  //   }
-  // },
+  watch: {
+    // async chain (newval) {
+    //   console.debug('woot, chain is', newval)
+    //   // const chainInfo = await this.$substrate[this.chain].registry.getChainProperties()
+    //   // console.log(chainInfo)
+    // }
+  },
   methods: {
     onSettingsDialog (v: boolean) {
       this.settingsDialog = v
@@ -80,16 +84,21 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     }
   },
   created () {
+    console.debug('App.vue: created')
     this.matcher = window.matchMedia('(prefers-color-scheme: dark)')
     // set the initial state from the matcher  await this.onDark(this.matcher)
     this.matcher.addListener(this.onDark)
     this.onDark(this.matcher)
-    this.$store.dispatch('init')
+    setTimeout(() => {
+      console.debug('App.vue: dispatching store init()')
+      this.$store.dispatch('init')
+    }, 3000)
   },
   async mounted () {
-  //   // console.debug('mounted')
-  //   // console.debug(await this.$polkadot)
-    await await this.$substrate.connect()
+    console.debug('App.vue: mounted')
+    // console.info('App.vue: Starting $substrate.connect()...')
+    // await this.$substrate.connect()
+    // console.info('... done')
   //   // const activeEra = await this.$polkadot.api.query.staking.activeEra();
   //   // // let chain = await this.$polkadot.rpc.system.chain()
   //   // console.debug('TEST', activeEra)

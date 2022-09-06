@@ -280,6 +280,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
     }
   },
   mounted () {
+    console.debug('Docs.vue: mounted()')
     this.parsed = this.parseObj(this.$substrate.polkadot, false, 1)
   }
 })

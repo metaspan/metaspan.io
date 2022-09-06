@@ -48,15 +48,17 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     return {
       dateTimeFormat: 'YYYY/MM/DD hh:mm',
       text: {
-        CLIENT_UPGRADE: 'Upgrade',
-        IDENTITY: 'Identity',
-        ONLINE: 'Online',
-        CONNECTION_TIME: 'Connection',
         ACCUMULATED_OFFLINE_TIME: 'On/Offline',
+        BLOCKED: 'Blocked',
+        CLIENT_UPGRADE: 'Upgrade',
         COMMISION: 'Commission',
+        CONNECTION_TIME: 'Connection',
+        IDENTITY: 'Identity',
+        KUSAMA_RANK: 'Kusama Rank',
+        ONLINE: 'Online',
+        REWARD_DESTINATION: 'Reward Destination',
         SELF_STAKE: 'Self stake',
         UNCLAIMED_REWARDS: 'Unclaimed',
-        BLOCKED: 'Blocked',
         VALIDATE_INTENTION: 'Intention'
       }
     }
