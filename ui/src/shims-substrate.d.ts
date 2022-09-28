@@ -13,7 +13,7 @@ declare module '@vue/runtime-core' {
   //   count: number
   // }
 
-  interface ComponentCustomProperties {
-    $substrate: SubstrateAPI
-  }
+  // interface ComponentCustomProperties {
+  //   $substrate: SubstrateAPI
+  // }
 }

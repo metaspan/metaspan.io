@@ -38,7 +38,7 @@ const routes: Array<RouteConfig> = [
     path: '/kusama',
     name: 'KusamaHome',
     component: ChainHome,
-    props: { chain: 'kusama' },
+    props: { chainId: 'kusama' },
     children: [
       { path: 'candidate', name: 'KusamaCandidates', component: Candidates, meta: { title: 'metaspan.io - 1kv' }, props: { chain: 'kusama' } },
       { path: 'candidate/:stash', name: 'KusamaCandidate', component: Candidate, props: true, meta: { title: 'metaspan.io - kusama 1kv' } },
@@ -50,7 +50,7 @@ const routes: Array<RouteConfig> = [
     path: '/polkadot',
     name: 'PolkadotHome',
     component: ChainHome,
-    props: { chain: 'polkadot' },
+    props: { chainId: 'polkadot' },
     children: [
       { path: 'candidate', name: 'PolkadotCandidates', component: Candidates, meta: { title: 'metaspan.io - 1kv' }, props: { chain: 'polkadot' } },
       { path: 'candidate/:stash', name: 'PolkadotCandidate', component: Candidate, props: true, meta: { title: 'metaspan.io - polkadot 1kv' } },

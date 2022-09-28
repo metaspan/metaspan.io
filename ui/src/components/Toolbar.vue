@@ -35,11 +35,11 @@
       <v-btn text to="/about">
         <v-icon>mdi-question-mark</v-icon><span class="d-none d-md-inline">About</span>
       </v-btn> -->
-      <!-- <v-btn text :to="`/${chain}/pool`">
+      <v-btn text :to="`/${chainId}/pool`">
         <v-icon>mdi-waves</v-icon><span class="d-none d-sm-inline">Pools</span>
-      </v-btn> -->
+      </v-btn>
 
-      <v-btn text :to="`/${chain}/candidate`">
+      <v-btn text :to="`/${chainId}/candidate`">
         <span class="d-none d-sm-inline"><v-icon>mdi-basketball</v-icon></span>1KV
       </v-btn>
 
@@ -59,7 +59,7 @@
           <v-icon :color="apiConnected ? 'primary' : ''">mdi-api{{apiConnected ? '' : '-off'}}</v-icon>
         </v-btn>
         </template>
-      <span>API connected: {{apiConnected}}</span>
+      <span>API connected: {{apiConnected ? 'yes' : 'no'}}</span>
     </v-tooltip>
 
     <Alerts></Alerts>
@@ -72,22 +72,22 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import ChainMenu from './ChainMenu.vue'
 import Alerts from './Alerts.vue'
 
 interface IData {
   showSettingsDialog: boolean
-  apiConnected: boolean
 }
 // eslint-disable-next-line
 interface IMethods {
   toggleNavBar(): void
 }
 interface IComputed {
-  chain: string
+  chainId: string
   dark: boolean
   settingsDialog: boolean
+  apiConnected: boolean
 }
 // eslint-disable-next-line
 interface IProps {}
@@ -98,12 +98,13 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     ChainMenu
   },
   computed: {
-    ...mapState({ chain: 'chain', dark: 'dark', settingsDialog: 'showSettingsDialog' })
+    ...mapState({ chainId: 'chainId', dark: 'dark', settingsDialog: 'showSettingsDialog' }),
+    ...mapGetters('substrate', { apiConnected: 'connected' })
   },
   data () {
     return {
-      showSettingsDialog: false,
-      apiConnected: false
+      showSettingsDialog: false
+      // apiConnected: false
     }
   },
   watch: {
@@ -121,22 +122,22 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     }
   },
   mounted () {
-    let count = 0
-    const int = setInterval(async () => {
-      count++
-      if (this.$substrate.polkadot) {
-        // var nominators = await this.$substrate.polkadot.api.query.staking.nominators(this.candidate.stash)
-        // console.debug('nominators', this.candidate.stash, nominators)
-        // var vals = await this.$substrate.polkadot.api.query.staking.validators(this.candidate.stash)
-        // console.debug('vals', this.candidate.stash, vals)
-        this.apiConnected = true
-        clearInterval(int)
-      }
-      if (count > 10) {
-        console.debug('Toolbar.vue: no api found, clearing interval...')
-        clearInterval(int)
-      }
-    }, 1000)
+    // let count = 0
+    // const int = setInterval(async () => {
+    //   count++
+    //   if (this.$substrate.polkadot) {
+    //     // var nominators = await this.$substrate.polkadot.api.query.staking.nominators(this.candidate.stash)
+    //     // console.debug('nominators', this.candidate.stash, nominators)
+    //     // var vals = await this.$substrate.polkadot.api.query.staking.validators(this.candidate.stash)
+    //     // console.debug('vals', this.candidate.stash, vals)
+    //     this.apiConnected = true
+    //     clearInterval(int)
+    //   }
+    //   if (count > 10) {
+    //     console.debug('Toolbar.vue: no api found, clearing interval...')
+    //     clearInterval(int)
+    //   }
+    // }, 1000)
   }
 })
 </script>

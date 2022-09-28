@@ -7,18 +7,22 @@
         v-bind="attrs"
         v-on="on"
       >
-      <v-img :src="icon" width="24px" height="24px"></v-img> {{chain}}
+        <v-img :src="icon" width="24px" height="24px"></v-img><span class="d-none d-sm-inline"> {{chain.name}}</span> <v-icon>mdi-chevron-down</v-icon>
       </v-btn>
     </template>
     <v-list>
       <v-list-item
         v-for="(item, index) in chains"
         :key="index"
-        @click="setChain(item)">
+        @click="setChain(item)"
+        :input-value="item.id === chainId"
+        >
         <!-- <v-list-item-icon>
           <v-img :src="item.icon"></v-img>
         </v-list-item-icon> -->
-        <v-list-item-title>{{ item.name }}</v-list-item-title>
+        <!-- <template v-slot:default="{ active }"> -->
+          <v-list-item-title>{{ item.name }}</v-list-item-title>
+        <!-- </template> -->
       </v-list-item>
     </v-list>
   </v-menu>
@@ -36,8 +40,9 @@ interface IMethods {
   setChain(item: any): void
 }
 interface IComputed {
-  chain: string
+  chainId: string
   chains: any[]
+  chain: any
   icon: any
 }
 // eslint-disable-next-line
@@ -46,9 +51,13 @@ interface IProps {}
 export default Vue.extend<IData, IMethods, IComputed, IProps>({
   name: 'ChainMenu',
   computed: {
-    ...mapState(['chain', 'chains']),
+    ...mapState(['chainId', 'chains']),
     icon () {
-      return this.icons[this.chain]
+      return this.icons[this.chainId]
+    },
+    chain () {
+      // console.debug('chain()', this.chains)
+      return this.chains[this.chainId] || {}
     }
   },
   data () {
@@ -60,9 +69,11 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     }
   },
   methods: {
-    setChain (item: any) {
-      console.debug('setItem', item)
-      this.$store.dispatch('setChain', { chain: item.id })
+    setChain (_chain: any) {
+      console.debug('setChain', _chain.id)
+      this.$store.dispatch('setChain', _chain.id)
+      // this.$store.dispatch('setChain', _chain.id)
+      // this.$router.push(`/${chain.id}/`)
     }
   }
 })

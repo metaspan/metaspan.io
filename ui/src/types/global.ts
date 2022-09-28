@@ -1,4 +1,10 @@
 
+export interface IChainInfo {
+  ss58Format: number
+  tokenDecimals: number
+  tokenSymbol: string
+}
+
 export interface IWalletBalance {
   free: number
   reserved: number
@@ -14,7 +20,31 @@ export interface ICandidateIdentity {
 }
 
 export interface ICandidateScore {
+  address: string
+  aggregate: number
+  asn: number
+  bonded: number
+  councilStake: number
+  country: number
+  delegations: number
+  democracy: number
+  discovered: number
+  faults: number
+  inclusion: number
+  location: number
+  nominated: number
+  nominatorStake: number
+  offline: number
+  provider: number
+  randomness: number
+  rank: number
+  region: number
+  spanInclusion: number
   total: number
+  unclaimed: number
+  updated: number
+  __v: number
+  _id: string
 }
 
 export interface ICandidateValidityItem {
@@ -121,11 +151,14 @@ export interface ICache {
 }
 
 export interface ICandidateListFilter {
-  favourite: boolean
+  favourite?: boolean
   valid: boolean
   active: boolean
-  rank: number
-  score: number
+  rank?: number
+  score?: number
+  // TODO do we need to split this out?
+  sort: string
+  sortAsc: boolean
 }
 
 export interface ICandidateListSort {

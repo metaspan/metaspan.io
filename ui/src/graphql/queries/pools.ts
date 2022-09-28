@@ -17,7 +17,8 @@ export const GET_POOL_VIEW = gql`
 `
 
 export const GET_POOL_MEMBERS = gql`
-  query getPoolMembers ($chain: String!, $id: Int!, $ids: [String]) {
+  #query getPoolMembers ($chain: String!, $id: Int!, $ids: [String]) {
+  query getPoolMembers ($chain: String!, $id: Int!) {
     Pool (chain: $chain, id: $id) {
       id
       state
@@ -29,27 +30,27 @@ export const GET_POOL_MEMBERS = gql`
         points
       }
     }
-    Nominators(chain: $chain, ids: $ids) {
-      accountId
-      identity {
-        sub_id
-        parent_identity {
-          info {
-            display
-            email
-            twitter
-            web
-          }
-        }
-        info {
-          display
-          email
-          twitter
-          web
-        }
-      }
-      targets
-    }
+    #Nominators(chain: $chain, ids: $ids) {
+    #  accountId
+    #    sub_id
+    #  identity {
+    #    parent_identity {
+    #      info {
+    #        display
+    #        email
+    #        twitter
+    #        web
+    #      }
+    #    }
+    #    info {
+    #      display
+    #      email
+    #      twitter
+    #      web
+    #    }
+    #  }
+    #  targets
+    #}
   }
 `
 

@@ -1,19 +1,25 @@
 
 import Vue from 'vue'
 import {
-  ICandidate, ICandidateListFilter,
+  ICandidate,
+  ICandidateListFilter,
   ICandidateListSort,
   Candidate,
   ICandidateValidityItem
 } from '@/types/global'
 import axios from 'axios'
+// import {apolloClient} from '../../graphql/apollo'
 import moment from 'moment-timezone'
-import { IndexedDB } from './idb'
 
 // import { apolloClient } from '../../graphql/apollo'
 // import { GET_CANDIDATES, GET_CANDIDATE } from '../../graphql/queries/candidates'
 
-const idb = new IndexedDB('candidates')
+// import { IndexedDB } from './idb'
+// const idb = new IndexedDB('metaspan.io')
+import { StateManager } from '../state-manager'
+// import test from 'node:test'
+const stateManager = new StateManager('metaspan.io')
+const STORAGE_KEY = 'candidate'
 
 interface IPagination {
   page: number
@@ -25,10 +31,12 @@ interface ISort {
   sortAsc: boolean
 }
 
-interface IFilter {
-  valid: boolean
-  active: boolean
-}
+// interface IFilter {
+//   valid: boolean
+//   active: boolean
+//   sort: string
+//   sortAsc: boolean
+// }
 
 // eslint-disable-next-line
 interface IOption {}
@@ -55,7 +63,7 @@ interface IChainState {
   sort: ISort
   search: string
   filtering: boolean
-  filter: IFilter
+  filter: ICandidateListFilter
   ranges: TRanges
   options: IOption[]
   favourites: string[]
@@ -63,7 +71,7 @@ interface IChainState {
 
 interface IState {
   initial: boolean // has the module been initialised
-  chain: string
+  chainId: string
   // updatedAt: null | moment.Moment
   // list: ICandidate[]
   polkadot: IChainState
@@ -73,7 +81,7 @@ interface IState {
 
 const initialState = {
   initial: true,
-  chain: 'kusama',
+  chainId: 'kusama',
   // updatedAt: moment().add(-1, 'day'),
   // list: [],
   polkadot: {
@@ -88,11 +96,11 @@ const initialState = {
       itemsPerPage: 15
     },
     sort: {
-      sort: 'totalScore',
+      sort: 'score',
       sortAsc: false
     },
     search: '',
-    filter: { valid: false, active: false },
+    filter: { valid: false, active: false, sort: 'score', sortAsc: true },
     options: {} as IOption[],
     ranges: {
       score: { min: 0, max: 0 },
@@ -116,63 +124,72 @@ const initialState = {
       itemsPerPage: 15
     },
     sort: {
-      sort: 'totalScore',
+      sort: 'score',
       sortAsc: false
     },
     search: '',
-    filter: { valid: false, active: false },
+    filter: { valid: false, active: false, sort: 'score', sortAsc: false },
     options: {} as IOption[],
     ranges: {
       score: { min: 0, max: 0 },
       rank: { min: 0, max: 0 },
       bonded: { min: 0, max: 0 }
     },
-    favourites: ['HyLisujX7Cr6D7xzb6qadFdedLt8hmArB6ZVGJ6xsCUHqmx'],
+    favourites: [
+      'HyLisujX7Cr6D7xzb6qadFdedLt8hmArB6ZVGJ6xsCUHqmx',
+      'FAR296Aqh9i8W5bi7BS7a8Bkhbw5LX5xCXP22c1Jvc2tM5v'
+    ],
     list: [],
     filteredList: [],
-    candidate: new Candidate({ stash: 'loading', valid: false, validity: [{ valid: false }] as ICandidateValidityItem[] } as ICandidate)
+    candidate: new Candidate({ valid: false, validity: [{ valid: false }] as ICandidateValidityItem[] } as ICandidate)
   } as IChainState
 } as IState
 
-const STORAGE_KEY = 'candidate'
+// async function saveState (state: IState) {
+//   console.debug('store/modules/candidate.ts: stateManager.saveState()', state)
+//   // localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+//   // remove api from saved state
+//   if (!state.initial) await idb.set(STORAGE_KEY, state)
+// }
 
-async function saveState (state: IState) {
-  console.debug('store/modules/candidate.ts: saveState()', state)
-  // localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
-  // remove api from saved state
-  if (!state.initial) await idb.set(STORAGE_KEY, state)
-}
+// async function clearState () {
+//   console.debug('store/modules/candidate.ts: clearState()', STORAGE_KEY)
+//   // localStorage.removeItem(STORAGE_KEY)
+//   await idb.unset(STORAGE_KEY)
+// }
 
-async function clearState () {
-  console.debug('store/modules/candidate.ts: clearState()', STORAGE_KEY)
-  // localStorage.removeItem(STORAGE_KEY)
-  await idb.unset(STORAGE_KEY)
-}
-
-function getState (state: IState): any {
-  console.debug('store/modules/candidate.ts: getState()', state)
-  // const savedState = localStorage.getItem(STORAGE_KEY)
-  idb.get(STORAGE_KEY).then((savedState) => {
-    if (savedState) {
-      console.debug('store/modules/candidate.ts: getState(): restoring from idb()')
-      // return JSON.parse(savedState)
-      // console.debug(savedState)
-      const mergedState = { ...savedState, ...state }
-      console.debug(mergedState)
-      return mergedState
-    } else {
-      console.debug('store/modules/candidate.ts: getState(): using initialState')
-      initialState.initial = false
-      const mergedState = { ...initialState, ...state }
-      console.debug(initialState, state, mergedState)
-      return mergedState
-    }
-  })
-}
+// function getState (state: IState): IState {
+//   // console.debug('store/modules/candidate.ts: getState()', state)
+//   // const savedState = localStorage.getItem(STORAGE_KEY)
+//   let ret: IState = initialState
+//   idb.get(STORAGE_KEY).then((savedState) => {
+//     if (savedState && savedState.chainId) {
+//       console.debug('store/modules/candidate.ts: getState(): restoring from idb()')
+//       // return JSON.parse(savedState)
+//       // console.debug(savedState)
+//       const mergedState = Object.assign({}, savedState, state)
+//       console.debug(mergedState)
+//       // return mergedState
+//       ret = mergedState
+//     } else {
+//       console.debug('store/modules/candidate.ts: getState(): using initialState')
+//       initialState.initial = false
+//       const mergedState = Object.assign({}, initialState, state)
+//       console.debug(initialState, state, mergedState)
+//       // return mergedState
+//       ret = mergedState
+//     }
+//   })
+//   return ret
+// }
 
 interface IMutLoading {
   chain: string
   loading: boolean
+}
+
+async function initState () {
+  return await stateManager.getState(STORAGE_KEY, initialState)
 }
 
 /* eslint-disable no-new */
@@ -181,35 +198,39 @@ const candidate = {
   modules: {
   },
   // state: getState(initialState),
-  state: initialState,
+  state: stateManager.getStateSync(STORAGE_KEY, initialState), // .then(s => s),
+  // state: initState(),
   getters: {
-    apiConnected (state: IState) { return state[state.chain]?.apiConnected },
-    chainInfo (state: IState) { return state[state.chain].chainInfo },
-    candidate (state: IState) { return state[state.chain]?.candidate },
+    apiConnected (state: IState) { return state[state.chainId]?.apiConnected || false },
+    chainInfo (state: IState) { return state[state.chainId].chainInfo || {} },
+    candidate (state: IState) { return state[state.chainId]?.candidate || {} },
     filteredList (state: IState) {
-      console.debug('candidate.ts: getters.filteredList()', state.chain)
-      return state[state.chain].filteredList
+      console.debug('candidate.ts: getters.filteredList()', state.chainId)
+      return state[state.chainId]?.filteredList || []
     },
-    favourites (state: IState) { return state[state.chain]?.favourites },
-    filter (state: IState) { return state[state.chain]?.filter },
-    filtering (state: IState) { return state[state.chain]?.filtering },
-    loading (state: IState) { return state[state.chain]?.loading },
-    options (state: IState) { return state[state.chain]?.options },
-    ranges (state: IState) { return state[state.chain]?.ranges },
-    updatedAt (state: IState) { return moment(state[state.chain]?.updatedAt) }
+    favourites (state: IState) { return state[state.chainId]?.favourites || [] },
+    filter (state: IState) { return state[state.chainId]?.filter || {} },
+    filtering (state: IState) { return state[state.chainId]?.filtering || false },
+    loading (state: IState) { return state[state.chainId]?.loading || false },
+    options (state: IState) { return state[state.chainId]?.options || {} },
+    ranges (state: IState) { return state[state.chainId]?.ranges || [] },
+    updatedAt (state: IState) { return moment(state[state.chainId]?.updatedAt) }
   },
   mutations: {
     async INIT (state: IState, value: any) {
       console.debug('store/modules/candidate.ts: mutations.INIT()', state, value)
-      state = { ...value }
-      await saveState(state)
+      // state = { ...value }
+      state = Object.assign(state, value)
+      state[state.chainId].loading = false
+      // await stateManager.saveState(STORAGE_KEY, state)
     },
     // eslint-disable-next-line
     SET_LOADING (state: IState, { loading }: IMutLoading): void {
-      console.debug('store/modules/candidate.ts: mutations.SET_LOADING()', state.chain, loading)
-      state[state.chain].loading = loading
-      // state[state.chain].loadingTimeout = setTimeout(() => {
-      //   clearTimeout(state[state.chain].loadingTimeout)
+      console.debug('store/modules/candidate.ts: mutations.SET_LOADING()', state.chainId, loading)
+      if (state[state.chainId]) state[state.chainId].loading = loading
+      else console.warn('state[state.chainId] is', state[state.chainId])
+      // state[state.chainId].loadingTimeout = setTimeout(() => {
+      //   clearTimeout(state[state.chainId].loadingTimeout)
       // }, 10 * 1000)
     },
     SET_INITIAL (state, initial) {
@@ -217,27 +238,27 @@ const candidate = {
       state.initial = initial
     },
     // eslint-disable-next-line
-    async SET_CHAIN (state: IState, { chain }: any): Promise<void> {
-      console.debug('store/modules/candidate.ts: mutations.SET_CHAIN()', chain)
+    async SET_CHAIN (state: IState, chainId: string): Promise<void> {
+      console.debug('store/modules/candidate.ts: mutations.SET_CHAIN()', chainId)
       // console.debug('window.$polkadot', window.$polkadot)
-      state.chain = chain
-      await saveState(state)
+      state.chainId = chainId
+      if (!state.initial) await stateManager.saveState(STORAGE_KEY, state)
     },
-    API_STATUS (state, { connected, chain }) {
-      state[chain].apiConnected = connected
+    API_STATUS (state, { connected, chainId }) {
+      state[chainId].apiConnected = connected
     },
     // eslint-disable-next-line
     async SET_FILTERING (state: IState, { value }: any): Promise<void> {
-      state[state.chain].filtering = value
-      await saveState(state)
+      state[state.chainId].filtering = value
+      await stateManager.saveState(STORAGE_KEY, state)
     },
     // eslint-disable-next-line
     async SET_LIST (state: IState, { list }: any): Promise<void> {
-      // console.debug('candidate.ts: mutations.SET_LIST()', chain, list)
+      console.debug('candidate.ts: mutations.SET_LIST()', state.chainId, list)
       let udata = [] as number[]
       let ranks = [] as number[]
-      Vue.set(state[state.chain], 'list', list.map((m: ICandidate) => new Candidate(m)))
-      state[state.chain].updatedAt = moment().utc().format()
+      Vue.set(state[state.chainId], 'list', list.map((m: ICandidate) => new Candidate(m)))
+      state[state.chainId].updatedAt = moment().utc().format()
 
       ranks = list.map((m) => {
         return m.rank
@@ -247,9 +268,9 @@ const candidate = {
       udata = [...new Set(ranks)]
       udata = udata.slice(udata.length * 0.055, udata.length * 0.854)
       // console.debug('length', udata.length, 'min:', Math.min(...udata), 'max:', Math.max(...udata))
-      state[state.chain].ranges.rank = { min: Math.min(...udata), max: Math.max(...udata) }
+      state[state.chainId].ranges.rank = { min: Math.min(...udata), max: Math.max(...udata) }
 
-      state[state.chain].ranges.score = list
+      state[state.chainId].ranges.score = list
         .map((m: ICandidate) => m.score?.total)
         .reduce(function (result: IMinMax, item: number) {
           return item
@@ -266,79 +287,75 @@ const candidate = {
       // udata = udata.slice(udata.length*0.055, udata.length*0.854)
       // console.debug('length', udata.length, 'min:', Math.min(...udata), 'max:', Math.max(...udata))
       // state.ranges.bonded = {min: Math.min(...udata), max: Math.max(...udata)}
-      await saveState(state)
+      await stateManager.saveState(STORAGE_KEY, state)
     },
     // eslint-disable-next-line
     async SET_FILTERED_LIST (state: IState, { flist }: any): Promise<void> {
       // console.debug('SET_FILTERED_LIST', flist.length)
       // state.filteredList = flist
-      Vue.set(state[state.chain], 'filteredList', flist)
-      await saveState(state)
+      Vue.set(state[state.chainId], 'filteredList', flist)
+      await stateManager.saveState(STORAGE_KEY, state)
     },
     // eslint-disable-next-line
     async SET_CANDIDATE (state: IState, { model }: any): Promise<void> {
       console.debug('SET_CANDIDATE', model)
-      state[state.chain].candidate = model
-      await saveState(state)
+      state[state.chainId].candidate = model
+      await stateManager.saveState(STORAGE_KEY, state)
     },
     // eslint-disable-next-line
     async SET_PAGINATION (state: IState, { pagination }: any): Promise<void> {
-      // console.debug('candidate.ts: SET_PAGINATION', state.chain, pagination)
-      state[state.chain].pagination = pagination
-      await saveState(state)
+      console.debug('candidate.ts: SET_PAGINATION', state.chainId, pagination)
+      state[state.chainId].pagination = pagination
+      await stateManager.saveState(STORAGE_KEY, state)
     },
     // eslint-disable-next-line
     async SET_OPTIONS (state: IState, { options }: any): Promise<void> {
-      // console.debug('candidate.ts: SET_OPTIONS', state.chain, options)
-      state[state.chain].options = options
-      await saveState(state)
+      // console.debug('candidate.ts: SET_OPTIONS', state.chainId, options)
+      state[state.chainId].options = options
+      await stateManager.saveState(STORAGE_KEY, state)
     },
     // eslint-disable-next-line
     async SET_FILTER (state: IState, { filter }: any): Promise<void> {
-      console.debug('store/modules/candidate.ts: SET_FILTER()', state.chain, filter)
-      // state[state.chain].filter = filter
-      Object.assign(state[state.chain], filter)
-      await saveState(state)
+      console.debug('store/modules/candidate.ts: SET_FILTER()', state.chainId, filter)
+      // state[state.chainId].filter = filter
+      Object.assign(state[state.chainId].filter, filter)
+      await stateManager.saveState(STORAGE_KEY, state)
     },
     // eslint-disable-next-line
     async SET_SEARCH (state: IState, { search }: any): Promise<void> {
-      state[state.chain].search = search
-      await saveState(state)
+      state[state.chainId].search = search
+      await stateManager.saveState(STORAGE_KEY, state)
     },
     // eslint-disable-next-line
     async TOGGLE_FAV (state: IState, { stash }: any): Promise<void> {
-      const idx = state[state.chain].favourites.findIndex((v:string) => {
+      const idx = state[state.chainId].favourites.findIndex((v:string) => {
         return v === stash
       })
       // console.debug('idx', idx);
       if (idx > -1) {
-        state[state.chain].favourites = state[state.chain].favourites.filter((f: string) => {
+        state[state.chainId].favourites = state[state.chainId].favourites.filter((f: string) => {
           return f !== stash
         })
       } else {
-        state[state.chain].favourites.push(stash)
+        state[state.chainId].favourites.push(stash)
       }
-      await saveState(state)
+      await stateManager.saveState(STORAGE_KEY, state)
     }
   },
   actions: {
     // eslint-disable-next-line
     async init ({ commit, dispatch, state, rootState }: any) {
-      console.debug('store/modules/candidate.ts: init()', rootState.chain) // , state)
+      console.debug('store/modules/candidate.ts: init()', rootState.chainId, state)
+      // state: getState() already does this
       // const sstate = await getState(state)
-      // await commit('INIT', sstate)
-      // if (chain) {
-      await dispatch('setChain', { chain: rootState.chain })
-      //   // await dispatch('getList')
-      // } else {
-      //   console.debug('candidate.ts: there is no chain...', rootState.substrate.chain)
-      //   console.table(rootState.substrate.chain)
-      // }
+      await commit('SET_CHAIN', rootState.chainId)
+      await commit('INIT', state)
+      // await dispatch('setChain', sstate.chainId, { root: true })
       await commit('SET_INITIAL', false)
     },
-    async setChain ({ commit, dispatch }, { chain }) {
-      console.debug('store/modules/candidate.ts: setChain()', chain)
-      await commit('SET_CHAIN', { chain })
+    async setChain ({ commit, dispatch }, chainId) {
+      console.debug('store/modules/candidate.ts: setChain()', chainId)
+      await commit('SET_CHAIN', chainId)
       await dispatch('getList')
     },
     async apiClose ({ dispatch }) {
@@ -382,11 +399,11 @@ const candidate = {
     // },
     // eslint-disable-next-line
     async getList ({ rootState, state, commit, dispatch }: any) {
-      console.debug('store/modules/candidate.ts: getList()', state.chain, 'initial:', state.initial)
+      console.debug('store/modules/candidate.ts: getList()', state.chainId, 'initial:', state.initial)
       let list = []
-      // console.debug('store/modules/candidate.ts: getList(): updatedAt', state[state.chain].updatedAt.toString())
-      if (!state[state.chain]?.updatedAt || moment().diff(moment(state[state.chain]?.updatedAt), 'seconds') > 60) {
-        console.debug('store/modules/candidate.ts: getList(): reloading list from api', state.chain)
+      // console.debug('store/modules/candidate.ts: getList(): updatedAt', state[state.chainId].updatedAt.toString())
+      if (!state[state.chainId]?.updatedAt || moment().diff(moment(state[state.chainId]?.updatedAt), 'seconds') > 60) {
+        console.debug('store/modules/candidate.ts: getList(): reloading list from api', state.chainId)
         try {
           // eslint-disable-next-line
           let res = null as any
@@ -394,8 +411,8 @@ const candidate = {
           // var res = await axios.get(`${baseUrl}/candidates`)
           res = await axios.get(
             // 'https://619wrsnit5.execute-api.eu-west-2.amazonaws.com/default/kusama-1kv-candidates'
-            // `//api.metaspan.io/api/${state.chain}/candidate`
-            `${rootState.baseUrl}/api/${state.chain}/candidate`
+            // `//api.metaspan.io/api/${state.chainId}/candidate`
+            `${rootState.baseUrl}/api/${state.chainId}/candidate`
           )
           // console.debug('HHHHHHHHH candidates.ts: got data:', res.data)
           list = res.data?.candidates ? res.data.candidates : res.data
@@ -416,13 +433,15 @@ const candidate = {
         await dispatch('filterList')
       } else {
         dispatch('addAlert', { id: moment().valueOf(), type: 'warning', title: 'Cache age < 60 seconds', text: 'Serving from local cache' }, { root: true })
-        console.log(`age of cache: ${moment().diff(moment(state[state.chain].updatedAt), 'seconds')} seconds`)
+        console.log(`age of cache: ${moment().diff(moment(state[state.chainId].updatedAt), 'seconds')} seconds`)
       }
     },
     // eslint-disable-next-line
-    async paginate ({ commit }: any, { pagination }: any) {
+    async paginate ({ state, commit }: any, { pagination }: any) {
       console.debug('store/modules/candidate.ts: paginate()', pagination)
       await commit('SET_PAGINATION', { pagination })
+      const options = Object.assign(state[state.chainId].options, pagination)
+      await commit('SET_OPTIONS', { options })
     },
     // eslint-disable-next-line
     async handleOptions ({ commit, dispatch }: any, { options }: any) {
@@ -444,67 +463,79 @@ const candidate = {
     async filterList ({ state, commit }: any) {
       console.debug('store/modules/candidate.ts: filterList()')
       commit('SET_FILTERING', { value: true })
-      const filter: ICandidateListFilter = state[state.chain].filter
-      const sort: ICandidateListSort = state[state.chain].sort
-      const search: string = state[state.chain].search
-      const favourites: string[] = state[state.chain].favourites
-      console.debug('store/modules/candidate.ts: filter, sort, search', filter, sort, search)
-      const flist = state[state.chain].list.filter((item: ICandidate, idx: number) => {
-        // console.debug('item', idx, item)
-        if ((filter.favourite && !favourites.includes(item.stash)) ||
-          (filter.valid && !item.valid) ||
-          (filter.active && !item.active) ||
-          (filter.rank && !(item.rank > filter.rank)) ||
-          (filter.score && !(item.score.total > filter.score))
-        ) {
-          // console.debug('filter', filter.valid, 'item', item.valid)
-          return false
-        } else if (search !== '' && !(
-          item.name.toLowerCase().includes(search.toLowerCase()) ||
-          item.identity?.name?.toLowerCase().includes(search.toLowerCase()) ||
-          // {{ candidate.identity ? candidate.identity.name : '' }}
-          item.stash.includes(search)
-        )) {
-          // console.debug('test:', item.stash, search, item.stash.includes(search))
-          return false
-        } else {
-          // console.debug('test:', item.stash, 'ok!')
-          return true
-        }
-      }).sort((a: ICandidate, b:ICandidate): number => {
-        const sortField = sort.sort as keyof ICandidate
-        const sortAsc: boolean = sort.sortAsc
-        if (sortField === 'name') {
-          // console.debug('sort:', a.name, b.name)
-          return sortAsc
-            ? String(a.name).localeCompare(b.name)
-            : String(b.name).localeCompare(a.name)
-        } else {
-          return sortAsc
-            ? (a[sortField] as number) - (b[sortField] as number)
-            : (b[sortField] as number) - (a[sortField] as number)
-        }
-      })
+      const filter: ICandidateListFilter = state[state.chainId].filter
+      // const sort: ICandidateListSort = state[state.chainId].sort
+      const sort = { sort: filter.sort, sortAsc: filter.sortAsc }
+      const search: string = state[state.chainId].search
+      const favourites: string[] = state[state.chainId].favourites
+      console.debug('store/modules/candidate.ts: filter, sort, search', filter, sort, search, favourites)
+      const flist = state[state.chainId].list
+        .filter((item: ICandidate, idx: number) => {
+          // console.debug('item', idx, item)
+          if ((filter.favourite && !favourites.includes(item.stash)) ||
+            (filter.valid && !item.valid) ||
+            (filter.active && !item.active) ||
+            (filter.rank && !(item.rank > filter.rank)) ||
+            (filter.score && !(item.score.total > filter.score))
+          ) {
+            // console.debug('filter', filter.valid, 'item', item.valid)
+            return false
+          } else if (search !== '' && !(
+            item.name.toLowerCase().includes(search.toLowerCase()) ||
+            item.identity?.name?.toLowerCase().includes(search.toLowerCase()) ||
+            // {{ candidate.identity ? candidate.identity.name : '' }}
+            item.stash.includes(search)
+          )) {
+            // console.debug('test:', item.stash, search, item.stash.includes(search))
+            return false
+          } else {
+            // console.debug('test:', item.stash, 'ok!')
+            return true
+          }
+        })
+        .sort((a: ICandidate, b:ICandidate): number => {
+          const sortField = sort.sort as keyof ICandidate
+          const sortAsc: boolean = sort.sortAsc
+          if (sortField === 'name') {
+            // console.debug('sort:', a.name, b.name)
+            return sortAsc
+              ? String(a.name).localeCompare(b.name)
+              : String(b.name).localeCompare(a.name)
+          } else {
+            return sortAsc
+              ? (a[sortField] as number) - (b[sortField] as number)
+              : (b[sortField] as number) - (a[sortField] as number)
+          }
+        })
       commit('SET_FILTERED_LIST', { flist })
       commit('SET_FILTERING', { value: false })
     },
     // eslint-disable-next-line
-    async setCandidate ({ rootState, state, commit }: any, { chain, stash }: any) {
-      console.debug('store/modules/candidate.ts: setCandidate()', chain, stash)
-      let v = state[chain].list.find((i: ICandidate) => i.stash === stash)
+    async setCandidate ({ rootState, state, commit }: any, { chainId, stash }: any) {
+      console.debug('store/modules/candidate.ts: setCandidate()', chainId, stash)
+      let v = state[chainId].list.find((i: ICandidate) => i.stash === stash)
       if (!v) {
         console.debug('not in cache... axios direct')
-        await commit('SET_LOADING', { chain, loading: true })
+        await commit('SET_LOADING', { chainId, loading: true })
         // const res = await axios.get(`//api.metaspan.io/api/kusama/candidate/${stash}`)
-        const res = await axios.get(`${rootState.baseUrl}/api/${state.chain}/candidate`)
-        if (res?.data.candidate) {
-          v = res.data.candidate
+        const res = await axios.get(`${rootState.baseUrl}/api/${chainId}/candidate/${stash}`)
+        if (res?.data) {
+          v = res.data
+        } else {
+          console.warn('API ERROR', res)
         }
-        await commit('SET_LOADING', { chain, loading: false })
+        await commit('SET_LOADING', { chainId, loading: false })
       }
-      await commit('SET_CANDIDATE', { chain, model: v })
+      await commit('SET_CANDIDATE', { chainId, model: v })
       // await dispatch('polkadot/get', stash, {root:true})
     },
+    // not here, the CandidateNominators.vue is using gql
+    // async getNominators ({ rootState, commit }, { chainId, stash }) {
+    //   const res = await axios.get(`${rootState.baseUrl}/api/${chainId}/candidate/${stash}`)
+    //   if (res?.data) {
+    //     commit('', res.data)
+    //   }
+    // },
     // eslint-disable-next-line
     async setLoading ({ commit }: any, { chain, value}: any) {
       console.debug('store/modules/candidate.ts: actions.setLoading()', value)
@@ -517,7 +548,7 @@ const candidate = {
     },
     async resetCache (): Promise<void> {
       console.debug('store/modules/candidate.ts: actions.resetCache()')
-      clearState()
+      stateManager.clearState(STORAGE_KEY)
     }
   }
 }

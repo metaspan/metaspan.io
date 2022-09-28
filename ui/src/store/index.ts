@@ -7,6 +7,10 @@ import validator from './modules/validator'
 import candidate from './modules/candidate'
 import pool from './modules/pool'
 
+import { StateManager } from './state-manager'
+const stateManager = new StateManager('metaspan.io')
+const STORAGE_KEY = 'index'
+
 const chains = {
   kusama: {
     id: 'kusama',
@@ -31,6 +35,7 @@ interface IAlert {
 
 export default new Vuex.Store({
   state: {
+    initial: true,
     loading: false,
     baseUrl: process.env.NODE_ENV === 'production'
       ? 'https://api.metaspan.io'
@@ -40,9 +45,12 @@ export default new Vuex.Store({
     showNavBar: false,
     alerts: [] as IAlert[],
     chains,
-    chain: 'kusama'
+    chainId: 'kusama'
   },
   mutations: {
+    SET_INITIAL (state, initial) {
+      state.initial = initial
+    },
     SET_LOADING (state, loading) {
       state.loading = loading
     },
@@ -65,16 +73,21 @@ export default new Vuex.Store({
       // console.debug('SET_SHOW_SETTINGS_DIALOG', value)
       state.alerts = state.alerts.filter(f => f.id !== alert.id)
     },
-    async SET_CHAIN (state, chain) {
-      state.chain = chain
+    async SET_CHAIN (state, chainId) {
+      state.chainId = chainId
+      stateManager.saveState('index', state)
     }
   },
   actions: {
     // eslint-disable-next-line
-    init ({ dispatch }: any) {
-      dispatch('substrate/init', {}, { root: true })
-      dispatch('candidate/init', {}, { root: true })
-      dispatch('pool/init', {}, { root: true })
+    async init ({ state, dispatch, commit }: any) {
+      await commit('SET_LOADING', true)
+      await dispatch('setChain', state.chainId) // TODO: is this really necessary?
+      await dispatch('substrate/init', {}, { root: true })
+      await dispatch('candidate/init', {}, { root: true })
+      await dispatch('pool/init', {}, { root: true })
+      await commit('SET_INITIAL', false)
+      await commit('SET_LOADING', false)
     },
     setLoading ({ commit }, loading) {
       commit('SET_LOADING', loading)
@@ -102,11 +115,11 @@ export default new Vuex.Store({
       dispatch('candidate/resetCache', {}, { root: true })
       dispatch('pool/resetCache', {}, { root: true })
     },
-    async setChain ({ commit, dispatch }, { chain }) {
-      await commit('SET_CHAIN', chain)
-      await dispatch('substrate/setChain', { chain })
-      await dispatch('candidate/setChain', { chain })
-      await dispatch('pool/setChain', { chain })
+    async setChain ({ commit, dispatch }, chainId) {
+      await commit('SET_CHAIN', chainId)
+      await dispatch('substrate/setChain', chainId)
+      await dispatch('candidate/setChain', chainId)
+      await dispatch('pool/setChainId', chainId)
     },
     async apiClose ({ dispatch }) {
       await dispatch('substrate/apiClose')

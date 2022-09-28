@@ -42,8 +42,16 @@ export default Vue.extend({
   //   }
   // },
   computed: {
-    ...mapState(['chain']),
+    ...mapState(['chainId']),
     ...mapGetters('candidate', ['candidate'])
+  },
+  watch: {
+    candidate: {
+      deep: true,
+      handler (val) {
+        console.log('candidate changed', val)
+      }
+    }
   },
   data () {
     return {
@@ -60,16 +68,48 @@ export default Vue.extend({
       }
     }
   },
-  async created () {
-    console.debug(`CandidateIdentity.vue created(): chain=${this.chain}`)
-    if (!this.$substrate[this.chain]) {
-      await this.$substrate.connect(this.chain)
+  methods: {
+    async getIdentity () {
+      try {
+        console.debug('candidate:', this.candidate)
+        if (!this.candidate) return false
+        const id = await this.$substrate[this.chainId].query.identity.identityOf(this.candidate.stash)
+        console.debug('id', id)
+        const idj = id.toJSON()
+        console.debug('idj', idj)
+        if (idj) {
+          this.deposit = idj.deposit
+          this.info = {
+            // additional...
+            display: idj.info.display.raw ? hexToString(idj.info.display.raw) : '',
+            email: idj.info.email.raw ? hexToString(idj.info.email.raw) : '',
+            // image...
+            legal: idj.info.legal.raw ? hexToString(idj.info.legal.raw) : '',
+            riot: idj.info.riot.raw ? hexToString(idj.info.riot.raw) : '',
+            twitter: idj.info.twitter.raw ? hexToString(idj.info.twitter.raw) : '',
+            web: idj.info.web.raw ? hexToString(idj.info.web.raw) : ''
+          }
+          this.judgements = idj.judgements
+        }
+        this.loading = false
+        return true
+      } catch (err) {
+        console.debug('CandidnateIdentity.vue: OOPs')
+        console.error(err)
+        return false
+      }
     }
-    await this.$substrate[this.chain].isReady
+  },
+  async created () {
+    console.debug(`CandidateIdentity.vue created(): chain=${this.chainId}`)
+    if (!this.$substrate[this.chainId]) {
+      await this.$substrate.connect(this.chainId)
+    }
+    await this.$substrate[this.chainId].isReady
     let count = 0
     const int = setInterval(async () => {
       count++
-      if (this.$substrate[this.chain]) {
+      if (this.$substrate[this.chainId]) {
         // console.debug('CandidateIdentity', this.$store.state.candidate.candidate.identity)
         // const superOf = await this.$substrate.polkadot.api.query.identity.superOf(this.candidate.stash)
         // console.debug('superOf', superOf)
@@ -91,33 +131,9 @@ export default Vue.extend({
         //     "twitter":{"raw":"0x406d6574617370616e5f696f"}
         //   }
         // }
-        try {
-          const id = await this.$substrate[this.chain].query.identity.identityOf(this.candidate.stash)
-          console.debug('id', id)
-          const idj = id.toJSON()
-          console.debug('idj', idj)
-          if (idj) {
-            this.deposit = idj.deposit
-            this.info = {
-              // additional...
-              display: idj.info.display.raw ? hexToString(idj.info.display.raw) : '',
-              email: idj.info.email.raw ? hexToString(idj.info.email.raw) : '',
-              // image...
-              legal: idj.info.legal.raw ? hexToString(idj.info.legal.raw) : '',
-              riot: idj.info.riot.raw ? hexToString(idj.info.riot.raw) : '',
-              twitter: idj.info.twitter.raw ? hexToString(idj.info.twitter.raw) : '',
-              web: idj.info.web.raw ? hexToString(idj.info.web.raw) : ''
-            }
-            this.judgements = idj.judgements
-          }
-          this.loading = false
-          clearInterval(int)
-        } catch (err) {
-          console.debug('CandidnateIdentity.vue: OOPs')
-          console.error(err)
-        }
+        if (await this.getIdentity()) clearInterval(int)
       } else {
-        console.debug('not connected?', this.chain)
+        console.debug('not connected?', this.chainId)
       }
       if (count > 10) {
         console.debug('CandidateIdentity.vue: no api found, clearing interval...')

@@ -60,6 +60,34 @@ export const GET_VALIDATOR = gql`
     }
   }
 `
+
+export const GET_VALIDATOR_NOMINATORS = gql`
+  query ValidatorNominators($chain: String!, $stash: String) {
+    Validator(chain: $chain, stash: $stash) {
+      stash
+      nominators {
+        accountId
+        is1kv {
+          address
+        }
+        identity {
+          info {
+            display
+          }
+        }
+        account {
+          data {
+            free
+            reserved
+            miscFrozen
+            feeFrozen
+          }
+        }
+      }
+    }
+  }
+`
+
 export const GET_VALIDATORS = gql`
   query getValidators ($chain: String!, $stashes: [String], $search: String, $offset: Int, $limit: Int) {
     ValidatorCount(chain: $chain, search: $search)

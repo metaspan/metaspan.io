@@ -44,39 +44,40 @@ class SubstrateAPI {
     this.config = { ...this.config, ...options }
   }
 
-  async createWsProvider (chain = 'kusama', endpoint = 'parity') {
+  async createWsProvider (chainId = 'kusama', endpoint = 'parity') {
     // const _chain = chain || 'kusama'
     // const _endpoint = endpoint || 'parity'
-    console.debug('plugins/substrate.ts: createWsProvider()', chain, endpoint)
-    if (this[chain]) {
-      console.debug('plugins/substrate.ts: we already have api for', chain)
-      await this[chain].isReady
-      return
+    console.debug('plugins/substrate.ts: createWsProvider()', chainId, endpoint)
+    if (this[chainId]) {
+      console.debug('plugins/substrate.ts: we already have api for', chainId)
+      await this[chainId].isReady
+      return this[chainId]
     }
-    const provider = new WsProvider(endpoints[chain][endpoint])
+    const provider = new WsProvider(endpoints[chainId][endpoint])
     provider.on('error', async (err) => {
-      console.warn(`plugins/substrate.ts: on('error', ${chain})`)
-      await store.dispatch('apiError', { chain, error: err })
+      console.warn(`plugins/substrate.ts: on('error', ${chainId})`)
+      await store.dispatch('apiError', { chainId, error: err })
       console.error(err)
     })
     // console.debug(`${chain}: debug 2`)
     provider.on('connected', async () => {
-      console.debug(`plugins/substrate.ts: on('connected', ${chain})`)
-      await store.dispatch('substrate/apiConnected', { chain })
+      console.debug(`plugins/substrate.ts: on('connected', ${chainId})`)
+      await store.dispatch('substrate/apiConnected', chainId)
     })
     // console.debug(`${chain}: debug 3`)
     provider.on('disconnected', async (evt) => {
-      console.debug(`plugins/substrate.ts: on('disconnected', ${chain})`)
+      console.debug(`plugins/substrate.ts: on('disconnected', ${chainId})`)
       console.debug(evt)
-      await store.dispatch('substrate/apiDisconnected', { chain })
+      await store.dispatch('substrate/apiDisconnected', chainId)
     })
-    console.debug('plugins/substrate.ts: about to connect', chain)
+    console.debug('plugins/substrate.ts: about to connect', chainId)
     await provider.connect()
     const api = await ApiPromise.create({ provider })
     await api.isReady
-    this[chain] = api
+    console.debug(`subsrate.ts: createWsProvider(${chainId}) api isReady`)
+    this[chainId] = api // TODO duplication!
     // console.debug(`${chain}: debug 6`)
-    // return provider
+    return api
   }
 
   // async createScProvider (chain: string): Promise<ScProvider> {
@@ -109,7 +110,7 @@ class SubstrateAPI {
   //   return provider
   // }
 
-  async connect (chain = 'kusama'): Promise<void> {
+  async connect (chainId = 'kusama'): Promise<void> {
     // const wsProvider = new WsProvider(endpoints[this.config.chain][this.config.endpoint])
     // const kusamaProvider = await this.createProvider(WellKnownChain.ksmcc3)
     // const polkadotProvider = await this.createProvider(WellKnownChain.polkadot)
@@ -122,21 +123,25 @@ class SubstrateAPI {
     // await Promise.all([
     // await this.createWsProvider('kusama')
     // await this.createWsProvider('polkadot')
-    await this.createWsProvider(chain)
+    const api = await this.createWsProvider(chainId)
+    this[chainId] = api
+    console.debug(`plugins/substrate.ts: connect(${chainId}): we have an api...`)
     // ])
     // }
 
     // this.api = await ApiPromise.create({ kusamaProvider })
     // this.kusama = await ApiPromise.create({ provider: kusamaProvider })
     // this.polkadot = await ApiPromise.create({ provider: polkadotProvider })
-    console.debug('plugins/substrate.ts: connect(): we have an api...')
+    const ci = await this.chainInfo(chainId)
+    return ci
   }
 
   // eslint-disable-next-line
-  async chainInfo (chain: string): Promise<any> {
-    console.debug('plugins/substrate.ts: chainInfo()', chain)
-    const chainInfo = await this[chain].api.registry.getChainProperties()
-    console.log(chainInfo)
+  async chainInfo (chainId: string): Promise<any> {
+    console.debug('plugins/substrate.ts: chainInfo()', chainId)
+    // const chainInfo = await this[chain].api.registry.getChainProperties()
+    const chainInfo = await this[chainId].registry.getChainProperties()
+    console.debug(`plugins/substrate.ts: chainInfo(${chainId})`, chainInfo)
     return chainInfo
   }
 }

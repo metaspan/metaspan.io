@@ -22,10 +22,11 @@
 
     </v-toolbar>
     -->
-
+    <v-fade-transition mode="out-in">
     <router-view>
-      This is the {{chain}} Home page
+      This is the {{chainId}} Home page
     </router-view>
+  </v-fade-transition>
 
   </v-container>
 </template>
@@ -36,65 +37,69 @@ import { mapState } from 'vuex'
 
 export default Vue.extend({
   name: 'ChainHome',
-  // props: {
-  //   chain: {
-  //     type: String,
-  //     required: true
-  //     // default: 'kusama'
-  //   }
-  // },
+  props: {
+    chainId: {
+      type: String,
+      required: true
+      // default: 'kusama'
+    }
+  },
   computed: {
-    ...mapState(['chain'])
+    // ...mapState(['chainId'])
   },
   watch: {
-    async chain (val: string) {
-      console.debug('ChainHome.vue: watch.chain()', val)
-      await this.$substrate.connect(val)
-      await this.$substrate[val].isReady
-      console.debug('ChainHome.vue: watch.chain(): isReady!')
-      await this.setChain(val)
+    async chainId (val: string) {
+      console.debug('ChainHome.vue: watch.chainId()', val)
+      // const chainInfo = await this.$substrate.connect(val)
+      // await this.$substrate[val].isReady
+      console.debug('ChainHome.vue: watch.chainId(): isReady!')
+      await this.setChainId(val)
     }
   },
   methods: {
-    async setChain (chain: string) {
-      console.debug('ChainHome.vue: setChain()', chain)
-      await this.$store.dispatch('setChain', { chain })
-      console.debug('ChainHome.vue: reading chain info()...')
-      const chainInfo = await this.$substrate[this.chain].registry.getChainProperties()
+    async setChainId (chainId: string) {
+      console.debug('ChainHome.vue: setChain()', chainId)
+      await this.$substrate.connect(chainId)
+      await this.$substrate[chainId].isReady
+      await this.$store.dispatch('setChain', chainId)
+      console.debug('ChainHome.vue: reading chainId info()...')
+      const chainInfo = await this.$substrate[this.chainId].registry.getChainProperties()
       console.log('chainInfo.tokenDecimals', chainInfo.tokenDecimals.toJSON()[0])
-      await this.$store.dispatch('substrate/setChainInfo', { chain: this.chain, chainInfo })
+      // TODO: let parent do this?
+      await this.$store.dispatch('substrate/setChainInfo', { chainId: chainId, chainInfo })
     }
   },
   async created () {
-    console.debug('ChainHome.vue: created()', this.chain, this.$store.state.chain)
-    if (!this.$store.state.candidate.chain || this.chain !== this.$store.state.chain) {
+    console.debug('ChainHome.vue: created()', this.chainId, this.$store.state.chainId)
+    if (!this.$store.state.candidate.chainId || this.chainId !== this.$store.state.chainId) {
       // await this.$store.dispatch('setChain', { chain: this.chain })
-      await this.setChain(this.chain)
+      await this.setChainId(this.chainId)
     }
   },
   async mounted () {
     console.debug('ChainHome.vue: mounted()')
     // check api connection status
-    var i = 0
-    const interval = setInterval(async () => {
-      i++
-      if (this.$substrate[this.chain]) {
-        console.info('ChainHome.vue: API found...')
-        await this.$substrate[this.chain].isReady
-        console.debug('ChainHome.vue: api.isReady')
-        clearInterval(interval)
-      }
-      if (i > 10) {
-        console.warn('ChainHome.vue: no API found...')
-        clearInterval(interval)
-      }
-    }, 1000)
-  },
-  async beforeDestroy () {
-    console.debug('ChainHome.vue: beforeDestroy()')
-    await this.$substrate.polkadot.disconnect()
-    await this.$substrate.kusama.disconnect()
-    // await this.$store.dispatch('apiClose')
+    // var i = 0
+    // const interval = setInterval(async () => {
+    //   i++
+    //   if (this.$substrate[this.chain]) {
+    //     console.info('ChainHome.vue: API found...')
+    //     await this.$substrate[this.chain].isReady
+    //     console.debug('ChainHome.vue: api.isReady')
+    //     clearInterval(interval)
+    //   }
+    //   if (i > 10) {
+    //     console.warn('ChainHome.vue: no API found...')
+    //     clearInterval(interval)
+    //   }
+    // }, 1000)
   }
+  // don't do this, it messes up the connection
+  // async beforeDestroy () {
+  //   console.debug('ChainHome.vue: beforeDestroy()')
+  //   if (this.$substrate.polkadot) await this.$substrate.polkadot.disconnect()
+  //   if (this.$substrate.kusama) await this.$substrate.kusama.disconnect()
+  //   // await this.$store.dispatch('apiClose')
+  // }
 })
 </script>

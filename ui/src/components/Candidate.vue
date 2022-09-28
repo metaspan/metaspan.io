@@ -26,7 +26,7 @@
 
     <v-row>
       <v-col>
-        <CandidateIdentity :chain="chain" :stash="candidate.stash"></CandidateIdentity>
+        <CandidateIdentity :chainId="chainId" :stash="candidate.stash"></CandidateIdentity>
       </v-col>
       <v-col>
         <CandidateBalance :stash="candidate.stash"></CandidateBalance>
@@ -40,7 +40,7 @@
       <v-row justify="center">
         <v-col class="outlined col-4 col-sm-3 col-md-2" align="center">Rank<br>{{ candidate.rank }}</v-col>
         <v-col class="col-4 col-sm-3 col-md-2" align="center">Score<br>{{ (candidate.score && candidate.score.total ) ? candidate.score.total.toFixed(2) : 0.00 }}</v-col>
-        <v-col class="col-4 col-sm-3 col-md-2" align="center">Commission<br>{{ candidate.commission.toFixed(2) }}%</v-col>
+        <v-col class="col-4 col-sm-3 col-md-2" align="center">Commission<br>{{ candidate.commission ? candidate.commission.toFixed(2) : '0.00' }}%</v-col>
         <v-col class="col-4 col-sm-3 col-md-2" align="center">Valid<br><v-icon :color="candidate.valid?'green':'red'">mdi-{{ candidate.valid?'check-circle':'close-circle' }}</v-icon></v-col>
         <v-col class="col-4 col-sm-3 col-md-2" align="center">Active<br><v-icon :color="candidate.active?'green':'grey'">mdi-{{ candidate.active?'check-circle':'minus-circle' }}</v-icon></v-col>
       </v-row>
@@ -141,7 +141,7 @@ interface IMethods {
 }
 
 interface IComputed {
-  chain: string
+  chainId: string
   candidate: ICandidate
   // eslint-disable-next-line
   cache: Record<string, any> // CacheItem
@@ -179,7 +179,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   },
   computed: {
     ...mapGetters('candidate', ['loading', 'candidate', 'ranges']),
-    ...mapState(['chain']),
+    ...mapState(['chainId']),
     ...mapState('polkadot', { cache: 'cache' }),
     // valid (): boolean {
     //   return this.isValid(this.candidate.validity)
@@ -199,7 +199,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     }
   },
   watch: {
-    chain (val) {
+    chainId (val) {
       this.$router.push(`/${val}/candidate`)
     }
   },
@@ -212,9 +212,9 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   },
   methods: {
     test () {
-      this.$store.dispatch('candidate/setLoading', { chain: this.chain, value: true })
+      this.$store.dispatch('candidate/setLoading', { chain: this.chainId, value: true })
       setTimeout(() => {
-        this.$store.dispatch('candidate/setLoading', { chain: this.chain, value: false })
+        this.$store.dispatch('candidate/setLoading', { chain: this.chainId, value: false })
       }, 5000)
     },
     // eslint-disable-next-line
@@ -232,23 +232,24 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       return moment(v).format(this.dateTimeFormat)
     },
     formatStash (stash: string, len = 8) {
+      if (!stash || stash === '') return stash
       if (stash.length <= len * 2 + 3) return stash
       return stash.substr(0, len) + '...' + stash.substr(stash.length - len)
     }
   },
   async created () {
     console.debug('Candidate.vue: created()', this.candidate, this.$route.params)
-    if (!this.chain) {
+    if (!this.chainId) {
       console.debug('no chain?', this.$route.params)
-      await this.$store.dispatch('setChain', { chain: this.$route.params.chain })
+      await this.$store.dispatch('setChain', { chainId: this.$route.params.chainId })
       console.debug('App.vue: reading chain info()...')
-      const chainInfo = await this.$substrate[this.chain].registry.getChainProperties()
+      const chainInfo = await this.$substrate[this.chainId].registry.getChainProperties()
       console.log('chainInfo.tokenDecimals', chainInfo.tokenDecimals.toJSON()[0])
-      await this.$store.dispatch('substrate/setChainInfo', { chain: this.chain, chainInfo })
+      await this.$store.dispatch('substrate/setChainInfo', { chain: this.chainId, chainInfo })
     }
-    if (!this.candidate) {
+    if (!this.candidate.stash || this.candidate.stash === '') {
       console.debug('no stash?', this.$route.params)
-      await this.$store.dispatch('candidate/setCandidate', { chain: this.chain, stash: this.$route.params.stash })
+      await this.$store.dispatch('candidate/setCandidate', { chainId: this.chainId, stash: this.$route.params.stash })
       console.debug(this.candidate)
     }
     // let {nonce, balance} = await this.$polkadot.api().query.system.account(this.candidate.stash)

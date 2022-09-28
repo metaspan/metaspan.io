@@ -1,17 +1,62 @@
 <template>
 
   <v-card>
-    <v-toolbar flat>
-      <v-btn small icon @click="$router.go(-1)"><v-icon>mdi-arrow-left</v-icon></v-btn>
-      <v-toolbar-title>Pool</v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-toolbar-items>
-        <v-btn small icon @click="reload()"><v-icon>mdi-refresh</v-icon></v-btn>
-      </v-toolbar-items>
-    </v-toolbar>
+    <v-card-title>
+      <!-- <span class="nowrap"> -->
+        <v-btn small icon @click="$router.go(-1)"><v-icon>mdi-arrow-left</v-icon></v-btn>
+        &nbsp;
+        <v-toolbar-title class="nowrap">Pool {{pool.id}}. {{pool.name}}</v-toolbar-title>
+      <!-- </span> -->
+    </v-card-title>
     <!-- <v-card-title>Pools</v-card-title> -->
     <v-card-text>
-      {{pool}}
+
+      <!-- {{pool}} -->
+      <v-sheet>
+      <table width="100%">
+        <!-- <thead>
+          <th>x</th><th>y</th>
+        </thead> -->
+        <tbody>
+          <tr>
+            <td width="20%">Points</td><td>{{toCoin(pool.points)}} {{chainInfo.tokenSymbol}}</td>
+          </tr><tr>
+            <td>State</td><td>{{pool.state}}</td>
+          </tr>
+          <!-- <tr>
+            <td>Member count</td><td>{{pool.memberCounter}}</td>
+          </tr> -->
+          <tr>
+            <td>Roles</td><td>
+              <table width="100%">
+                <tr>
+                  <td width="30%">Root</td><td align="right">
+                    <AccountLink :accountId="pool.roles.root" />
+                  </td>
+                </tr><tr>
+                  <td>Nominator</td><td align="right">
+                    <AccountLink :accountId="pool.roles.nominator" />
+                  </td>
+                </tr><tr>
+                  <td>Depositor</td><td align="right">
+                    <AccountLink :accountId="pool.roles.depositor" />
+                  </td>
+                </tr><tr>
+                  <td>State Toggler</td><td align="right">
+                    <AccountLink :accountId="pool.roles.stateToggler" />
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- <tr>
+            <td>name</td><td>{{pool.name}}</td>
+          </tr> -->
+        </tbody>
+      </table>
+      </v-sheet>
+
+      <PoolMembers :poolId="id"></PoolMembers>
     </v-card-text>
   </v-card>
 
@@ -19,10 +64,30 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import { IPool } from '../types/global'
+import AccountLink from './AccountLink.vue'
+import PoolMembers from './PoolMembers.vue'
 
-export default Vue.extend({
+interface IData {
+  loading: boolean
+}
+// eslint-disable-next-line
+interface IMethods {
+  // toCoin (val: number): string
+}
+interface IComputed {
+  chainId: string
+  chainInfo: any
+  pool: IPool
+  decimals: any
+  // getStash: string
+}
+interface IProps {
+  id: number
+}
+
+export default Vue.extend<IData, IMethods, IComputed, IProps>({
   props: {
     // chain: {
     //   type: String,
@@ -33,9 +98,18 @@ export default Vue.extend({
       required: false
     }
   },
+  components: {
+    AccountLink,
+    PoolMembers
+  },
   computed: {
-    ...mapState(['chain']),
-    ...mapState('pool', ['pool'])
+    ...mapState(['chainId']),
+    ...mapState('pool', ['pool']),
+    ...mapState('substrate', ['decimals']),
+    ...mapGetters('substrate', ['chainInfo'])
+    // poolId () {
+    //   return this.pool?.id || ''
+    // }
   },
   data () {
     return {
@@ -43,55 +117,19 @@ export default Vue.extend({
     }
   },
   methods: {
-    toKSM (v: number): number {
-      return v / 1000000000000
-    },
-    reload () {
-      this.loading = true
-      this.loadPools()
-    },
-    async loadPools () {
-      var h = 0
-      const int = setInterval(async () => {
-        h++
-        try {
-          const api = this.$substrate.kusama
-          var t: any, x: any
-          x = await api.query.nominationPools.lastPoolId()
-          // console.log('lastPool', x.toNumber())
-          var i = 1
-          while (i <= x.toNumber()) {
-            t = await api.query.nominationPools.bondedPools(i)
-            var j = t.toJSON()
-            j.id = i
-            // console.log(`bondedPools(${i})`, j)
-            console.log('roles', Object.keys(j.roles))
-            await this.$store.dispatch('pool/addPool', j)
-            i++
-          }
-          // const metadata = await this.$substrate.kusama.query.nominationPools.metadata(50)
-          // console.log('metadata', metadata.toString())
-
-          // t = await api.query.nominationPools.counterForBondedPools()
-          // console.log('counterForBondedPools', t.toJSON())
-          clearInterval(int)
-          console.debug('loading done...')
-          this.loading = false
-        } catch (err) {
-          console.debug(err)
-          this.loading = false
-        }
-
-        if (h > 10) {
-          console.debug('not API avail. after 10 seconds')
-          this.loading = false
-          clearInterval(int)
-        }
-      }, 20 * 1000) // 20 seconds
+    toCoin (v) {
+      // console.debug('CandidateNominators.vue', this.chainInfo)
+      const decimalPlaces = this.chainInfo?.tokenDecimals?.toJSON()[0] || 0
+      // const denom = this.denoms[this.chainInfo.tokenDecimals]
+      return (v / this.decimals[decimalPlaces]).toLocaleString('en-GB', { maximumFractionDigits: 4 }) // .toFixed(4)
     }
+    // reload () {
+    //   this.loading = true
+    //   // this.loadPools()
+    // }
   },
   async created () {
-    console.debug('Pool.vue created()', this.chain, this.pool, this.$route.params)
+    console.debug('Pool.vue created()', this.chainId, this.pool, this.$route.params)
     if (!this.pool || this.pool.id !== parseInt(this.$route.params.id)) {
       console.debug('ID not same, loading id')
       console.debug('params.id', typeof parseInt(this.$route.params.id))
@@ -116,3 +154,12 @@ export default Vue.extend({
   }
 })
 </script>
+
+<style scoped>
+.nowrap {
+  max-width: 425px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+</style>

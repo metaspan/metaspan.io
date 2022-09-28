@@ -39,7 +39,8 @@ interface IData {
 interface IComputed {
   dark: boolean
   appLoading: boolean
-  chain: string
+  // chainId: string
+  chains: any[]
 }
 
 interface IMethods {
@@ -63,7 +64,11 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   computed: {
     ...mapState(['dark', 'showSettingsDialog']),
     ...mapState('polkadot', ['loading']),
-    ...mapState({ chain: 'chain', appLoading: 'loading' })
+    ...mapState({
+      chains: 'chains',
+      // chainId: 'chainId',
+      appLoading: 'loading'
+    })
   },
   data (): IData {
     return {
@@ -72,12 +77,13 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     }
   },
   watch: {
-    async chain (newval) {
-      console.debug('woot, chain is', newval)
-      await this.$substrate.connect(this.chain)
-      // const chainInfo = await this.$substrate[this.chain].registry.getChainProperties()
-      // console.log(chainInfo)
-    }
+    // NOT HERE, watch chain in ChainHome.vue
+    // async chain (newval) {
+    //   console.debug('woot, chain is', newval)
+    //   await this.$substrate.connect(this.chain)
+    //   // const chainInfo = await this.$substrate[this.chain].registry.getChainProperties()
+    //   // console.log(chainInfo)
+    // }
   },
   methods: {
     onSettingsDialog (v: boolean) {
@@ -88,21 +94,18 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       this.$store.dispatch('setDark', evt.matches)
     }
   },
-  created () {
+  async created () {
     console.debug('App.vue: created')
     this.matcher = window.matchMedia('(prefers-color-scheme: dark)')
     // set the initial state from the matcher  await this.onDark(this.matcher)
     this.matcher.addListener(this.onDark)
     this.onDark(this.matcher)
-    this.$store.dispatch('setLoading', true)
-    setTimeout(async () => {
-      await this.$substrate.connect(this.chain)
-      await this.$store.dispatch('setChain', { chain: this.chain })
-      console.debug('App.vue: dispatching store init()')
-      await this.$store.dispatch('init')
-      await this.$store.dispatch('setLoading', false)
-      console.debug('App Loading done')
-    }, 3000)
+    // connect the API(s) for each chain and set chainInfo
+    Object.keys(this.chains).forEach(async (chainId: string) => {
+      const chainInfo = await this.$substrate.connect(chainId)
+      await this.$store.dispatch('substrate/setChainInfo', { chainId, chainInfo })
+    })
+    this.$store.dispatch('init')
   },
   async mounted () {
     console.debug('App.vue: mounted')

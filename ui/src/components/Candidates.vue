@@ -60,7 +60,7 @@
             <v-card-title>Sort</v-card-title>
             <v-card-text>
               <v-select v-model="xfilter.sort" :items="sortItems" item-text="text" item-value="value" label="Sort"></v-select>
-              <v-switch v-model="xfilter.sortDir" value="asc" label="Ascending"></v-switch>
+              <v-switch v-model="xfilter.sortAsc" value="asc" label="Ascending"></v-switch>
             </v-card-text>
           </v-card>
         </v-tab-item>
@@ -108,6 +108,8 @@ interface IFilter {
   valid: boolean
   active: boolean
   favourite: boolean
+  sort: string
+  sortAsc: boolean
 }
 
 interface IData {
@@ -119,14 +121,15 @@ interface IData {
   dateTimeFormat: string
   search: string
   searching: boolean
-  sort: string
-  sortDir: string
+  // sort: string
+  // sortAsc: boolean
   sortItems: ISortItem[]
   xfilter: IFilter
 }
 interface IMethods {
   debouncedSearch (s: string): void
   debouncedFilter (f: IFilter): void
+  fetchFilter(): void
   // eslint-disable-next-line
   timeAgo (d: any): string
   // eslint-disable-next-line
@@ -139,7 +142,7 @@ interface IMethods {
 
 interface IComputed {
   apiConnected: boolean
-  chain: string
+  chainId: string
   loading: boolean
   dark: boolean
   // filteredList: ICandidate[]
@@ -168,7 +171,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   //   }
   // },
   computed: {
-    ...mapState(['chain']),
+    ...mapState(['chainId']),
     ...mapGetters('candidate', ['apiConnected', 'loading', 'updatedAt', 'favourites']),
     ...mapState(['dark'])
     // updated (): string { return moment(this.updatedAt as string).format(this.dateTimeFormat as string) }
@@ -183,8 +186,6 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       dateTimeFormat: 'YYYY/MM/DD hh:mm',
       search: '',
       searching: false,
-      sort: 'rank', // {text: 'Rank', value: 'rank'},
-      sortDir: 'asc',
       sortItems: [
         { text: 'Name', value: 'name' },
         { text: 'Rank', value: 'rank' },
@@ -195,13 +196,17 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
         score: 0,
         valid: false,
         active: false,
-        favourite: false
+        favourite: false,
+        sort: 'rank', // {text: 'Rank', value: 'rank'},
+        sortAsc: false
       }
     }
   },
   watch: {
-    chain (val) {
+    chainId (val) {
       this.$router.push(`/${val}/candidate`)
+      // set up the filter
+      this.fetchFilter()
     },
     search (newval: string) {
       this.debouncing = true
@@ -223,6 +228,12 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     debouncedFilter (f: IFilter) {
       console.debug(f)
     },
+    fetchFilter () {
+      if (this.$store.state.candidate[this.chainId]) {
+        this.xfilter = this.$store.state.candidate[this.chainId].filter
+        this.search = this.$store.state.candidate[this.chainId].search
+      }
+    },
     checkFilterActive () {
       this.filterActive = this.xfilter.active ||
         this.xfilter.favourite ||
@@ -243,18 +254,18 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       this.$store.dispatch('candidate/getList')
     },
     gotoCandidate (item: ICandidate) {
-      console.debug('gotoCandidate', this.chain, item)
-      this.$store.dispatch('candidate/setCandidate', { chain: this.chain, stash: item.stash })
-      this.$router.push(`/${this.chain}/candidate/${item.stash}`)
+      console.debug('gotoCandidate', this.chainId, item)
+      this.$store.dispatch('candidate/setCandidate', { chainId: this.chainId, stash: item.stash })
+      this.$router.push(`/${this.chainId}/candidate/${item.stash}`)
     }
     // handleResize (evt: any) {
     //   console.debug('handleResize', evt)
     // }
   },
   async created () {
-    console.debug('Candidates.vue: created()', this.chain)
-    // if (this.$route.params.chain !== this.chain) {
-    //   await this.$store.dispatch('setChain', { chain: this.$route.params.chain })
+    console.debug('Candidates.vue: created()', this.chainId)
+    // if (this.$route.params.chainId !== this.chainId) {
+    //   await this.$store.dispatch('setChain', { chainId: this.$route.params.chainId })
     // }
     this.windowSize = { x: window.innerWidth, y: window.innerHeight }
     // this.options = this.$store.state.candidate.options // .pagination.page
@@ -262,29 +273,28 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
 
     this.debouncedSearch = debounce((newVal: string) => {
       this.checkFilterActive()
-      this.$store.dispatch('candidate/setSearch', { chain: this.chain, search: newVal })
+      this.$store.dispatch('candidate/setSearch', { chainId: this.chainId, search: newVal })
       this.debouncing = false
       this.searching = false
     }, 1000)
 
     this.debouncedFilter = debounce((newVal: IFilter) => {
       this.checkFilterActive()
-      this.$store.dispatch('candidate/handleFilter', { chain: this.chain, filter: newVal })
+      this.$store.dispatch('candidate/handleFilter', { chainId: this.chainId, filter: newVal })
       this.debouncing = false
       this.searching = false
     }, 1000)
 
-    if (!this.chain || this.chain === undefined) {
-      console.debug('setting chain to', this.$route.params.chain)
-      await this.$store.dispatch('setChain', { chain: this.$route.params.chain })
+    if (!this.chainId || this.chainId === undefined) {
+      console.debug('setting chainId to', this.$route.params.chainId)
+      await this.$store.dispatch('setChain', { chainId: this.$route.params.chainId })
     }
   },
   async mounted () {
-    console.debug('Candidates.vue: mounted()', this.chain, this.$route.params)
+    console.debug('Candidates.vue: mounted()', this.chainId, this.$route.params)
     // const state = this.$store.state.candidate // [this.chain]
     // console.debug('state', state)
-    this.xfilter = this.$store.state.candidate[this.chain].filter
-    this.search = this.$store.state.candidate[this.chain].search
+    this.fetchFilter()
   },
   async beforeDestroy () {
     console.debug('Candidates.vue: beforeDestroy()')

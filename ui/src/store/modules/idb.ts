@@ -17,6 +17,14 @@ class IndexedDB {
     })
   }
 
+  getSync (key: string) {
+    return this.db.then(dbc => {
+      dbc.get('keyval', key).then(res => {
+        return res
+      })
+    })
+  }
+
   async get (key: string) {
     return await (await this.db).get('keyval', key)
   }

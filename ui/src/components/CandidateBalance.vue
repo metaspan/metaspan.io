@@ -36,9 +36,10 @@ export default Vue.extend({
   },
   components: { Loading },
   computed: {
-    ...mapState(['chain']),
+    ...mapState(['chainId']),
     ...mapState('substrate', ['decimals']),
-    ...mapGetters('substrate', ['chainInfo'])
+    ...mapGetters('substrate', ['chainInfo']),
+    ...mapState('candidate', ['candidate'])
   },
   data () {
     return {
@@ -54,49 +55,70 @@ export default Vue.extend({
       }
     }
   },
+  watch: {
+    candidate: {
+      deep: true,
+      handler (val) {
+        console.log('CandidateBalance.vue: watch.candidate()', val)
+      }
+    }
+  },
   methods: {
     toCoin (v: number) {
       // return v / 1000000000000
-      console.debug('decimals', this.chainInfo?.tokenDecimals?.toJSON()[0])
-      const decimalPlaces = this.chainInfo?.tokenDecimals?.toJSON()[0]
-      console.debug('decimalPlaces', decimalPlaces)
+      // console.debug('CandidateBalance.vue: toCoin()', v, this.chainInfo)
+      // console.debug('decimals', this.chainInfo?.tokenDecimals?.toJSON()[0])
+      const decimalPlaces = this.chainInfo?.tokenDecimals?.toJSON()[0] || 0
+      // console.debug('decimalPlaces', decimalPlaces)
       return v / this.decimals[decimalPlaces]
+    },
+    async getBalance () {
+      console.debug('CandidateBalance.vue: getBalance()...')
+      try {
+        await this.$substrate[this.chainId].isReady
+        const acct = await this.$substrate[this.chainId].query.system.account(this.stash)
+        // console.debug(acct)
+        const { nonce, data: balance } = acct
+        // const now = await this.$substrate[this.chainId].query.timestamp.now()
+        // console.log(`${now}: balance of ${balance.free} and a nonce of ${nonce}`)
+        this.account.balance = balance.toJSON()
+        this.account.nonce = nonce.toNumber()
+        this.loading = false
+        console.debug('CandidateBalance.vue: getBalance(): account', this.account)
+        // clearInterval(int)
+        return true
+      } catch (err) {
+        console.debug('CandidateBalance.vue: ERROR')
+        console.error(err)
+        await this.$substrate.connect(this.chainId)
+        return false
+      }
     }
   },
   async created () {
-    console.debug('CandidateBalance.vue created()', this.chain)
-    if (!this.$substrate[this.chain]) {
-      await this.$substrate.connect(this.chain)
-    }
-    if (!this.chainInfo) {
-      const chainInfo = await this.$substrate[this.chain].registry.getChainProperties()
-      console.log('chainInfo.tokenDecimals', chainInfo.tokenDecimals.toJSON()[0])
-      await this.$store.dispatch('substrate/setChainInfo', { chain: this.chain, chainInfo })
-    }
+    console.debug('CandidateBalance.vue created()', this.chainId)
+    // >>>>>>>>>>>>>> not here, let the parent handle API connection!   <<<<<<<<<<<<<<<<<
+    // if (!this.$substrate[this.chainId]) {
+    //   await this.$substrate.connect(this.chainId)
+    // }
+    // if (!this.chainInfo) {
+    //   console.warn('no chainInfo...')
+    //   const chainInfo = await this.$substrate[this.chainId].registry.getChainProperties()
+    //   console.log('chainInfo.tokenDecimals', chainInfo.tokenDecimals.toJSON()[0])
+    //   await this.$store.dispatch('substrate/setChainInfo', { chainId: this.chainId, chainInfo })
+    // }
+  },
+  mounted () {
     let count = 0
     const int = setInterval(async () => {
       count++
-      if (this.$substrate[this.chain]) {
+      if (this.$substrate[this.chainId]) {
         // var nominators = await this.$polkadot.api.query.staking.nominators(this.candidate.stash)
         // console.debug('nominators', this.candidate.stash, nominators)
         // var vals = await this.$polkadot.api.query.staking.validators(this.candidate.stash)
         // console.debug('vals', this.candidate.stash, vals)
         // api.query.system.account(<accountId>).
-        try {
-          await this.$substrate[this.chain].isReady
-          const acct = await this.$substrate[this.chain].query.system.account(this.stash)
-          // console.debug(acct)
-          const now = await this.$substrate[this.chain].query.timestamp.now()
-          const { nonce, data: balance } = acct
-          console.log(`${now}: balance of ${balance.free} and a nonce of ${nonce}`)
-          this.account.balance = balance
-          this.account.nonce = nonce.toNumber()
-          this.loading = false
-          clearInterval(int)
-        } catch (err) {
-          console.debug('CandidateBalance.vue: OOPS')
-          console.error(err)
-        }
+        if (await this.getBalance()) clearInterval(int)
       }
       if (count > 10) {
         console.debug('CandidateBalance.vue: no api found, clearing interval...')

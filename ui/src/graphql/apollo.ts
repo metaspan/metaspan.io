@@ -8,7 +8,7 @@ import VueApollo from 'vue-apollo'
 
 const httpLink = new HttpLink({
   // // uri: process.env.VUE_APP_GRAPHQL_ENDPOINT || 'http://192.168.1.82:4000/graphql'
-  // // uri: 'http://192.168.1.82:4000'
+  // uri: 'http://192.168.1.82:4000'
   // uri: 'http://192.168.1.91:4000'
   // // uri: 'http://localhost:4000'
   uri: 'https://gql.metaspan.io'

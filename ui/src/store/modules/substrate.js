@@ -6,7 +6,7 @@ const api = {
   namespaced: true,
   state: {
     api: null,
-    chain: 'kusama',
+    chainId: 'kusama',
     decimals: {
       0: 1,
       1: 10,
@@ -33,21 +33,24 @@ const api = {
   },
   getters: {
     chainInfo (state) {
-      return state[state.chain].chainInfo
+      return state[state.chainId]?.chainInfo || {}
+    },
+    connected (state) {
+      return state[state.chainId]?.connected
     }
   },
   mutations: {
     INIT (state, { api }) {
       state.api = api
     },
-    SET_CHAIN (state, { chain }) {
-      state.chain = chain
+    SET_CHAIN (state, chainId) {
+      state.chainId = chainId
     },
-    SET_CHAIN_INFO (state, { chain, chainInfo }) {
-      state[chain].chainInfo = chainInfo
+    SET_CHAIN_INFO (state, { chainId, chainInfo }) {
+      state[chainId].chainInfo = chainInfo
     },
-    SET_API_CONNECTED (state, { chain, connected }) {
-      state[chain].connected = connected
+    SET_API_CONNECTED (state, { chainId, connected }) {
+      state[chainId].connected = connected
     }
   },
   actions: {
@@ -59,32 +62,32 @@ const api = {
       // await s.connect()
       // await commit('INIT', { api: s })
     },
-    async setChain ({ commit }, { chain }) {
-      console.debug('store/modules/substrate.ts: setChain()', chain)
-      await commit('SET_CHAIN', { chain })
+    async setChain ({ commit }, chainId) {
+      console.debug('store/modules/substrate.ts: setChain()', chainId)
+      await commit('SET_CHAIN', chainId)
     },
     async apiClose ({ dispatch }) {
       console.debug('store/modules/substrate.ts: apiclose()')
-      await dispatch('apiDisconnected', { chain: 'polkadot' })
-      await dispatch('apiDisconnected', { chain: 'kusama' })
+      await dispatch('apiDisconnected', { chainId: 'polkadot' })
+      await dispatch('apiDisconnected', { chainId: 'kusama' })
     },
-    async setChainInfo ({ commit }, { chain, chainInfo }) {
-      console.debug('store/modules/substrate.ts: setChainInfo()', chain, chainInfo)
-      await commit('SET_CHAIN_INFO', { chain, chainInfo })
+    async setChainInfo ({ commit }, { chainId, chainInfo }) {
+      console.debug('store/modules/substrate.ts: setChainInfo()', chainId, chainInfo)
+      await commit('SET_CHAIN_INFO', { chainId, chainInfo })
     },
-    async apiConnected ({ commit }, { chain }) {
-      console.debug('store/modules/substrate.ts: apiConnected()', chain)
+    async apiConnected ({ commit }, chainId) {
+      console.debug('store/modules/substrate.ts: apiConnected()', chainId)
       // console.log(state[chain])
       // const chainInfo = await state[chain].api.registry.getChainProperties()
       // console.log(chainInfo);
-      commit('SET_API_CONNECTED', { chain, connected: true })
+      commit('SET_API_CONNECTED', { chainId, connected: true })
     },
-    async apiDisconnected ({ commit }, { chain }) {
-      console.debug('store/modules/substrate.ts: apiDisconnected()', chain)
-      commit('SET_API_CONNECTED', { chain, connected: false })
+    async apiDisconnected ({ commit }, chainId) {
+      console.debug('store/modules/substrate.ts: apiDisconnected()', chainId)
+      commit('SET_API_CONNECTED', { chainId, connected: false })
     },
     async apiError ({ state }, error) {
-      console.log('API ERROR chain', state.chain)
+      console.log('API ERROR chain', state.chainId)
       console.error(error)
     }
     // async getValidators ({ state, commit }) {

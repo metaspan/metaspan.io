@@ -109,11 +109,12 @@ interface IMethods {
   handlePage (evt: any): void
   // eslint-disable-next-line
   handleItemsPerPage (evt: any): void
+  fetchOptions (chainId: string): void
   handleOptions (evt: IOptions): void
 }
 
 interface IComputed {
-  chain: string
+  chainId: string
   loading: boolean
   filtering: boolean
   filteredList: ICandidate[]
@@ -147,7 +148,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     Identicon
   },
   computed: {
-    ...mapState(['chain']),
+    ...mapState(['chainId']),
     ...mapGetters('candidate', ['filtering', 'updatedAt', 'filteredList', 'favourites', 'loading']),
     headers () {
       return [
@@ -231,6 +232,11 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       })
     }
   },
+  watch: {
+    chainId (newChainId) {
+      this.fetchOptions(newChainId)
+    }
+  },
   // eslint-disable-next-line
   data (): any {
     return {
@@ -275,14 +281,18 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     handleItemsPerPage (evt: any) {
       console.debug(evt)
     },
+    fetchOptions (chainId) {
+      this.options = this.$store.state.candidate[chainId]?.options || {}
+      console.debug('fetchOptions', this.chainId, chainId, this.options)
+    },
     handleOptions (evt: IOptions) {
       console.debug('CandidatesTable.vue: ', evt)
       this.$store.dispatch('candidate/handleOptions', { options: evt })
     }
   },
   created () {
-    console.debug('CandidatesTable.vue: created()', this.chain, this.$store.state.candidate[this.chain].options)
-    this.options = this.$store.state.candidate[this.chain].options
+    console.debug('CandidatesTable.vue: created()', this.chainId, this.$store.state.candidate[this.chainId]?.options)
+    this.fetchOptions(this.chainId)
   }
 })
 </script>
