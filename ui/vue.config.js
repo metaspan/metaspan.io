@@ -1,4 +1,7 @@
 const { defineConfig } = require('@vue/cli-service')
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
+
 module.exports = defineConfig({
 
   // publicPath: process.env.NODE_ENV === 'production'
@@ -8,6 +11,20 @@ module.exports = defineConfig({
   
   transpileDependencies: true,
   runtimeCompiler: true,
+
+  // https://www.jenniferbland.com/how-to-reduce-your-vue-js-bundle-size-with-webpack/
+  configureWebpack: {
+    plugins: [
+      new BundleAnalyzerPlugin(),
+      // new VuetifyLoaderPlugin()
+    ],
+    resolve: {
+      alias: {
+        moment: 'moment/src/moment'
+      }
+    }
+  },
+
   devServer: {
     // domain: 'dev.local',
     host: '0.0.0.0',

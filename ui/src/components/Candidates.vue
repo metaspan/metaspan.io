@@ -81,7 +81,7 @@
 </template>
 
 <script lang="ts">
-import moment from 'moment-timezone'
+import moment from 'moment'
 import { mapState, mapGetters } from 'vuex'
 // import * as d3 from 'd3'
 // import CandidatesHisto from './CandidatesHisto.vue'

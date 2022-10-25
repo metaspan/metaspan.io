@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import moment from 'moment-timezone'
+import moment from 'moment'
 import { mapState, mapGetters } from 'vuex'
 import Vue from 'vue'
 import { ICandidate } from '../types/global'

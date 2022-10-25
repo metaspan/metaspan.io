@@ -126,7 +126,7 @@
 </template>
 
 <script lang="ts">
-import moment from 'moment-timezone'
+import moment from 'moment'
 import { mapGetters } from 'vuex'
 // import * as vbe from 'github:w3f/1k-validators-be'
 // const {vbe} = require('../../node_modules/1k-validators-be/src/score.ts')

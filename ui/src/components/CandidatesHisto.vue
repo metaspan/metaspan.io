@@ -5,7 +5,6 @@
 </template>
 
 <script>
-// import moment from 'moment-timezone'
 import {mapState} from 'vuex'
 import * as d3 from 'd3'
 

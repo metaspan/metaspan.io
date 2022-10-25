@@ -65,7 +65,7 @@
 </template>
 
 <script lang="ts">
-import moment from 'moment-timezone'
+import moment from 'moment'
 import { mapState } from 'vuex'
 // import * as d3 from 'd3'
 // import CandidatesHisto from './CandidatesHisto.vue'
@@ -90,6 +90,8 @@ interface IFilter {
   valid: boolean | null
   active: boolean | null
   favourite: boolean | null
+  sort: string
+  sortDir: string
 }
 
 interface IData {
@@ -150,7 +152,9 @@ export default Vue.extend<IData, IMethods, IComputed>({
         score: null,
         valid: null,
         active: null,
-        favourite: false
+        favourite: false,
+        sort: 'name',
+        sortDir: 'asc'
       }
       // options: {}
     }

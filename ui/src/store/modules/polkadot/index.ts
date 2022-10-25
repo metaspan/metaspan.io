@@ -1,6 +1,6 @@
 
 import { ApiPromise, WsProvider } from '@polkadot/api'
-import moment from 'moment-timezone'
+import moment from 'moment'
 
 import { ICache, ICandidate } from '../../../types/global'
 import { PolkadotWindow, IValidator } from './types'

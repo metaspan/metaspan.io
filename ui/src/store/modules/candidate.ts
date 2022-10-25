@@ -9,7 +9,7 @@ import {
 } from '@/types/global'
 import axios from 'axios'
 // import {apolloClient} from '../../graphql/apollo'
-import moment from 'moment-timezone'
+import moment from 'moment'
 
 // import { apolloClient } from '../../graphql/apollo'
 // import { GET_CANDIDATES, GET_CANDIDATE } from '../../graphql/queries/candidates'

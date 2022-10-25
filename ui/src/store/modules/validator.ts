@@ -1,6 +1,4 @@
 
-// import moment from 'moment-timezone'
-
 import { IValidator } from '@/types/global'
 import axios from 'axios'
 

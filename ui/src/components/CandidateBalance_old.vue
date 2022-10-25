@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts">
-import moment from 'moment-timezone'
+import moment from 'moment'
 import { mapState } from 'vuex'
 import Vue from 'vue'
 import { ICandidate, ICache, IWalletBalance } from '../types/global'

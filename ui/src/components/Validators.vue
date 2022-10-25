@@ -118,7 +118,7 @@
 </template>
 
 <script lang="ts">
-import moment from 'moment-timezone'
+import moment from 'moment'
 import { mapState } from 'vuex'
 import Identicon from '@polkadot/vue-identicon'
 import Vue from 'vue'

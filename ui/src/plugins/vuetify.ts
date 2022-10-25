@@ -4,9 +4,8 @@
 
 import Vue from 'vue'
 // Vuetify
-// import { createVuetify } from 'vuetify'
-// import vuetify from 'vuetify'
 import Vuetify from 'vuetify'
+// import Vuetify from 'vuetify/lib'
 import 'vuetify/dist/vuetify.min.css'
 
 Vue.use(Vuetify)
