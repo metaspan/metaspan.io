@@ -175,29 +175,24 @@ export default Vue.extend({
       dateFormat: 'DD MMM YY',
       dateTimeFormat: 'YYYY/MM/DD hh:mm',
       denoms: {
-        // "_id": "62700be629cee192f7723e41",
-        updated: 1652607338086,
-        // "address": "HyLisujX7Cr6D7xzb6qadFdedLt8hmArB6ZVGJ6xsCUHqmx",
-        // "total": 381.7721771213124,
-        // "aggregate": 339.9612269074931,
+        // https://raw.githubusercontent.com/w3f/1k-validators-be/master/packages/core/config/kusama.sample.json
+        // https://raw.githubusercontent.com/w3f/1k-validators-be/master/packages/core/config/main.sample.json
+        inclusion: 140,
         spanInclusion: 140,
-        inclusion: 120,
         discovered: 5,
         nominated: 30,
         rank: 5,
-        // "unclaimed": 0,
         bonded: 50,
         faults: 5,
         offline: 2,
         location: 40,
-        country: 40,
-        region: 40,
-        asn: 40,
-        provider: 40,
-        councilStake: 50
-        // "democracy": 96,
-        // "randomness": 1.1229874082822877,
-        // "__v": 0
+        region: 10,
+        country: 10,
+        provider: 50,
+        council: 50,
+        democracy: 100,
+        nominations: 100,
+        delegations: 60
       }
     }
   },
