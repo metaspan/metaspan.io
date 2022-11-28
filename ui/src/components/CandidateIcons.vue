@@ -4,6 +4,7 @@
     <v-card-text>
       <v-row justify="center">
         <v-col class="cicon" align="center">Valid<br><v-icon :color="candidate.valid?'green':'red'">mdi-{{ candidate.valid?'check-circle':'close-circle' }}</v-icon></v-col>
+        <v-col class="cicon" align="center">Nom. 1kv<br><v-icon :color="candidate.nominated_1kv?'green':'grey'">mdi-{{ candidate.nominated_1kv?'minus-circle':'minus-circle' }}</v-icon></v-col>
         <v-col class="cicon" align="center">Active<br><v-icon :color="candidate.active?'green':'grey'">mdi-{{ candidate.active?'check-circle':'minus-circle' }}</v-icon></v-col>
         <v-col class="cicon" align="center">Rank<br>{{ candidate.rank }}</v-col>
         <v-col class="cicon" align="center">Score<br>{{ candidate.score ? candidate.score.total.toFixed(2) : 0.00 }}</v-col>

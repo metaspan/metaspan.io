@@ -56,6 +56,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
         IDENTITY: 'Identity',
         KUSAMA_RANK: 'Kusama Rank',
         ONLINE: 'Online',
+        PROVIDER: 'Provider',
         REWARD_DESTINATION: 'Reward Destination',
         SELF_STAKE: 'Self stake',
         UNCLAIMED_REWARDS: 'Unclaimed',

@@ -23,6 +23,7 @@
         <v-list-item-subtitle>Score: {{ getScore(item) }}, Rank: {{item.rank}}</v-list-item-subtitle>
         <div>
           <v-chip x-small :color="isValid(item.validity)?'green':'red'">Valid&nbsp;<v-icon class="d-none d-sm-inline" x-small dark>mdi-{{ isValid(item.validity) ? 'check-circle' : 'close-circle'}}</v-icon></v-chip>
+          &nbsp;<v-chip x-small :color="item.nominated_1kv?'green':'grey'">Nom. 1kv&nbsp;<v-icon class="d-none d-sm-inline" x-small dark>mdi-{{ item.nominated_1kv ? 'check-circle' : 'minus-circle'}}</v-icon></v-chip>
           &nbsp;<v-chip x-small :color="item.active?'green':'grey'">Active&nbsp;<v-icon class="d-none d-sm-inline" x-small dark>mdi-{{ item.active ? 'check-circle' : 'minus-circle'}}</v-icon></v-chip>
         </div>
         <!-- Discovered: {{timeAgo(item.discoveredAt)}} -->

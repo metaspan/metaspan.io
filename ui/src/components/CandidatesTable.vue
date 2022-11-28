@@ -50,6 +50,10 @@
       <v-icon small :color="item.active?'green':'grey'">mdi-{{ item.active ? 'check-circle' : 'minus-circle'}}</v-icon>
     </template>
 
+    <template v-slot:[`item.nominated_1kv`]="{item}">
+      <v-icon small :color="item.nominated_1kv?'green':'grey'">mdi-{{ item.nominated_1kv ? 'check-circle' : 'minus-circle'}}</v-icon>
+    </template>
+
     <template v-slot:[`item.score`]="{item}">
       {{item.score ? item.score.toFixed(2) : 0.00 }}
     </template>
@@ -77,6 +81,8 @@ interface IFilter {
   rank: string
   score: number
   valid: boolean
+  // eslint-disable-next-line
+  nominated_1kv: boolean
   active: boolean
 }
 
@@ -179,6 +185,17 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
           }
         },
         {
+          text: 'Nom. (1kv)',
+          align: 'center',
+          sortable: true,
+          value: 'nominated_1kv',
+          width: '5%',
+          filter: (value: boolean) => {
+            // console.debug(this.xfilter, value)
+            return (this.xfilter.nominated_1kv) ? value === true : true
+          }
+        },
+        {
           text: 'Active',
           align: 'center',
           sortable: true,
@@ -225,6 +242,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
           identity_name: item.identity.name,
           discoveredAt: item.discoveredAt,
           valid: item.valid,
+          nominated_1kv: item.nominated_1kv,
           active: item.active,
           rank: item.rank,
           score: item.score?.total

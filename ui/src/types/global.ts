@@ -74,6 +74,8 @@ export interface ICandidate {
   unclaimedEras: string[]
   valid: boolean
   validity: ICandidateValidityItem[]
+  // eslint-disable-next-line
+  nominated_1kv: boolean
 }
 
 export class Candidate implements ICandidate {
@@ -96,6 +98,8 @@ export class Candidate implements ICandidate {
   unclaimedEras = [] as string[]
   valid = false
   validity = [] as ICandidateValidityItem[]
+  // eslint-disable-next-line
+  nominated_1kv = false
 
   constructor (data: ICandidate) {
     this.active = !!data.active
@@ -118,6 +122,7 @@ export class Candidate implements ICandidate {
     this.unclaimedEras = data.unclaimedEras || []
     this.valid = !!data.valid
     this.validity = data.validity || [] as ICandidateValidityItem[]
+    this.nominated_1kv = data.nominated_1kv
     this.setValid()
   }
 

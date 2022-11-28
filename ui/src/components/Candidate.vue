@@ -42,6 +42,7 @@
         <v-col class="col-4 col-sm-3 col-md-2" align="center">Score<br>{{ (candidate.score && candidate.score.total ) ? candidate.score.total.toFixed(2) : 0.00 }}</v-col>
         <v-col class="col-4 col-sm-3 col-md-2" align="center">Commission<br>{{ candidate.commission ? candidate.commission.toFixed(2) : '0.00' }}%</v-col>
         <v-col class="col-4 col-sm-3 col-md-2" align="center">Valid<br><v-icon :color="candidate.valid?'green':'red'">mdi-{{ candidate.valid?'check-circle':'close-circle' }}</v-icon></v-col>
+        <v-col class="col-4 col-sm-3 col-md-2" align="center">Nominated (1kv)<br><v-icon :color="candidate.nominated_1kv?'green':'grey'">mdi-{{ candidate.nominated_1kv?'check-circle':'minus-circle' }}</v-icon></v-col>
         <v-col class="col-4 col-sm-3 col-md-2" align="center">Active<br><v-icon :color="candidate.active?'green':'grey'">mdi-{{ candidate.active?'check-circle':'minus-circle' }}</v-icon></v-col>
       </v-row>
       <v-row justify="center">
@@ -257,6 +258,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   },
   async mounted () {
     window.scrollTo(0, 0)
+    // console.debug('mounted: candidate', this.candidate)
 
     // // this.$store.dispatch('polkadot/getActiveEra')
     // // const activeEra = await this.$polkadot.api.query.staking.activeEra();
