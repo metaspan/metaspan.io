@@ -35,6 +35,7 @@ interface IAlert {
 
 export default new Vuex.Store({
   state: {
+    appVersion: process.env.PACKAGE_VERSION || '0',
     initial: true,
     loading: false,
     baseUrl: process.env.NODE_ENV === 'production'

@@ -110,11 +110,12 @@ scrape_configs:
             </tr>
 
             <tr>
-              <td>https://api.metaspan.io/api/{chain}/locationStats</td>
+              <td>https://api.metaspan.io/api/{chain}/locationStats[?name=Your Location]</td>
               <td>https://{chain}.w3f.network/locationStats</td>
             </tr>
             <tr>
-              <td>https://api.metaspan.io/api/{chain}/locationStats/{locationId}</td>
+              <td>https://api.metaspan.io/api/{chain}/locationStats/{locationId}<br>
+                <i><small>Warning: the locationId could be misleading. Please note there are multiple records for each location "name", recording changes over time</small></i></td>
               <td>https://{chain}.w3f.network/locationStats/{locationId}</td>
             </tr>
           </tbody>

@@ -1,6 +1,12 @@
 const { defineConfig } = require('@vue/cli-service')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
+const IgnorePlugin = require('webpack').IgnorePlugin
+const DefinePlugin = require('webpack').DefinePlugin
+
+const fs = require('fs')
+const packageJson = fs.readFileSync('./package.json')
+const version = JSON.parse(packageJson).version || 0
 
 module.exports = defineConfig({
 
@@ -17,6 +23,12 @@ module.exports = defineConfig({
     plugins: [
       new BundleAnalyzerPlugin(),
       // new VuetifyLoaderPlugin()
+      new IgnorePlugin({ resourceRegExp: /moment\/locale\// }),
+      new DefinePlugin({
+        'process.env': {
+          PACKAGE_VERSION: '"' + version + '"'
+        }
+      })
     ],
     resolve: {
       alias: {

@@ -12,6 +12,9 @@
     </v-toolbar>
 
     <v-list>
+      <v-list-item>
+        <v-list-item-title>App version: {{appVersion}}</v-list-item-title>
+      </v-list-item>
       <v-list-item @click="resetCache()">
         <v-list-item-title>Reset cache</v-list-item-title>
       </v-list-item>
@@ -25,7 +28,7 @@ import { mapState } from 'vuex'
 export default Vue.extend({
   name: 'NavDrawer',
   computed: {
-    ...mapState(['showNavBar'])
+    ...mapState(['showNavBar', 'appVersion'])
   },
   data () {
     return {

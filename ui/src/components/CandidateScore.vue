@@ -4,7 +4,7 @@
 
     <v-card tile elevation="1" width="100%">
       <v-card-title>
-        <span class="text-h5">Score: {{candidate.score.total.toFixed(3)}}</span>
+        <span class="text-h5">Score: {{candidate.score.total.toFixed(3)}} <small>(Updated: {{timeAgo(candidate.score.updated)}})</small></span>
       </v-card-title>
     </v-card>
 
@@ -74,11 +74,13 @@
             <td>{{candidate.country}}</td>
             <td class="text-right">{{getScore(candidate.score.country)}} <small>/{{denoms['country']}}</small></td>
           </tr>
+          <!--
           <tr><th>ASN</th>
             <td>n/a</td>
             <td>{{candidate.asn}}</td>
             <td class="text-right">{{getScore(candidate.score.asn)}} <small>/{{denoms['asn']}}</small></td>
           </tr>
+          -->
           <tr><th>Provider</th>
             <td>n/a</td>
             <td>{{candidate.provider}}</td>
@@ -87,13 +89,19 @@
           <tr><th>Council Stake</th>
             <td>n/a</td>
             <td>{{candidate.councilStake}}</td>
-            <td class="text-right">{{getScore(candidate.score.councilStake)}} <small>/{{denoms['councilStake']}}</small></td>
+            <td class="text-right">{{getScore(candidate.score.councilStake)}} <small>/{{denoms['council']}}</small></td>
           </tr>
           <tr><th>Democracy</th>
             <td>n/a</td>
             <td>{{candidate.democracyVoteCount}} Votes</td>
-            <td class="text-right">{{getScore(candidate.score.democracy)}}</td>
+            <td class="text-right">{{getScore(candidate.score.democracy)}} <small>/{{denoms['democracy']}}</small></td>
           </tr>
+          <tr><th>Nominations</th>
+            <td>n/a</td>
+            <td>{{candidate.nominations}}</td>
+            <td class="text-right">{{getScore(candidate.score.nominatorStake)}} <small>/{{denoms['nominated']}}</small></td>
+          </tr>
+
           <tr><th>Unclaimed Eras</th>
             <td>n/a</td>
             <td>{{candidate.unclaimedEras ? candidate.unclaimedEras.length : 0}}</td>
@@ -177,10 +185,13 @@ export default Vue.extend({
       denoms: {
         // https://raw.githubusercontent.com/w3f/1k-validators-be/master/packages/core/config/kusama.sample.json
         // https://raw.githubusercontent.com/w3f/1k-validators-be/master/packages/core/config/main.sample.json
-        inclusion: 140,
-        spanInclusion: 140,
+        // https://github.com/w3f/1k-validators-be/blob/master/helmfile.d/config/kusama/otv-backend-prod.yaml.gotmpl#L59
+        // https://github.com/w3f/1k-validators-be/blob/master/helmfile.d/config/polkadot/otv-backend-prod.yaml.gotmpl#58
+        inclusion: 160,
+        spanInclusion: 200,
         discovered: 5,
         nominated: 30,
+        // nominatorStake: 30,
         rank: 5,
         bonded: 50,
         faults: 5,
@@ -188,7 +199,7 @@ export default Vue.extend({
         location: 40,
         region: 10,
         country: 10,
-        provider: 50,
+        provider: 100,
         council: 50,
         democracy: 100,
         nominations: 100,
@@ -209,37 +220,14 @@ export default Vue.extend({
       const start = moment().add(-span as moment.DurationInputArg1, unit as moment.DurationInputArg2).format(format)
       const end = moment().add(-1, 'days').format(format)
       return `${start} - ${end}`
+    },
+    timeAgo (timestamp: number) {
+      return moment(timestamp).fromNow()
     }
   },
-  created () {
-    // if(!this.candidate.score) {
-    //     console.warn('candidate has no score', this.candidate)
-    //     this.candidate.score = {
-    //         spanInclusion: 0,
-    //         inclusion: 0,
-    //         discovered: 0,
-    //         nominated: 0,
-    //         rank: 0,
-    //         bonded: 0,
-    //         faults: 0,
-    //         offline: 0,
-    //         location: 0,
-    //         councilStake: 0,
-    //         democaracy: 0,
-    //         unclaimed: 0,
-    //         aggregate: 0,
-    //         randomness: 0,
-    //         total: 0,
-    //     }
-    // } else {
-    //     console.info(this.candidate.score)
-    // }
-    // this.lcandidate = this.candidate
-  },
-
   mounted () {
     // console.debug('vbe', vbe)
+    console.debug(this.candidate.score)
   }
-
 })
 </script>
