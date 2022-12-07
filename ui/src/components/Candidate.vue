@@ -90,10 +90,32 @@
     </v-list>
     <CandidateValidity :candidate="candidate"></CandidateValidity>
 
-    <CandidateNominators :stash="candidate.stash"></CandidateNominators>
+    <v-card>
+      <br>
+      <v-tabs v-model="tab">
+        <v-tab key="score">Score</v-tab>
+        <!-- <v-tab key="democracy">Democracy</v-tab> -->
+        <v-tab key="referenda">Referenda</v-tab>
+        <v-tab key="nominators">Nominators</v-tab>
+        <v-tabs-slider></v-tabs-slider>
+      </v-tabs>
 
-    <CandidateScore :candidate="candidate"></CandidateScore>
-    <CandidateScoreList></CandidateScoreList>
+      <v-tabs-items v-model="tab">
+        <v-tab-item key="score">
+          <CandidateScore :candidate="candidate"></CandidateScore>
+          <CandidateScoreList></CandidateScoreList>
+        </v-tab-item>
+        <!-- <v-tab-item key="democracy">
+          <CandidateDemocracy :stash="candidate.stash"></CandidateDemocracy>
+        </v-tab-item> -->
+        <v-tab-item key="referenda">
+          <CandidateReferenda :stash="candidate.stash"></CandidateReferenda>
+        </v-tab-item>
+        <v-tab-item key="nominators">
+          <CandidateNominators :stash="candidate.stash"></CandidateNominators>
+        </v-tab-item>
+      </v-tabs-items>
+    </v-card>
 
     <Loading :loading="loading"></Loading>
   </div>
@@ -117,6 +139,8 @@ import CandidateScoreList from './CandidateScoreList.vue'
 import CandidateBalance from './CandidateBalance.vue'
 import CandidateIdentity from './CandidateIdentity.vue'
 import CandidateNominators from './CandidateNominators.vue'
+// import CandidateDemocracy from './CandidateDemocracy.vue'
+import CandidateReferenda from './CandidateReferenda.vue'
 
 // import Identicon from './identicon/Identicon.ts'
 
@@ -128,6 +152,7 @@ interface IData {
   activeEra: any
   // eslint-disable-next-line
   header: any
+  tab: any
 }
 
 interface IMethods {
@@ -170,7 +195,9 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     CandidateScoreList,
     CandidateBalance,
     CandidateIdentity,
-    CandidateNominators
+    CandidateNominators,
+    // CandidateDemocracy,
+    CandidateReferenda
   },
   props: {
     // chain: {
@@ -196,7 +223,8 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       activeEra: {},
       header: {},
       // eslint-disable-next-line
-      unsubscribe () {}
+      unsubscribe () {},
+      tab: null
     }
   },
   watch: {
