@@ -2,53 +2,60 @@
   <v-card>
     <v-card-title>
       Referenda
-      <v-btn icon>
-        <v-img :src="`/image/${chainId}-logo.jpg`" max-height="16" max-width="16"></v-img>
-      </v-btn>
     </v-card-title>
     <v-card-text>
       <!-- {{referenda}} -->
       <!-- {{democracy.direct}} -->
 
-      <v-list transition="scale-transition">
+      <v-list dense>
         <v-list-item  v-for="(item) in referenda" :key="item.id">
           <!-- <v-list-item-icon>
             {{item.id}}
           </v-list-item-icon> -->
           <v-list-item-content>
+            <hr>
             <v-list-item-title>
-              {{item.id}}. Track: {{getTrack(item.info?.ongoing?.track).name || 'unknown' }}
-              <v-icon :color="item.casting?.votes?.length > 0 ? 'success' : 'grey'">mdi-vote-outline</v-icon>
+              #{{item.id}} on "{{getTrack(item.ongoing?.track).name || 'unknown' }}" (Track {{item.ongoing?.track}})
+              <span v-if="item.ongoing">
+                / Status: Ongoing <!-- {{item.info?.ongoing.tally}} -->
+              </span>
+              <span v-if="item.approved">
+                / Status: Approved <!-- {{item.info?.approved}} -->
+              </span>
             </v-list-item-title>
-            <!-- {{item.casting}} -->
-            <v-row>
+
+            <v-row dense>
               <v-col class="col-6 col-sm-8">
-                <div v-if="item.info?.ongoing">
-                  Status: Ongoing <!-- {{item.info?.ongoing.tally}} -->
-                </div>
-                <div v-if="item.info?.approved">
-                  Statue: Approved <!-- {{item.info?.approved}} -->
-                </div>
+                <CandidateReferendaVote
+                  :stash="stash"
+                  :referenda="item"
+                  :refVoting="refVoting"
+                  :trackVoting="trackVoting"></CandidateReferendaVote>
               </v-col>
+
+              <v-col class="col-1">
+                <v-icon :color="refVoting[item.id]?.voted || item.delegating ? 'success' : 'grey'">mdi-vote-outline</v-icon>
+              </v-col>
+
               <!-- <v-col v-show="!item.info?.approved" class="col-1">Ayes: <br><br>Nays: </v-col> -->
-              <v-col v-show="!item.info?.approved" class="col-6 col-sm-4">
-                <div>
-                  <v-progress-linear :value="getAyes(item?.info)"
+              <v-col v-show="!item.approved" class="col-5 col-sm-3">
+                <!-- <div> -->
+                  <v-progress-linear :value="getAyes(item)"
                     height="15" background-color="grey"
                     color="success">
-                  <template v-slot:default="{}">
-                    <small>{{ formatAmount(item.info?.ongoing?.tally?.ayes, 2) }} {{chainInfo.tokenSymbol[0]}}</small>
-                  </template>
-                </v-progress-linear>
-                <br>
-                  <v-progress-linear :value="getNays(item?.info)"
+                    <template v-slot:default="{}">
+                      <small>{{ formatAmount(item.ongoing?.tally?.ayes, 2) }} {{chainInfo.tokenSymbol[0]}}</small>
+                    </template>
+                  </v-progress-linear>
+                  <!-- <br> -->
+                  <v-progress-linear :value="getNays(item)"
                     height="15" background-color="grey"
                     color="red">
                   <template v-slot:default="{}">
-                    <small>{{ formatAmount(item.info?.ongoing?.tally?.nays, 2) }} {{chainInfo.tokenSymbol[0]}}</small>
+                    <small>{{ formatAmount(item.ongoing?.tally?.nays, 2) }} {{chainInfo.tokenSymbol[0]}}</small>
                   </template>
                 </v-progress-linear>
-                </div>
+                <!-- </div> -->
               </v-col>
             </v-row>
           </v-list-item-content>
@@ -93,15 +100,9 @@
 <script lang="ts">
 import Vue from 'vue'
 import { mapGetters, mapState } from 'vuex'
-// import Loading from './Loading.vue'
-import { hexToString } from '@polkadot/util'
-
-// function hexToNumber(hex: string) {
-//   if (typeof hex !== 'string') {
-//     throw new TypeError('hexToNumber: expected string, got ' + typeof hex);
-//   }
-//   return BigInt(`0x${hex}`);
-// }
+import { createType } from '@polkadot/types'
+// import { hexToString } from '@polkadot/util'
+import CandidateReferendaVote from './CandidateReferendaVote.vue'
 
 interface ITally {
   ayes: number | string // hex?
@@ -146,11 +147,16 @@ interface IData {
   loading: boolean
   referenda: any[]
   tracks: any[]
+  refVoting: Record<number, any>
+  trackVoting: Record<number, any>
 }
 interface IMethods {
-  formatAmount (amount: number): string
+  formatAmount (amount: number, decimals?: number): string
   asNumber (item: any): number
   getReferenda (): void
+  getDelegatedVote (acountId: string, trackId: number): any // [string[], any]
+  getTracks (): void
+  getTrackVoting (): void
   getTrack (id: number): any
   getProgress (item: any): number
   getAyes (item: any): number
@@ -193,6 +199,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   },
   components: {
     // Loading
+    CandidateReferendaVote
   },
   computed: {
     // ...mapState(['chainId']),
@@ -207,7 +214,9 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     return {
       loading: false,
       referenda: [] as any[],
-      tracks: []
+      tracks: [],
+      refVoting: {},
+      trackVoting: {}
     }
   },
   methods: {
@@ -220,29 +229,119 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       return (amount / denom).toFixed(decimals)
     },
     asNumber (item: any): number {
-      // console.debug('asNumber', item)
-      // if (typeof item === 'number') {
-      //   return item as number
-      // } else {
-      //   console.debug(item)
-      //   // const str = hexToString(item)
-      //   const str = item.toString()
-      //   console.debug('str', str)
-      //   return Number(str)
-      // }
       return parseInt(item, 10)
     },
     async getReferenda () {
       const referendumCount = await this.$substrate[this.chainId].query.referenda.referendumCount()
       const count = Number(referendumCount.toString())
-      console.log('referendumCount', count)
-      for (let i = count; i > Math.max(0, count - 20); i--) {
-        const voting = await this.$substrate[this.chainId].query.convictionVoting.votingFor(this.stash, i)
+      // console.log('referendumCount', count)
+      const ids = this.tracks.map((m, idx) => { return { idx: m.idx, id: m.id } }).reverse().slice(0, 20)
+      // console.debug(ids)
+      // for (let i = 0; i < ids.length; i++) {
+      for (let i = referendumCount - 1; i >= Math.max(0, referendumCount - 20); i--) {
         const info = await this.$substrate[this.chainId].query.referenda.referendumInfoFor(i)
-        const ref = { id: i, ...voting.toJSON(), info: info.toJSON() }
-        // console.debug('ref', i, ref)
+        console.debug('info', info.toJSON())
+        const ref = {
+          id: i,
+          // voting is recorded by track, not by referenda
+          // ...voting.toJSON(),
+          ...info.toJSON()
+        }
+        // console.debug('ref', ref)
         this.referenda.push(ref)
       }
+      console.debug('referenda', this.referenda)
+    },
+    async getTracks () {
+      this.tracks = []
+      var tracks = await this.$substrate[this.chainId].consts.referenda.tracks
+      tracks = tracks.toJSON()
+      // console.debug('tracks', tracks.toJSON())
+      // tracks.forEach(async (track: any[]) => {
+      for (var i = 0; i < tracks.length; i++) {
+        const track = tracks[i]
+        const [id, meta] = track
+        // console.log('id', id)
+        // const voting = await this.$substrate[this.chainId].query.convictionVoting.votingFor(this.stash, id.toJSON())
+        this.tracks.push({
+          idx: i,
+          id,
+          ...meta,
+          name: trackNames[meta.name.toString()]
+          // voting: JSON.parse(voting.toString())
+        })
+      }
+      console.log('getTracks', this.tracks)
+    },
+
+    async getDelegatedVote (accountId: string, trackId: number) {
+      console.debug('getDelegatedVote', accountId, trackId)
+      var ret = {}
+      // var stack = [accountId]
+      var vote = await this.$substrate[this.chainId].query.convictionVoting.votingFor(accountId, trackId)
+      vote = vote.toJSON()
+      // console.log('vote', i, track.name, track.id.toString(), vote)
+      if (vote.casting) {
+        console.debug('--> casting', vote)
+        ret = [[], vote]
+      } else if (vote.delegating) {
+        console.debug('--> delegating to', vote.delegating.target)
+        const target = vote.delegating.target
+        var [stack, delegatedVote] = await this.getDelegatedVote(target, trackId)
+        console.debug('===> delegated', stack, delegatedVote)
+        // stack.push(accountId)
+        // delegatedVote = delegatedVote.toJSON()
+        return [[target, ...stack], delegatedVote]
+      } else {
+        console.warn('unknown vote status...???', vote)
+        return [null, vote]
+      }
+      return Promise.resolve(ret)
+    },
+
+    async getTrackVoting () {
+      // const voting: any[] = []
+      const refVoting = {}
+      // const trackVoting = {}
+      for (var i = 0; i < this.tracks.length; i++) {
+        const track = this.tracks[i]
+        // console.debug('track', track)
+        // get voting by track.id (not index)
+        // var vote = await this.$substrate[this.chainId].query.convictionVoting.votingFor(this.stash, track.id)
+        // vote = vote.toJSON()
+        var [stack, vote] = await this.getDelegatedVote(this.stash, track.id)
+        console.log('getTrackVoting', track.id, stack, vote)
+        // if (vote.delegating) {
+        //   console.debug('delegating', vote.delegating)
+        //   const target = vote.delegating.target
+        //   var [stack, delegatedVote] = await this.getDelegatedVote(target, track.id)
+        //   //delegatedVote = delegatedVote.toJSON()
+        //   console.debug('delegatedVote', delegatedVote)
+        //   for (var k = 0; k < delegatedVote.casting?.votes?.length; k++) {
+        //     const v = vote.casting?.votes[k]
+        //     console.debug('===> v', v)
+        //     const [refId, voted] = v // id is the referendum Id
+        //     console.log('i.k.id', i, k, refId.toString(), voted)
+        //     refVoting[`${refId}`] = { voted }
+        //   }
+        // } else
+        if (vote.casting) {
+          console.log('casting...')
+          // for each vote, assing this to the refVoting dict
+          for (var j = 0; j < vote.casting?.votes?.length; j++) {
+            const v = vote.casting?.votes[j]
+            const [refId, voted] = v // id is the referendum Id
+            console.log('i.j.id', i, j, refId.toString(), voted)
+            refVoting[`${refId}`] = { voted, stack, track }
+          }
+        } else {
+          console.warn('we did nothing...')
+        }
+        // trackVoting[track.id.toString] = vote
+      }
+      console.debug('refVoting', refVoting)
+      this.refVoting = refVoting
+      // this.trackVoting = trackVoting
     },
     getTrack (id: number) {
       // console.debug('getTrack', id, this.tracks)
@@ -275,22 +374,20 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     }
   },
   async created () {
-    this.tracks = []
-    const tracks = await this.$substrate[this.chainId].consts.referenda.tracks
-    // console.debug('tracks', tracks.toJSON())
-    tracks.forEach((track: any[]) => {
-      const [id, meta] = track
-      this.tracks.push({ id: id.toJSON(), ...meta.toJSON(), name: trackNames[meta.name.toString()] })
-    })
+    await this.getTracks()
+    await this.getTrackVoting()
+    this.loading = true
+    await this.getReferenda()
+    this.loading = false
   },
   async mounted () {
     this.loading = true
-    // await this.$store.dispatch('candidate/getReferenda', { stash: this.stash })
-    try {
-      await this.getReferenda()
-    } catch (err) {
-      console.debug(err)
-    }
+    // // await this.$store.dispatch('candidate/getReferenda', { stash: this.stash })
+    // try {
+    //   await this.getReferenda()
+    // } catch (err) {
+    //   console.debug(err)
+    // }
     this.loading = false
   }
 })
