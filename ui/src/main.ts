@@ -15,7 +15,7 @@ Vue.prototype.$utils = utils
 
 // eslint-disable-next-line
 import { SubstrateAPI } from './plugins/substrate'
-Vue.prototype.$substrate = new SubstrateAPI({ lite: false, endpoint: 'dwellir' })
+Vue.prototype.$substrate = new SubstrateAPI({ lite: false })
 
 Vue.config.productionTip = true // false
 
