@@ -77,6 +77,8 @@ interface IState {
   polkadot: IChainState
   kusama?: IChainState
   // candidate: ICandidate
+  democracy: any
+  referenda: any[]
 }
 
 const initialState = {
@@ -142,7 +144,9 @@ const initialState = {
     list: [],
     filteredList: [],
     candidate: new Candidate({ valid: false, validity: [{ valid: false }] as ICandidateValidityItem[] } as ICandidate)
-  } as IChainState
+  } as IChainState,
+  democracy: {},
+  referenda: []
 } as IState
 
 // async function saveState (state: IState) {
@@ -203,6 +207,7 @@ const candidate = {
   getters: {
     apiConnected (state: IState) { return state[state.chainId]?.apiConnected || false },
     chainInfo (state: IState) { return state[state.chainId].chainInfo || {} },
+    list (state: IState) { return state[state.chainId]?.list || [] },
     candidate (state: IState) { return state[state.chainId]?.candidate || {} },
     filteredList (state: IState) {
       console.debug('candidate.ts: getters.filteredList()', state.chainId)
@@ -340,6 +345,15 @@ const candidate = {
         state[state.chainId].favourites.push(stash)
       }
       await stateManager.saveState(STORAGE_KEY, state)
+    },
+    async SET_DEMOCRACY (state: IState, democracy: any) {
+      state.democracy = democracy
+    },
+    async SET_REFERENDA (state: IState, referenda: any) {
+      state.referenda = referenda
+    },
+    async ADD_REFERENDA (state: IState, item: any) {
+      state.referenda.push(item)
     }
   },
   actions: {
@@ -537,7 +551,7 @@ const candidate = {
     //   }
     // },
     // eslint-disable-next-line
-    async setLoading ({ commit }: any, { chain, value}: any) {
+    async setLoading ({ commit }: any, { chain, value }: any) {
       console.debug('store/modules/candidate.ts: actions.setLoading()', value)
       await commit('SET_LOADING', { chain, loading: value })
     },
@@ -549,6 +563,39 @@ const candidate = {
     async resetCache (): Promise<void> {
       console.debug('store/modules/candidate.ts: actions.resetCache()')
       stateManager.clearState(STORAGE_KEY)
+    },
+    async getDemocracy ({ rootState, state, commit }: any, { stash }: any): Promise<void> {
+      console.debug('store/modules/candidate.ts: actions.getDemocracy()')
+      const res = await axios.get(`${rootState.baseUrl}/api/${state.chainId}/query/democracy/votingOf?accountId=${stash}`)
+      if (res.data) {
+        await commit('SET_DEMOCRACY', res.data.votingOf || {})
+      }
+    },
+    async getReferenda ({ rootState, state, commit }: any, { stash }: any): Promise<void> {
+      console.debug('store/modules/candidate.ts: actions.getReferenda()')
+      commit('SET_REFERENDA', [])
+      let res: any = await axios.get(`${rootState.baseUrl}/api/${state.chainId}/query/referenda/referendumCount`)
+      if (res.data && res.data.referendumCount) {
+        const count = res.data.referendumCount
+        console.debug('referendumCount', count)
+        const referenda: any[] = []
+        for (let i = count; i > 0; i--) {
+          res = await axios.get(`${rootState.baseUrl}/api/${state.chainId}/query/convictionVoting/votingFor`, {
+            params: {
+              accountId: stash,
+              id: i
+            }
+          })
+          const info = await axios.get(`${rootState.baseUrl}/api/${state.chainId}/query/referenda/referendumInfoFor`, { params: { id: i } })
+          referenda.push({ id: i, ...res?.data?.votingFor, info: info.data.referendumInfoFor })
+          await commit('ADD_REFERENDA', { id: i, ...res?.data?.votingFor, info: info.data.referendumInfoFor })
+        }
+        // res = await axios.get(`${rootState.baseUrl}/api/${state.chainId}/query/democracy/votingOf?accountId=${stash}`)
+        // if (res.data) {
+        //   await commit('SET_DEMOCRACY', res.data.votingOf || {})
+        // }
+        // commit('SET_REFERENDA', referenda)
+      }
     }
   }
 }

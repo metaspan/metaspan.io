@@ -13,6 +13,10 @@ import Candidate from '@/components/Candidate.vue'
 import Pools from '@/components/Pools.vue'
 import Pool from '@/components/Pool.vue'
 import Docs from '@/components/Docs.vue'
+import ValidatorsSelector from '@/components/ValidatorsSelector.vue'
+import ValidatorSelector from '@/components/ValidatorSelector.vue'
+
+import Identities from '@/components/Identities.vue'
 
 import ComingSoon from '@/components/ComingSoon.vue'
 
@@ -43,7 +47,10 @@ const routes: Array<RouteConfig> = [
       { path: 'candidate', name: 'KusamaCandidates', component: Candidates, meta: { title: 'metaspan.io - 1kv' }, props: { chain: 'kusama' } },
       { path: 'candidate/:stash', name: 'KusamaCandidate', component: Candidate, props: true, meta: { title: 'metaspan.io - kusama 1kv' } },
       { path: 'pool', name: 'KusamaPools', component: Pools, meta: { title: 'metaspan.io - pools' }, props: true },
-      { path: 'pool/:id', name: 'KusamaPool', component: Pool, props (route) { return { id: parseInt(route.params.id) } }, meta: { title: 'metaspan.io - kusama pool' } }
+      { path: 'pool/:id', name: 'KusamaPool', component: Pool, props (route) { return { id: parseInt(route.params.id) } }, meta: { title: 'metaspan.io - kusama pool' } },
+      { path: 'selector', name: 'PolkadotsSelector', component: ValidatorsSelector, meta: { title: 'metaspan.io - validator selector' }, props: true },
+      { path: 'selector/:stash', name: 'PolkadotSelector', component: ValidatorSelector, meta: { title: 'metaspan.io - validator selector' }, props: true },
+      { path: 'identity', name: 'KusamaIdentities', component: Identities, meta: { title: 'metaspan.io - identity' }, props: true }
     ]
   },
   {
@@ -54,7 +61,10 @@ const routes: Array<RouteConfig> = [
     children: [
       { path: 'candidate', name: 'PolkadotCandidates', component: Candidates, meta: { title: 'metaspan.io - 1kv' }, props: { chain: 'polkadot' } },
       { path: 'candidate/:stash', name: 'PolkadotCandidate', component: Candidate, props: true, meta: { title: 'metaspan.io - polkadot 1kv' } },
-      { path: 'pool', name: 'PolkadotPools', component: Pools, meta: { title: 'metaspan.io - pools' }, props: true }
+      { path: 'pool', name: 'PolkadotPools', component: Pools, meta: { title: 'metaspan.io - pools' }, props: true },
+      { path: 'pool/:id', name: 'PolkadotPool', component: Pool, props (route) { return { id: parseInt(route.params.id) } }, meta: { title: 'metaspan.io - polkadot pool' } },
+      { path: 'selector', name: 'PolkadotSelector', component: ValidatorSelector, meta: { title: 'metaspan.io - validator selector' }, props: true },
+      { path: 'identity', name: 'PolkadotIdentities', component: Identities, meta: { title: 'metaspan.io - identity' }, props: true }
     ]
   },
   // {

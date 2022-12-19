@@ -6,6 +6,7 @@ import polkadot from './modules/polkadot'
 import validator from './modules/validator'
 import candidate from './modules/candidate'
 import pool from './modules/pool'
+import selector from './modules/selector'
 
 import { StateManager } from './state-manager'
 const stateManager = new StateManager('metaspan.io')
@@ -87,6 +88,7 @@ export default new Vuex.Store({
       await dispatch('substrate/init', {}, { root: true })
       await dispatch('candidate/init', {}, { root: true })
       await dispatch('pool/init', {}, { root: true })
+      await dispatch('selector/init', {}, { root: true })
       await commit('SET_INITIAL', false)
       await commit('SET_LOADING', false)
     },
@@ -143,6 +145,7 @@ export default new Vuex.Store({
     validator,
     candidate,
     polkadot,
-    pool
+    pool,
+    selector
   }
 })

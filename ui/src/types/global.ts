@@ -224,6 +224,10 @@ export class Pool implements IPool {
   }
 }
 
+interface IValidatorPrefs {
+  commission: number
+  blocked: boolean
+}
 export interface IValidator {
   // active: boolean
   commission: number
@@ -236,6 +240,9 @@ export interface IValidator {
   // eslint-disable-next-line
   faults: any
   stash: string
+  shortStash: string
+  prefs: IValidatorPrefs
+  nominators: string[]
   score: ICandidateScore
   rank: number
   identity: ICandidateIdentity

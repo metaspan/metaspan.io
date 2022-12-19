@@ -42,6 +42,12 @@
       <v-btn text :to="`/${chainId}/candidate`">
         <span class="d-none d-sm-inline"><v-icon>mdi-basketball</v-icon></span>1KV
       </v-btn>
+      <!-- <v-btn text :to="`/${chainId}/selector`">
+        <span class="d-none d-sm-inline"><v-icon>mdi-filter</v-icon></span>Selector
+      </v-btn> -->
+      <v-btn text :to="`/${chainId}/identity`">
+        <span class="d-none d-sm-inline"><v-icon>mdi-passport</v-icon></span>Id<span class="d-none d-md-inline">entity</span>
+      </v-btn>
 
       <ChainMenu></ChainMenu>
 
