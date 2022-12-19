@@ -13,7 +13,16 @@
       </v-col>
 
       <v-col align-self="center">
-        <span v-show="(!refVote?.voted?.standard)"> <em>No vote found</em> </span>
+        <span v-show="(!(refVote?.voted?.standard || refVote?.voted?.splitAbstain))"> <em>No vote found</em> </span>
+        <span v-if="refVote?.voted?.splitAbstain">
+          <v-icon small class="col-1" color="purple">mdi-call-split</v-icon>
+          <!-- {{refVote}} -->
+          {
+          aye:{{ formatAmount(refVote?.voted?.splitAbstain?.aye, 1) }},
+          nay:{{ formatAmount(refVote?.voted?.splitAbstain?.nay, 1) }},
+          abstain:{{ formatAmount(refVote?.voted?.splitAbstain?.abstain, 1) }}
+          }
+        </span>
         <span v-if="refVote?.voted?.standard">
           <v-icon small class="col-1" :color="ayeOrNay(refVote.voted.standard.vote).aye ? 'success' : 'red'">mdi-thumb-{{ayeOrNay(refVote.voted.standard.vote).aye ? 'up' : 'down'}}-outline</v-icon>
           {{ formatAmount(refVote?.voted?.standard?.balance, 2)}} {{ symbol }},
