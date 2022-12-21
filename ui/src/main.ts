@@ -10,7 +10,6 @@ import { apolloProvider } from './graphql/apollo'
 
 // this.$utils plugin
 import utils from './plugins/utils'
-// Vue.use(utils, {})
 Vue.prototype.$utils = utils
 
 // eslint-disable-next-line
