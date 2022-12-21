@@ -124,6 +124,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     chainId (newVal: string) {
       this.$router.push(`/${newVal}/identity`)
       this.getList()
+      this.$ga.page(`/${newVal}/identity`)
     },
     search (newVal: string) {
       this.debouncing = true
@@ -133,7 +134,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   methods: {
     shortStash,
     superOf (child: string) {
-      var ret = ''
+      let ret = ''
       // const id = await this.$substrate[this.chainId].query.identity.superOf(child)
       const id = this.getSuperOf(child).then(id => id)
       if (id) {
@@ -164,13 +165,13 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       console.debug('data', res.data)
       this.list = [] as any[]
       // console.debug('woot')
-      for (var i = 0; i < res.data.Identities.length; i++) {
+      for (let i = 0; i < res.data.Identities.length; i++) {
         // console.debug('idx', i)
         const identity = res.data.Identities[i]
         const children = identity.identity?.children || []
-        for (var j = 0; j < children.length; j++) {
+        for (let j = 0; j < children.length; j++) {
           // console.debug('child', children[j])
-          var subId = ''
+          let subId = ''
           if (typeof children[j] === 'string') {
             const sup = await this.$substrate[this.chainId].query.identity.superOf(children[j])
             if (sup.toJSON()) subId = hexToString(sup.toJSON()[1]?.raw)
@@ -200,6 +201,9 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       this.getList()
       this.debouncing = false
     }, 1500)
+  },
+  mounted () {
+    this.$ga.page(`/${this.chainId}/identity`)
   }
 })
 </script>

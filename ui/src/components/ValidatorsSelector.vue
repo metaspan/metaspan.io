@@ -201,16 +201,16 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     async loadValidators () {
       console.debug('ValidatorSelector.vue: loadValidators()', this.chainId)
       this.loading = true
-      var list: IValidator[] = []
+      let list: IValidator[] = []
       await this.$store.dispatch('selector/setList', list)
       // await this.$substrate[this.chainId].isReady
       const limit = 50 // hard-coded in api...
-      var offset = 0
-      var ret = await axios.get(`https://api.metaspan.io/api/${this.chainId}/validator?limit=${limit}`)
+      let offset = 0
+      let ret = await axios.get(`https://api.metaspan.io/api/${this.chainId}/validator?limit=${limit}`)
       const count = ret.data?.count
       this.count = count
       list = ret.data.list
-      for (var i = 1; i < Math.ceil(count / limit); i++) {
+      for (let i = 1; i < Math.ceil(count / limit); i++) {
         offset += limit
         ret = await axios.get(`https://api.metaspan.io/api/${this.chainId}/validator?limit=${limit}&offset=${offset}`)
         console.log(ret.data)
@@ -241,16 +241,16 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     Polkadot |  24hr (14400) |   4hr  (2400) |  4hr (2400)  | 6sec
     */
     async calcActivity () {
-      var activity = {}
-      var era = await this.$substrate[this.chainId].query.staking.activeEra()
+      const activity = {}
+      let era = await this.$substrate[this.chainId].query.staking.activeEra()
       // var header = await this.$substrate[this.chainId].derive.chain.getHeader()
       // console.debug('header', header.toJSON())
       era = era.toJSON()
       console.debug(era)
       // const slots = this.chainId === 'kusama' ? 600 : 2400 // step size for blocks/headers
       // var started = era.start // slot?
-      for (var i = era.index; i > era.index - this.numPeriods; i--) {
-        var start = await this.$substrate[this.chainId].query.staking.erasStartSessionIndex(i)
+      for (let i = era.index; i > era.index - this.numPeriods; i--) {
+        const start = await this.$substrate[this.chainId].query.staking.erasStartSessionIndex(i)
         // start = start.toJSON()
         const slotNumber = start.toJSON() // * slots
         console.debug(i, 'start', start.toJSON(), slotNumber)
@@ -259,7 +259,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
         console.debug('blockHash', blockHash.toString())
 
         const apiAt = await this.$substrate[this.chainId].at(blockHash.toString())
-        var vals = await apiAt.query.session.validators()
+        let vals = await apiAt.query.session.validators()
         vals = vals.toJSON()
         console.debug(vals)
         this.filteredList.forEach(val => {
@@ -276,7 +276,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
         // console.debug(activity)
       }
       this.filteredList.forEach(val => {
-        var sum = 0
+        let sum = 0
         Object.values(activity[val.stash]).forEach((val: any) => { sum += val })
         console.log(val.stash, sum)
         const avg = sum / Object.keys(activity[val.stash]).length
@@ -296,7 +296,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       // console.debug(this.decimals)
       const denom = this.decimals[tokenDecimals]
       console.debug('denom', denom)
-      for (var j = 0; j < this.filteredList.length; j++) {
+      for (let j = 0; j < this.filteredList.length; j++) {
         const v = this.filteredList[j]
         const el = document.getElementById(`chart_${v.stash}`)
         if (el) el.innerHTML = 'loading...'
@@ -305,10 +305,10 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
           if (el) el.innerHTML = 'ok'
           continue
         }
-        var nomBal = BigInt(0)
-        var nomHist = [] as bigint[]
+        let nomBal = BigInt(0)
+        let nomHist = [] as bigint[]
         console.debug('checking noms for', v.stash, v.nominators?.length)
-        for (var i = 0; i < v.nominators?.length || 0; i++) {
+        for (let i = 0; i < v.nominators?.length || 0; i++) {
           // if (i > 2) continue
           const nom = v.nominators[i]
           const bal = await this.$substrate[this.chainId].query.system.account(nom)

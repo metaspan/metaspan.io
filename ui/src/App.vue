@@ -112,9 +112,10 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     // console.info('App.vue: Starting $substrate.connect()...')
     // await this.$substrate.connect()
     // console.info('... done')
-  //   // const activeEra = await this.$polkadot.api.query.staking.activeEra();
-  //   // // let chain = await this.$polkadot.rpc.system.chain()
-  //   // console.debug('TEST', activeEra)
+    //   // const activeEra = await this.$polkadot.api.query.staking.activeEra();
+    //   // // let chain = await this.$polkadot.rpc.system.chain()
+    //   // console.debug('TEST', activeEra)
+    this.$ga.page('/')
   }
 })
 </script>

@@ -60,6 +60,7 @@ export default Vue.extend({
   watch: {
     chainId (val) {
       this.$store.dispatch('pool/setChainId', val)
+      this.$ga.page(`/${val}/candidate`)
     }
   },
   methods: {
@@ -75,28 +76,28 @@ export default Vue.extend({
         try {
           const api = this.$substrate[this.chainId]
           // console.debug('Pools.vue', api)
-          var t: any, x: any
-          x = await api.query.nominationPools.lastPoolId()
+          let t: any
+          const x: any = await api.query.nominationPools.lastPoolId()
           console.log('lastPool', x.toNumber())
           this.loading = true
-          // var i = 1
+          // let i = 1
           // while (i <= x.toNumber()) {
           //   t = await api.query.nominationPools.bondedPools(i)
-          //   var j = t.toJSON()
+          //   let j = t.toJSON()
           //   j.id = i
           //   console.log(`bondedPools(${i})`, j)
           //   await this.$store.dispatch('pool/addPool', j)
           //   i++
           // }
-          var promises = [] as any[]
-          for (var i = 1; i <= x.toNumber(); i++) { promises.push(api.query.nominationPools.bondedPools(i)) }
-          var pools = await Promise.all(promises)
+          let promises = [] as any[]
+          for (let i = 1; i <= x.toNumber(); i++) { promises.push(api.query.nominationPools.bondedPools(i)) }
+          let pools = await Promise.all(promises)
           console.debug(pools)
 
           promises = []
-          var metas = [] as any[]
+          let metas = [] as any[]
           pools = pools.map((p, idx) => {
-            var t = p.toJSON() || { state: 'Closed', memberCounter: 0, roles: {} }
+            const t = p.toJSON() || { state: 'Closed', memberCounter: 0, roles: {} }
             // console.log('t', t)
             t.id = idx + 1
             t.name = t.roles?.depositor || 'unknown' // root
@@ -130,7 +131,7 @@ export default Vue.extend({
     },
     reload () {
       this.loadPools()
-      // var h = 0
+      // let h = 0
       // console.debug('Pools.vue: setting interval...')
       // // unset "loading" after 10 seconds...
       // this.interval = setInterval(async () => {
@@ -147,7 +148,7 @@ export default Vue.extend({
     },
     clearAllIntervals () {
       const int = parseInt(this.interval.toString())
-      for (var i = 0; i <= int; i++) {
+      for (let i = 0; i <= int; i++) {
         try {
           clearInterval(i)
         } catch (err) {
@@ -161,6 +162,9 @@ export default Vue.extend({
     if (!this.list || this.list.length === 0) {
       this.reload()
     }
+  },
+  async mounted () {
+    this.$ga.page(`/${this.chainId}/pool`)
   },
   beforeDestroy () {
     if (this.interval) clearInterval(this.interval)

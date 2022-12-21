@@ -151,6 +151,9 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     //   return pool
     // })
     // await this.$store.dispatch('pool/setIds', ids)
+  },
+  async mounted () {
+    this.$ga.page(`/${this.chainId}/pool/${this.id}`)
   }
 })
 </script>

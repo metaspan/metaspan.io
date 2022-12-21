@@ -286,26 +286,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   },
   async mounted () {
     window.scrollTo(0, 0)
-    // console.debug('mounted: candidate', this.candidate)
-
-    // // this.$store.dispatch('polkadot/getActiveEra')
-    // // const activeEra = await this.$polkadot.api.query.staking.activeEra();
-    // // // let chain = await this.$polkadot.rpc.system.chain()
-    // // console.debug('TEST', activeEra)
-    // // this.activeEra = activeEra
-
-    // Subscribe to the new headers on-chain. The callback is fired when new headers
-    // are found, the call itself returns a promise with a subscription that can be
-    // used to unsubscribe from the newHead subscription
-    // let count = 0;
-    // this.unsubscribe = await this.$polkadot.api.rpc.chain.subscribeNewHeads((header) => {
-    //   console.log(`Chain is at block: #${header.number}`);
-    //   this.header = header
-    //   if (++count === 25) {
-    //     this.unsubscribe()
-    //     process.exit(0)
-    //   }
-    // })
+    this.$ga.page(`/${this.chainId}/candidate/${this.candidate?.stash}`)
   },
   beforeDestroy () {
     console.debug('unmounting...')

@@ -22,9 +22,28 @@ import Vue from 'vue'
 import { mapGetters, mapState } from 'vuex'
 // import { } from '../global/utils'
 
-export default Vue.extend({
+// eslint-disable-next-line
+interface IData {}
+interface IMethods {
+  formatAmount (amount: any): string
+}
+interface IComputed {
+  chainInfo: any
+  decimals: Record<number, number>
+  democracy: any
+  tokenSymbol: string
+}
+interface IProps {
+  stash: string
+}
+
+export default Vue.extend<IData, IMethods, IComputed, IProps>({
   name: 'CandidateDemocracy',
-  props: ['stash'],
+  props: {
+    stash: {
+      type: String
+    }
+  },
   computed: {
     ...mapGetters('substrate', ['chainInfo']),
     ...mapState('substrate', ['decimals']),

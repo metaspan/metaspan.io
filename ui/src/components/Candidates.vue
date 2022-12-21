@@ -207,6 +207,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       this.$router.push(`/${val}/candidate`)
       // set up the filter
       this.fetchFilter()
+      this.$ga.page(`/${val}/candidate`)
     },
     search (newval: string) {
       this.debouncing = true
@@ -295,6 +296,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     // const state = this.$store.state.candidate // [this.chain]
     // console.debug('state', state)
     this.fetchFilter()
+    this.$ga.page(`/${this.chainId}/candidate`)
   },
   async beforeDestroy () {
     console.debug('Candidates.vue: beforeDestroy()')

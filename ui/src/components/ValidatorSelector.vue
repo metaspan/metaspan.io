@@ -118,12 +118,12 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       console.debug('ValidatorSelector.vue: loadValidators()', this.chainId)
       this.loading = true
       this.candidates = []
-      var ret = await axios.get(`https://api.metaspan.io/api/${this.chainId}/candidate`)
+      let ret = await axios.get(`https://api.metaspan.io/api/${this.chainId}/candidate`)
       this.candidates = ret.data
       this.list = []
       // await this.$substrate[this.chainId].isReady
       const limit = 50 // hard-coded in api...
-      var offset = 0
+      // let offset = 0
       ret = await axios.get(`https://api.metaspan.io/api/${this.chainId}/validator/${this.stash}`)
       this.validator = ret.data
       this.loading = false
@@ -156,9 +156,9 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       console.debug(this.chainInfo)
       const decimalPlaces = this.chainInfo?.tokenDecimals?.toJSON()[0] || 0
       // const denom = this.decimals[this.chainInfo.toJSON().tokenDecimals]
-      var nomBal = 0
+      let nomBal = 0
       console.debug('checking noms for', this.stash)
-      for (var i = 0; i < this.validator.nominators?.length || 0; i++) {
+      for (let i = 0; i < this.validator.nominators?.length || 0; i++) {
         // if (i > 2) continue
         const nom = this.validator.nominators[i]
         const bal = await this.$substrate[this.chainId].query.system.account(nom)

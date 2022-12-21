@@ -14,6 +14,12 @@ import utils from './plugins/utils'
 Vue.prototype.$utils = utils
 
 // eslint-disable-next-line
+import VueAnalytics from 'vue-analytics'
+Vue.use(VueAnalytics, {
+  id: 'G-8CNNT7GPH7'
+})
+
+// eslint-disable-next-line
 import { SubstrateAPI } from './plugins/substrate'
 Vue.prototype.$substrate = new SubstrateAPI({ lite: false })
 

@@ -46,7 +46,9 @@
         <span class="d-none d-sm-inline"><v-icon>mdi-filter</v-icon></span>Selector
       </v-btn> -->
       <v-btn text :to="`/${chainId}/identity`">
-        <span class="d-none d-sm-inline"><v-icon>mdi-passport</v-icon></span>Id<span class="d-none d-md-inline">entity</span>
+        <span class="d-none d-sm-inline"><v-icon>mdi-passport</v-icon></span>
+        <span class="d-inline d-md-none">Id</span>
+        <span class="d-none d-md-inline text-none">Identity</span>
       </v-btn>
 
       <ChainMenu></ChainMenu>

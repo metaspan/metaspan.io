@@ -141,12 +141,12 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       // this.loading = true
       // api.query.staking.nominators
       // const stash = 'Ew5NJucSyE17T4QYBhjbm1WYrGk2oULTHyjiJacLbCNfc4Q'
-      var i = 0
+      let i = 0
       const interval = setInterval(async () => {
         i++
         try {
           if (this.$substrate[this.chainId]) {
-            var stash = '12WPkGHWYhL7Vdtwqbjo7ugbaoajr8KLMChnE3puX4Q5Cxsf'
+            let stash = '12WPkGHWYhL7Vdtwqbjo7ugbaoajr8KLMChnE3puX4Q5Cxsf'
             stash = this.stash
             // const noms = await this.$substrate[this.chainId].query.staking.nominators.entries(stash)
             // noms.forEach(([key, nominator]) => {

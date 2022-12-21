@@ -254,11 +254,11 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     },
     async getTracks () {
       this.tracks = []
-      var tracks = await this.$substrate[this.chainId].consts.referenda.tracks
+      let tracks = await this.$substrate[this.chainId].consts.referenda.tracks
       tracks = tracks.toJSON()
       // console.debug('tracks', tracks.toJSON())
       // tracks.forEach(async (track: any[]) => {
-      for (var i = 0; i < tracks.length; i++) {
+      for (let i = 0; i < tracks.length; i++) {
         const track = tracks[i]
         const [id, meta] = track
         // console.log('id', id)
@@ -276,9 +276,9 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
 
     async getDelegatedVote (accountId: string, trackId: number) {
       console.debug('getDelegatedVote', accountId, trackId)
-      var ret = {}
-      // var stack = [accountId]
-      var vote = await this.$substrate[this.chainId].query.convictionVoting.votingFor(accountId, trackId)
+      let ret = {}
+      // let stack = [accountId]
+      let vote = await this.$substrate[this.chainId].query.convictionVoting.votingFor(accountId, trackId)
       vote = vote.toJSON()
       // console.log('vote', i, track.name, track.id.toString(), vote)
       if (vote.casting) {
@@ -287,7 +287,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       } else if (vote.delegating) {
         console.debug('--> delegating to', vote.delegating.target)
         const target = vote.delegating.target
-        var [stack, delegatedVote] = await this.getDelegatedVote(target, trackId)
+        const [stack, delegatedVote] = await this.getDelegatedVote(target, trackId)
         console.debug('===> delegated', stack, delegatedVote)
         // stack.push(accountId)
         // delegatedVote = delegatedVote.toJSON()
@@ -303,21 +303,21 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       // const voting: any[] = []
       const refVoting = {}
       // const trackVoting = {}
-      for (var i = 0; i < this.tracks.length; i++) {
+      for (let i = 0; i < this.tracks.length; i++) {
         const track = this.tracks[i]
         // console.debug('track', track)
         // get voting by track.id (not index)
-        // var vote = await this.$substrate[this.chainId].query.convictionVoting.votingFor(this.stash, track.id)
+        // let vote = await this.$substrate[this.chainId].query.convictionVoting.votingFor(this.stash, track.id)
         // vote = vote.toJSON()
-        var [stack, vote] = await this.getDelegatedVote(this.stash, track.id)
+        const [stack, vote] = await this.getDelegatedVote(this.stash, track.id)
         console.log('getTrackVoting', track.id, stack, vote)
         // if (vote.delegating) {
         //   console.debug('delegating', vote.delegating)
         //   const target = vote.delegating.target
-        //   var [stack, delegatedVote] = await this.getDelegatedVote(target, track.id)
+        //   let [stack, delegatedVote] = await this.getDelegatedVote(target, track.id)
         //   //delegatedVote = delegatedVote.toJSON()
         //   console.debug('delegatedVote', delegatedVote)
-        //   for (var k = 0; k < delegatedVote.casting?.votes?.length; k++) {
+        //   for (let k = 0; k < delegatedVote.casting?.votes?.length; k++) {
         //     const v = vote.casting?.votes[k]
         //     console.debug('===> v', v)
         //     const [refId, voted] = v // id is the referendum Id
@@ -328,7 +328,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
         if (vote.casting) {
           console.log('casting...')
           // for each vote, assing this to the refVoting dict
-          for (var j = 0; j < vote.casting?.votes?.length; j++) {
+          for (let j = 0; j < vote.casting?.votes?.length; j++) {
             const v = vote.casting?.votes[j]
             const [refId, voted] = v // id is the referendum Id
             console.log('i.j.id', i, j, refId.toString(), voted)
