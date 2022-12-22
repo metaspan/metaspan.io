@@ -49,7 +49,7 @@ const routes: Array<RouteConfig> = [
       { path: 'pool', name: 'KusamaPools', component: Pools, meta: { title: 'metaspan.io - pools' }, props: true },
       { path: 'pool/:id', name: 'KusamaPool', component: Pool, props (route) { return { id: parseInt(route.params.id) } }, meta: { title: 'metaspan.io - kusama pool' } },
       { path: 'selector', name: 'PolkadotsSelector', component: ValidatorsSelector, meta: { title: 'metaspan.io - validator selector' }, props: true },
-      { path: 'selector/:stash', name: 'PolkadotSelector', component: ValidatorSelector, meta: { title: 'metaspan.io - validator selector' }, props: true },
+      { path: 'selector/:stash', name: 'KusamaSelector', component: ValidatorSelector, meta: { title: 'metaspan.io - validator selector' }, props: true },
       { path: 'identity', name: 'KusamaIdentities', component: Identities, meta: { title: 'metaspan.io - identity' }, props: true }
     ]
   },
@@ -140,6 +140,10 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   document.title = to.meta?.title || baseTitle
+  Vue.$plausible.trackPageview({
+    // apiHost: 'http://192.168.1.99:8000',
+    url: to.path
+  })
   return next()
 })
 

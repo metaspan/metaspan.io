@@ -5,22 +5,22 @@ import router from './router'
 import store from './store'
 
 import vuetify from './plugins/vuetify'
-
+import { SubstrateAPI } from './plugins/substrate'
 import { apolloProvider } from './graphql/apollo'
+import utils from './plugins/utils'
+import { VuePlausible } from 'vue-plausible'
 
 // this.$utils plugin
-import utils from './plugins/utils'
 Vue.prototype.$utils = utils
-
-// eslint-disable-next-line
-import VueAnalytics from 'vue-analytics'
-Vue.use(VueAnalytics, {
-  id: 'G-8CNNT7GPH7'
-})
-
-// eslint-disable-next-line
-import { SubstrateAPI } from './plugins/substrate'
+// this.$substrate plugin
 Vue.prototype.$substrate = new SubstrateAPI({ lite: false })
+// traffic & clicks
+Vue.use(VuePlausible, {
+  // see configuration section
+  domain: 'metaspan.io',
+  trackLocalhost: true,
+  apiHost: 'https://click.metaspan.io'
+})
 
 Vue.config.productionTip = true // false
 

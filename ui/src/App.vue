@@ -106,17 +106,10 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       await this.$store.dispatch('substrate/setChainInfo', { chainId, chainInfo })
     })
     this.$store.dispatch('init')
-  },
-  async mounted () {
-    console.debug('App.vue: mounted')
-    // console.info('App.vue: Starting $substrate.connect()...')
-    // await this.$substrate.connect()
-    // console.info('... done')
-    //   // const activeEra = await this.$polkadot.api.query.staking.activeEra();
-    //   // // let chain = await this.$polkadot.rpc.system.chain()
-    //   // console.debug('TEST', activeEra)
-    this.$ga.page('/')
   }
+  // async mounted () {
+  //   console.debug('App.vue: mounted')
+  // }
 })
 </script>
 

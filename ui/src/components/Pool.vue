@@ -116,6 +116,11 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       loading: false
     }
   },
+  watch: {
+    chainId (newVal: string) {
+      this.$router.push(`/${newVal}/pool`)
+    }
+  },
   methods: {
     toCoin (v) {
       // console.debug('CandidateNominators.vue', this.chainInfo)
@@ -151,9 +156,6 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     //   return pool
     // })
     // await this.$store.dispatch('pool/setIds', ids)
-  },
-  async mounted () {
-    this.$ga.page(`/${this.chainId}/pool/${this.id}`)
   }
 })
 </script>

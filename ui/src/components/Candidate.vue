@@ -286,7 +286,6 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   },
   async mounted () {
     window.scrollTo(0, 0)
-    this.$ga.page(`/${this.chainId}/candidate/${this.candidate?.stash}`)
   },
   beforeDestroy () {
     console.debug('unmounting...')

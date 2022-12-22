@@ -124,7 +124,6 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     chainId (newVal: string) {
       this.$router.push(`/${newVal}/identity`)
       this.getList()
-      this.$ga.page(`/${newVal}/identity`)
     },
     search (newVal: string) {
       this.debouncing = true
@@ -201,9 +200,6 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       this.getList()
       this.debouncing = false
     }, 1500)
-  },
-  mounted () {
-    this.$ga.page(`/${this.chainId}/identity`)
   }
 })
 </script>

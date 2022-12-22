@@ -33,6 +33,9 @@ module.exports = defineConfig({
     resolve: {
       alias: {
         moment: 'moment/src/moment'
+      },
+      fallback: {
+        "path": require.resolve("path-browserify")
       }
     }
   },
