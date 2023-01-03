@@ -91,6 +91,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     },
     // eslint-disable-next-line
     onDark (evt: any) {
+      this.$vuetify.theme.dark = evt.matches
       this.$store.dispatch('setDark', evt.matches)
     }
   },

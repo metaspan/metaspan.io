@@ -18,6 +18,13 @@
       <v-list-item @click="resetCache()">
         <v-list-item-title>Reset cache</v-list-item-title>
       </v-list-item>
+      <v-list-item @click="toggleDark()">
+        <v-list-item-title>
+          <v-icon small>mdi-theme-light-dark</v-icon>
+          {{ dark ? 'Light' : 'Dark' }} mode
+        </v-list-item-title>
+      </v-list-item>
+
     </v-list>
   </v-navigation-drawer>
 </template>
@@ -28,7 +35,7 @@ import { mapState } from 'vuex'
 export default Vue.extend({
   name: 'NavDrawer',
   computed: {
-    ...mapState(['showNavBar', 'appVersion'])
+    ...mapState(['showNavBar', 'appVersion', 'dark'])
   },
   data () {
     return {
@@ -46,6 +53,10 @@ export default Vue.extend({
   methods: {
     resetCache () {
       this.$store.dispatch('resetCache')
+    },
+    toggleDark () {
+      this.$vuetify.theme.dark = !this.dark
+      this.$store.dispatch('setDark', !this.dark)
     }
   }
 })
