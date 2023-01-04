@@ -16,6 +16,10 @@
         </div>
       </template>
 
+      <template v-slot:[`item.balance`]="{item}">
+        {{ (item.balance).toLocaleString('en-GB', { maximumFractionDigits: 4 }) }}
+      </template>
+
       <template v-slot:[`item.is1kv`]="{item}">
         <v-menu>
           {{item.is1kv ? 'Yes' : 'No'}}
@@ -51,7 +55,7 @@ interface IData {
 interface IMethods {
   clickItem (accountId: string): void
   shortStash (stash: string): string
-  toCoin(value: number): string
+  toCoin(value: number): number
   getNominators (): void
   getNominatorsFromApi (): void
 }
@@ -60,7 +64,7 @@ interface IComputed {
   chainInfo: any // IChainInfo
   decimals: Record<number, number>
   mapItems: any[]
-  totalNominations: string
+  totalNominations: number
 }
 interface IProps {
   stash: string
@@ -119,7 +123,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       // console.debug('CandidateNominators.vue', this.chainInfo)
       const decimalPlaces = this.chainInfo?.tokenDecimals?.toJSON()[0] || 0
       // const denom = this.denoms[this.chainInfo.tokenDecimals]
-      return (v / this.decimals[decimalPlaces]).toLocaleString('en-GB', { maximumFractionDigits: 4 }) // .toFixed(4)
+      return (v / this.decimals[decimalPlaces]) // .toLocaleString('en-GB', { maximumFractionDigits: 4 }) // .toFixed(4)
     },
     async getNominators () {
       // this.$store.dispatch('candidate/getNominators', { chainId: this.chainId, stash: this.stash })
