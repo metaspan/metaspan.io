@@ -56,7 +56,7 @@ interface IChainState {
   list: ICandidate[]
   candidate: ICandidate
   filteredList: ICandidate[]
-  loading: boolean
+  loading: Record<string, boolean>
   // eslint-disable-next-line
   loadingTimeout: any
   pagination: IPagination
@@ -90,7 +90,7 @@ const initialState = {
     apiConnected: false,
     updatedAt: moment().add(-1, 'day').utc().format(),
     chainInfo: {},
-    loading: false,
+    loading: { list: false, candidate: false },
     loadingTimeout: null,
     filtering: false,
     pagination: {
@@ -118,7 +118,7 @@ const initialState = {
     apiConnected: false,
     updatedAt: moment().add(-1, 'day').utc().format(),
     chainInfo: {},
-    loading: false,
+    loading: { list: false, candidate: false },
     loadingTimeout: null,
     filtering: false,
     pagination: {
@@ -188,6 +188,7 @@ const initialState = {
 // }
 
 interface IMutLoading {
+  key: string
   chain: string
   loading: boolean
 }
@@ -216,7 +217,10 @@ const candidate = {
     favourites (state: IState) { return state[state.chainId]?.favourites || [] },
     filter (state: IState) { return state[state.chainId]?.filter || {} },
     filtering (state: IState) { return state[state.chainId]?.filtering || false },
-    loading (state: IState) { return state[state.chainId]?.loading || false },
+    // loading (state: IState) { return state[state.chainId]?.loading || false },
+    loading (state: IState) {
+      return state[state.chainId].loading.list === true || state[state.chainId].loading.candidate === true
+    },
     options (state: IState) { return state[state.chainId]?.options || {} },
     ranges (state: IState) { return state[state.chainId]?.ranges || [] },
     updatedAt (state: IState) { return moment(state[state.chainId]?.updatedAt) }
@@ -230,9 +234,9 @@ const candidate = {
       // await stateManager.saveState(STORAGE_KEY, state)
     },
     // eslint-disable-next-line
-    SET_LOADING (state: IState, { loading }: IMutLoading): void {
+    SET_LOADING (state: IState, { key, loading }: IMutLoading): void {
       console.debug('store/modules/candidate.ts: mutations.SET_LOADING()', state.chainId, loading)
-      if (state[state.chainId]) state[state.chainId].loading = loading
+      if (state[state.chainId]) state[state.chainId].loading[key] = loading
       else console.warn('state[state.chainId] is', state[state.chainId])
       // state[state.chainId].loadingTimeout = setTimeout(() => {
       //   clearTimeout(state[state.chainId].loadingTimeout)
@@ -416,12 +420,19 @@ const candidate = {
       console.debug('store/modules/candidate.ts: getList()', state.chainId, 'initial:', state.initial)
       let list = []
       // console.debug('store/modules/candidate.ts: getList(): updatedAt', state[state.chainId].updatedAt.toString())
-      if (!state[state.chainId]?.updatedAt || moment().diff(moment(state[state.chainId]?.updatedAt), 'seconds') > 60) {
+      if (
+        !state[state.chainId]?.updatedAt ||
+        moment().diff(moment(state[state.chainId]?.updatedAt), 'seconds') > 60
+      ) {
         console.debug('store/modules/candidate.ts: getList(): reloading list from api', state.chainId)
+        if (state[state.chainId].loading.list) {
+          console.warn('We are already loading the list...')
+          return
+        }
         try {
           // eslint-disable-next-line
           let res = null as any
-          await commit('SET_LOADING', { loading: true })
+          await commit('SET_LOADING', { key: 'list', loading: true })
           // var res = await axios.get(`${baseUrl}/candidates`)
           res = await axios.get(
             // 'https://619wrsnit5.execute-api.eu-west-2.amazonaws.com/default/kusama-1kv-candidates'
@@ -438,11 +449,11 @@ const candidate = {
           }
           // console.debug("committed")
         } catch (err) {
-          await commit('SET_LOADING', { loading: false })
+          await commit('SET_LOADING', { key: 'list', loading: false })
           console.debug('OOPS, caught an error')
           console.error(err)
         } finally {
-          await commit('SET_LOADING', { loading: false })
+          await commit('SET_LOADING', { key: 'list', loading: false })
         }
         await dispatch('filterList')
       } else {
@@ -530,7 +541,7 @@ const candidate = {
       let v = state[chainId].list.find((i: ICandidate) => i.stash === stash)
       if (!v) {
         console.debug('not in cache... axios direct')
-        await commit('SET_LOADING', { chainId, loading: true })
+        await commit('SET_LOADING', { key: 'candidate', chainId, loading: true })
         // const res = await axios.get(`//api.metaspan.io/api/kusama/candidate/${stash}`)
         const res = await axios.get(`${rootState.baseUrl}/api/${chainId}/candidate/${stash}`)
         if (res?.data) {
@@ -538,7 +549,7 @@ const candidate = {
         } else {
           console.warn('API ERROR', res)
         }
-        await commit('SET_LOADING', { chainId, loading: false })
+        await commit('SET_LOADING', { key: 'candidate', chainId, loading: false })
       }
       await commit('SET_CANDIDATE', { chainId, model: v })
       // await dispatch('polkadot/get', stash, {root:true})
@@ -551,9 +562,9 @@ const candidate = {
     //   }
     // },
     // eslint-disable-next-line
-    async setLoading ({ commit }: any, { chain, value }: any) {
+    async setLoading ({ commit }: any, { key, chain, value }: any) {
       console.debug('store/modules/candidate.ts: actions.setLoading()', value)
-      await commit('SET_LOADING', { chain, loading: value })
+      await commit('SET_LOADING', { key, chain, loading: value })
     },
     // eslint-disable-next-line
     async toggleFav ({ commit }: any, { chain, stash}: any) {

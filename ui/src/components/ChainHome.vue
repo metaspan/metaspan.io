@@ -53,28 +53,29 @@ export default Vue.extend({
       // const chainInfo = await this.$substrate.connect(val)
       // await this.$substrate[val].isReady
       console.debug('ChainHome.vue: watch.chainId(): isReady!')
-      await this.setChainId(val)
+      // await this.setChainId(val)
     }
   },
   methods: {
-    async setChainId (chainId: string) {
-      console.debug('ChainHome.vue: setChain()', chainId)
-      await this.$substrate.connect(chainId)
-      await this.$substrate[chainId].isReady
-      await this.$store.dispatch('setChain', chainId)
-      console.debug('ChainHome.vue: reading chainId info()...')
-      const chainInfo = await this.$substrate[this.chainId].registry.getChainProperties()
-      console.log('chainInfo.tokenDecimals', chainInfo.tokenDecimals.toJSON()[0])
-      // TODO: let parent do this?
-      await this.$store.dispatch('substrate/setChainInfo', { chainId: chainId, chainInfo })
-    }
+    // NOT HERE, check ChainMenu.vue
+    // async setChainId (chainId: string) {
+    //   console.debug('ChainHome.vue: setChain()', chainId)
+    //   await this.$substrate.connect(chainId)
+    //   await this.$substrate[chainId].isReady
+    //   await this.$store.dispatch('setChain', chainId)
+    //   console.debug('ChainHome.vue: reading chainId info()...')
+    //   const chainInfo = await this.$substrate[this.chainId].registry.getChainProperties()
+    //   console.log('chainInfo.tokenDecimals', chainInfo.tokenDecimals.toJSON()[0])
+    //   // TODO: let parent do this?
+    //   await this.$store.dispatch('substrate/setChainInfo', { chainId: chainId, chainInfo })
+    // }
   },
   async created () {
     console.debug('ChainHome.vue: created()', this.chainId, this.$store.state.chainId)
-    if (!this.$store.state.candidate.chainId || this.chainId !== this.$store.state.chainId) {
-      // await this.$store.dispatch('setChain', { chain: this.chain })
-      await this.setChainId(this.chainId)
-    }
+    // if (!this.$store.state.candidate.chainId || this.chainId !== this.$store.state.chainId) {
+    //   // await this.$store.dispatch('setChain', { chain: this.chain })
+    //   await this.setChainId(this.chainId)
+    // }
   },
   async mounted () {
     console.debug('ChainHome.vue: mounted()')
