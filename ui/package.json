@@ -13,7 +13,7 @@
     "@polkadot/rpc-provider": "^9",
     "@polkadot/vue-identicon": "^2.9.14",
     "apollo-boost": "^0.4.9",
-    "axios": "^0.27.2",
+    "axios": "^1.2.2",
     "chart.js": "^4.0.1",
     "chartjs-plugin-annotation": "^2.1.0",
     "core-js": "^3.26.1",
