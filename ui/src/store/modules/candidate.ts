@@ -230,7 +230,7 @@ const candidate = {
       console.debug('store/modules/candidate.ts: mutations.INIT()', state, value)
       // state = { ...value }
       state = Object.assign(state, value)
-      state[state.chainId].loading = false
+      state[state.chainId].loading = { list: false, candidate: false }
       // await stateManager.saveState(STORAGE_KEY, state)
     },
     // eslint-disable-next-line
