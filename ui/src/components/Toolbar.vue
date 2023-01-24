@@ -50,6 +50,11 @@
         <span class="d-inline d-md-none">Id</span>
         <span class="d-none d-md-inline text-none">Identity</span>
       </v-btn>
+      <!-- <v-btn text :to="`/${chainId}/network`">
+        <span class="d-none d-sm-inline"><v-icon>mdi-star-three-points-outline</v-icon></span>
+        <span class="d-inline d-md-none">Net</span>
+        <span class="d-none d-md-inline text-none">Network</span>
+      </v-btn> -->
 
       <ChainMenu></ChainMenu>
 

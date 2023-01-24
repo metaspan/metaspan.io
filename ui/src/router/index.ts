@@ -15,7 +15,7 @@ import Pool from '@/components/Pool.vue'
 import Docs from '@/components/Docs.vue'
 import ValidatorsSelector from '@/components/ValidatorsSelector.vue'
 import ValidatorSelector from '@/components/ValidatorSelector.vue'
-
+import Network from '@/components/Network.vue'
 import Identities from '@/components/Identities.vue'
 
 import ComingSoon from '@/components/ComingSoon.vue'
@@ -50,7 +50,8 @@ const routes: Array<RouteConfig> = [
       { path: 'pool/:id', name: 'KusamaPool', component: Pool, props (route) { return { id: parseInt(route.params.id) } }, meta: { title: 'metaspan.io - kusama pool' } },
       { path: 'selector', name: 'PolkadotsSelector', component: ValidatorsSelector, meta: { title: 'metaspan.io - validator selector' }, props: true },
       { path: 'selector/:stash', name: 'KusamaSelector', component: ValidatorSelector, meta: { title: 'metaspan.io - validator selector' }, props: true },
-      { path: 'identity', name: 'KusamaIdentities', component: Identities, meta: { title: 'metaspan.io - identity' }, props: true }
+      { path: 'identity', name: 'KusamaIdentities', component: Identities, meta: { title: 'metaspan.io - identity' }, props: true },
+      { path: 'network', name: 'KusamaNetwork', component: Network, meta: { title: 'metaspan.io - network' }, props: true }
     ]
   },
   {
