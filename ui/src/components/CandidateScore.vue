@@ -44,6 +44,11 @@
             <td>{{candidate.rank}}</td>
             <td class="text-right">{{getScore(candidate.score.rank)}} <small>/{{denoms['rank']}}</small></td>
           </tr>
+          <tr><th>Unclaimed Eras</th>
+            <td>n/a</td>
+            <td>{{candidate.unclaimedEras ? candidate.unclaimedEras.length : 0}}</td>
+            <td class="text-right">{{getScore(candidate.score.unclaimed)}}</td>
+          </tr>
           <tr><th>Self Bonded</th>
             <td>-<!--10.02 - 98.16 KSM--></td>
             <td>-</td>
@@ -89,7 +94,7 @@
           <tr><th>Council Stake</th>
             <td>n/a</td>
             <td>{{candidate.councilStake}}</td>
-            <td class="text-right">{{getScore(candidate.score.councilStake)}} <small>/{{denoms['council']}}</small></td>
+            <td class="text-right">{{getScore(candidate.score.councilStake)}} <small>/{{denoms['councilStake']}}</small></td>
           </tr>
           <tr><th>Democracy</th>
             <td>n/a</td>
@@ -99,14 +104,24 @@
           <tr><th>Nominations</th>
             <td>n/a</td>
             <td>{{candidate.nominations}}</td>
-            <td class="text-right">{{getScore(candidate.score.nominatorStake)}} <small>/{{denoms['nominated']}}</small></td>
+            <td class="text-right">{{getScore(candidate.score.nominatorStake)}} <small>/{{denoms['nominatorStake']}}</small></td>
+          </tr>
+          <tr><th>Delegations</th>
+            <td>-</td>
+            <td>-</td>
+            <td class="text-right">{{getScore(candidate.score.delegations)}} <small>/{{denoms['delegations']}}</small></td>
+          </tr>
+          <tr><th>Open Gov</th>
+            <td>-</td>
+            <td>-</td>
+            <td class="text-right">{{getScore(candidate.score.openGov)}} <small>/{{denoms['openGov']}}</small></td>
+          </tr>
+          <tr><th>Open Gov Delegations</th>
+            <td>-</td>
+            <td>-</td>
+            <td class="text-right">{{getScore(candidate.score.openGovDelegations)}} <small>/{{denoms['openGovDelegations']}}</small></td>
           </tr>
 
-          <tr><th>Unclaimed Eras</th>
-            <td>n/a</td>
-            <td>{{candidate.unclaimedEras ? candidate.unclaimedEras.length : 0}}</td>
-            <td class="text-right">{{getScore(candidate.score.unclaimed)}}</td>
-          </tr>
           <tr><th>Aggregate</th>
             <td></td>
             <td></td>
@@ -190,8 +205,7 @@ export default Vue.extend({
         inclusion: 160,
         spanInclusion: 200,
         discovered: 5,
-        nominated: 30,
-        // nominatorStake: 30,
+        nominatorStake: 30, // key: nominated
         rank: 5,
         bonded: 50,
         faults: 5,
@@ -200,10 +214,12 @@ export default Vue.extend({
         region: 10,
         country: 10,
         provider: 100,
-        council: 50,
+        councilStake: 50, // key: council
         democracy: 100,
         nominations: 100,
-        delegations: 60
+        delegations: 60,
+        openGov: 100,
+        openGovDelegations: 100
       }
     }
   },
