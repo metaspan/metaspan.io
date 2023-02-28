@@ -66,18 +66,27 @@
             </v-btn>
           </v-list-item-action> -->
           <v-list-item-action>
-            <v-btn icon>
+            <div class="text-center">
+            <v-btn icon small>
+              <a class="btn" href="https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.dotters.network/kusama#/referenda" target="_blank">
+                <v-img max-height="16" max-width="16" :src="`/image/${chainId}-logo.png`"></v-img>
+              </a>
+            </v-btn>
+          <!-- </v-list-item-action> -->
+          <!-- <v-list-item-action> -->
+            <v-btn icon small>
               <a class="btn" :href="`https://${chainId}.polkassembly.io/referenda/${item.id}`" target="_blank">
                 <v-img max-height="16" max-width="16" src="/image/polkassembly.png"></v-img>
               </a>
             </v-btn>
-          </v-list-item-action>
-          <v-list-item-action>
-            <v-btn icon>
-              <a class="btn" href="https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.dotters.network/kusama#/referenda" target="_blank">
-                <v-img :src="`/image/${chainId}-logo.png`" max-height="16" max-width="16"></v-img>
+          <!-- </v-list-item-action> -->
+          <!-- <v-list-item-action> -->
+            <v-btn icon small>
+              <a class="btn" :href="`https://${chainId}.subscan.io/referenda_v2/${item.id}`" target="_blank">
+                <v-img max-height="16" max-width="16" src="/image/subscan-logo.png"></v-img>
               </a>
             </v-btn>
+            </div>
           </v-list-item-action>
 
         </v-list-item>
