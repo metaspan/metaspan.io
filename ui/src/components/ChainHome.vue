@@ -62,7 +62,7 @@ export default Vue.extend({
     //   console.debug('ChainHome.vue: setChain()', chainId)
     //   await this.$substrate.connect(chainId)
     //   await this.$substrate[chainId].isReady
-    //   await this.$store.dispatch('setChain', chainId)
+    //   await this.$store.dispatch('setChainId', chainId)
     //   console.debug('ChainHome.vue: reading chainId info()...')
     //   const chainInfo = await this.$substrate[this.chainId].registry.getChainProperties()
     //   console.log('chainInfo.tokenDecimals', chainInfo.tokenDecimals.toJSON()[0])
@@ -72,8 +72,11 @@ export default Vue.extend({
   },
   async created () {
     console.debug('ChainHome.vue: created()', this.chainId, this.$store.state.chainId)
+    if (this.chainId !== this.$store.state.chainId) {
+      this.$store.dispatch('setChainId', this.chainId)
+    }
     // if (!this.$store.state.candidate.chainId || this.chainId !== this.$store.state.chainId) {
-    //   // await this.$store.dispatch('setChain', { chain: this.chain })
+    //   // await this.$store.dispatch('setChainId', this.chain)
     //   await this.setChainId(this.chainId)
     // }
   },

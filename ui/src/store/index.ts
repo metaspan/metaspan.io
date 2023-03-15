@@ -75,7 +75,7 @@ export default new Vuex.Store({
       // console.debug('SET_SHOW_SETTINGS_DIALOG', value)
       state.alerts = state.alerts.filter(f => f.id !== alert.id)
     },
-    async SET_CHAIN (state, chainId) {
+    async SET_CHAIN_ID (state, chainId) {
       state.chainId = chainId
       stateManager.saveState('index', state)
     }
@@ -84,7 +84,7 @@ export default new Vuex.Store({
     // eslint-disable-next-line
     async init ({ state, dispatch, commit }: any) {
       await commit('SET_LOADING', true)
-      await dispatch('setChain', state.chainId) // TODO: is this really necessary?
+      await dispatch('setChainId', state.chainId) // TODO: is this really necessary?
       await dispatch('substrate/init', {}, { root: true })
       await dispatch('candidate/init', {}, { root: true })
       await dispatch('pool/init', {}, { root: true })
@@ -118,10 +118,11 @@ export default new Vuex.Store({
       dispatch('candidate/resetCache', {}, { root: true })
       dispatch('pool/resetCache', {}, { root: true })
     },
-    async setChain ({ commit, dispatch }, chainId) {
-      await commit('SET_CHAIN', chainId)
-      await dispatch('substrate/setChain', chainId)
-      await dispatch('candidate/setChain', chainId)
+    async setChainId ({ commit, dispatch }, chainId) {
+      console.debug('store/index.js: actions.setChain()', chainId)
+      await commit('SET_CHAIN_ID', chainId)
+      await dispatch('substrate/setChainId', chainId)
+      await dispatch('candidate/setChainId', chainId)
       await dispatch('pool/setChainId', chainId)
     },
     async apiClose ({ dispatch }) {

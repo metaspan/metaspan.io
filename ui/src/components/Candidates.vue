@@ -265,7 +265,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   async created () {
     console.debug('Candidates.vue: created()', this.chainId)
     // if (this.$route.params.chainId !== this.chainId) {
-    //   await this.$store.dispatch('setChain', { chainId: this.$route.params.chainId })
+    //   await this.$store.dispatch('setChainId', this.$route.params.chainId)
     // }
     this.windowSize = { x: window.innerWidth, y: window.innerHeight }
     // this.options = this.$store.state.candidate.options // .pagination.page
@@ -287,7 +287,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
 
     if (!this.chainId || this.chainId === undefined) {
       console.debug('setting chainId to', this.$route.params.chainId)
-      await this.$store.dispatch('setChain', { chainId: this.$route.params.chainId })
+      await this.$store.dispatch('setChainId', this.$route.params.chainId)
     }
   },
   async mounted () {

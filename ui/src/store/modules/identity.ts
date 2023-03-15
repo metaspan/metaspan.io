@@ -167,8 +167,8 @@ const pool = {
     }
   },
   mutations: {
-    async SET_CHAIN (state: IState, { chainId }): Promise<void> {
-      console.debug('store/modules/pool.ts: SET_CHAIN()', chainId)
+    async SET_CHAIN_ID (state: IState, chainId: string): Promise<void> {
+      console.debug('store/modules/pool.ts: SET_CHAIN_ID()', chainId)
       state.chainId = chainId
       if (!state.initial) await stateManager.saveState(STORAGE_KEY, state)
     },
@@ -247,7 +247,7 @@ const pool = {
       // await dispatch('getList')
     },
     async setChainId ({ commit }, chainId: string) {
-      await commit('SET_CHAIN', { chainId })
+      await commit('SET_CHAIN_ID', chainId)
     },
     async apiClose ({ dispatch }) {
       await dispatch('apiStatus', { connected: false, chainId: 'kusama' })

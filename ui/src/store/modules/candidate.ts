@@ -219,7 +219,7 @@ const candidate = {
     filtering (state: IState) { return state[state.chainId]?.filtering || false },
     // loading (state: IState) { return state[state.chainId]?.loading || false },
     loading (state: IState) {
-      return state[state.chainId].loading.list === true || state[state.chainId].loading.candidate === true
+      return state[state.chainId]?.loading.list === true || state[state.chainId]?.loading.candidate === true || false
     },
     options (state: IState) { return state[state.chainId]?.options || {} },
     ranges (state: IState) { return state[state.chainId]?.ranges || [] },
@@ -247,8 +247,8 @@ const candidate = {
       state.initial = initial
     },
     // eslint-disable-next-line
-    async SET_CHAIN (state: IState, chainId: string): Promise<void> {
-      console.debug('store/modules/candidate.ts: mutations.SET_CHAIN()', chainId)
+    async SET_CHAIN_ID (state: IState, chainId: string): Promise<void> {
+      console.debug('store/modules/candidate.ts: mutations.SET_CHAIN_ID()', chainId)
       // console.debug('window.$polkadot', window.$polkadot)
       state.chainId = chainId
       if (!state.initial) await stateManager.saveState(STORAGE_KEY, state)
@@ -258,8 +258,11 @@ const candidate = {
     },
     // eslint-disable-next-line
     async SET_FILTERING (state: IState, { value }: any): Promise<void> {
-      state[state.chainId].filtering = value
-      await stateManager.saveState(STORAGE_KEY, state)
+      console.debug('candidate.ts: mutations.SET_FILTERING()', state.chainId, value)
+      if (state[state.chainId]) {
+        state[state.chainId].filtering = value
+        await stateManager.saveState(STORAGE_KEY, state)
+      }
     },
     // eslint-disable-next-line
     async SET_LIST (state: IState, { list }: any): Promise<void> {
@@ -366,14 +369,14 @@ const candidate = {
       console.debug('store/modules/candidate.ts: init()', rootState.chainId, state)
       // state: getState() already does this
       // const sstate = await getState(state)
-      await commit('SET_CHAIN', rootState.chainId)
+      await commit('SET_CHAIN_ID', rootState.chainId)
       await commit('INIT', state)
-      // await dispatch('setChain', sstate.chainId, { root: true })
+      // await dispatch('setChainId', sstate.chainId, { root: true })
       await commit('SET_INITIAL', false)
     },
-    async setChain ({ commit, dispatch }, chainId) {
-      console.debug('store/modules/candidate.ts: setChain()', chainId)
-      await commit('SET_CHAIN', chainId)
+    async setChainId ({ commit, dispatch }, chainId: string) {
+      console.debug('store/modules/candidate.ts: setChainId()', chainId)
+      await commit('SET_CHAIN_ID', chainId)
       await dispatch('getList')
     },
     async apiClose ({ dispatch }) {
@@ -425,7 +428,7 @@ const candidate = {
         moment().diff(moment(state[state.chainId]?.updatedAt), 'seconds') > 60
       ) {
         console.debug('store/modules/candidate.ts: getList(): reloading list from api', state.chainId)
-        if (state[state.chainId].loading.list) {
+        if (state[state.chainId]?.loading.list) {
           console.warn('We are already loading the list...')
           return
         }
@@ -488,13 +491,13 @@ const candidate = {
     async filterList ({ state, commit }: any) {
       console.debug('store/modules/candidate.ts: filterList()')
       commit('SET_FILTERING', { value: true })
-      const filter: ICandidateListFilter = state[state.chainId].filter
+      const filter: ICandidateListFilter = state[state.chainId]?.filter || {}
       // const sort: ICandidateListSort = state[state.chainId].sort
       const sort = { sort: filter.sort, sortAsc: filter.sortAsc }
-      const search: string = state[state.chainId].search
-      const favourites: string[] = state[state.chainId].favourites
+      const search: string = state[state.chainId]?.search || ''
+      const favourites: string[] = state[state.chainId]?.favourites || []
       console.debug('store/modules/candidate.ts: filter, sort, search', filter, sort, search, favourites)
-      const flist = state[state.chainId].list
+      const flist = (state[state.chainId]?.list || [])
         .filter((item: ICandidate, idx: number) => {
           // console.debug('item', idx, item)
           if ((filter.favourite && !favourites.includes(item.stash)) ||

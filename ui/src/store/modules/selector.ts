@@ -64,7 +64,7 @@ const selector = {
     SET_LOADING (state: IState, loading: boolean): void {
       state.loading = loading
     },
-    async SET_CHAINID (state: IState, chainId: string) {
+    async SET_CHAIN_ID (state: IState, chainId: string) {
       state.chainId = chainId
       await stateManager.saveState(STORAGE_KEY, state)
     },
@@ -96,14 +96,14 @@ const selector = {
       console.debug('store/modules/selector.ts: init()', rootState.chainId, state)
       // state: getState() already does this
       // const sstate = await getState(state)
-      await commit('SET_CHAINID', rootState.chainId)
+      await commit('SET_CHAIN_ID', rootState.chainId)
       await commit('INIT', state)
-      // await dispatch('setChain', sstate.chainId, { root: true })
+      // await dispatch('setChainId', sstate.chainId, { root: true })
       await commit('SET_INITIAL', false)
     },
     // eslint-disable-next-line
     async setChainId ({ commit }, chainId: string) {
-      await commit('SET_CHAIN', { chainId })
+      await commit('SET_CHAIN_ID', chainId)
     },
     async loading ({ commit }: any, loading: boolean) {
       commit('SET_LOADING', loading)

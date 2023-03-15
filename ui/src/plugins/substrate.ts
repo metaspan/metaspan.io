@@ -74,7 +74,7 @@ class SubstrateAPI {
     })
     console.debug('plugins/substrate.ts: about to connect', chainId)
     await provider.connect()
-    const api = await ApiPromise.create({ provider })
+    const api = await ApiPromise.create({ provider, noInitWarn: true, throwOnConnect: false })
     await api.isReady
     console.debug(`subsrate.ts: createWsProvider(${chainId}) api isReady`)
     this[chainId] = api // TODO duplication!

@@ -270,7 +270,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     console.debug('Candidate.vue: created()', this.candidate, this.$route.params)
     if (!this.chainId) {
       console.debug('no chain?', this.$route.params)
-      await this.$store.dispatch('setChain', { chainId: this.$route.params.chainId })
+      await this.$store.dispatch('setChainId', this.$route.params.chainId)
       console.debug('App.vue: reading chain info()...')
       const chainInfo = await this.$substrate[this.chainId].registry.getChainProperties()
       console.log('chainInfo.tokenDecimals', chainInfo.tokenDecimals.toJSON()[0])

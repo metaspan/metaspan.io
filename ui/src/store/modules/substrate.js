@@ -43,7 +43,7 @@ const api = {
     INIT (state, { api }) {
       state.api = api
     },
-    SET_CHAIN (state, chainId) {
+    SET_CHAIN_ID (state, chainId) {
       state.chainId = chainId
     },
     SET_CHAIN_INFO (state, { chainId, chainInfo }) {
@@ -62,9 +62,9 @@ const api = {
       // await s.connect()
       // await commit('INIT', { api: s })
     },
-    async setChain ({ commit }, chainId) {
-      console.debug('store/modules/substrate.ts: setChain()', chainId)
-      await commit('SET_CHAIN', chainId)
+    async setChainId ({ commit }, chainId) {
+      console.debug('store/modules/substrate.ts: setChainId()', chainId)
+      await commit('SET_CHAIN_ID', chainId)
     },
     async apiClose ({ dispatch }) {
       console.debug('store/modules/substrate.ts: apiclose()')

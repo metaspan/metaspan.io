@@ -70,11 +70,11 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   },
   methods: {
     async setChain (_chain: any) {
-      console.debug('setChain', _chain.id)
-      // this.$store.dispatch('setChain', _chain.id)
+      console.debug('ChainMenu.vue: setChain', _chain.id)
+      // this.$store.dispatch('setChainId', _chain.id)
       await this.$substrate.connect(_chain.id)
       await this.$substrate[_chain.id].isReady
-      await this.$store.dispatch('setChain', _chain.id)
+      await this.$store.dispatch('setChainId', _chain.id)
       console.debug('ChainHome.vue: reading chainId info()...')
       const chainInfo = await this.$substrate[_chain.id].registry.getChainProperties()
       console.log('chainInfo.tokenDecimals', chainInfo.tokenDecimals.toJSON()[0])
