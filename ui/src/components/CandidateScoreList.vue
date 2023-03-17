@@ -35,7 +35,7 @@ import moment from 'moment'
 import { mapGetters } from 'vuex'
 // import * as vbe from 'github:w3f/1k-validators-be'
 // const {vbe} = require('../../node_modules/1k-validators-be/src/score.ts')
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { ICandidate } from '@/types/global'
 
 interface IField {
@@ -60,7 +60,7 @@ interface IComputed {
 // eslint-disable-next-line
 interface IProps {}
 
-export default Vue.extend<IData, IMethods, IComputed, IProps>({
+export default defineComponent({
   name: 'CandidateScoreList',
   // props: ['candidate'],
   computed: {

@@ -23,6 +23,7 @@ export class StateManager {
     await this.idb.unset(key)
   }
 
+  // TODO why do we need a sync method? we use this to return initial state for a store/module
   getStateSync (key: string, initialState: any): any {
     console.debug('store/state-manager.ts: getStateSync()', key)
     const savedState = this.idb.getSync(key)

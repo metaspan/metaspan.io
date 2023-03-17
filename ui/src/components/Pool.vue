@@ -63,7 +63,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { mapState, mapGetters } from 'vuex'
 import { IPool } from '../types/global'
 import AccountLink from './AccountLink.vue'
@@ -84,17 +84,13 @@ interface IComputed {
   // getStash: string
 }
 interface IProps {
-  id: number
+  id: string
 }
 
-export default Vue.extend<IData, IMethods, IComputed, IProps>({
+export default defineComponent({
   props: {
-    // chain: {
-    //   type: String,
-    //   required: false
-    // },
     id: {
-      type: Number,
+      type: String,
       required: false
     }
   },
@@ -104,12 +100,9 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   },
   computed: {
     ...mapState(['chainId']),
-    ...mapState('pool', ['pool']),
+    ...mapGetters('pool', ['pool']),
     ...mapState('substrate', ['decimals']),
     ...mapGetters('substrate', ['chainInfo'])
-    // poolId () {
-    //   return this.pool?.id || ''
-    // }
   },
   data () {
     return {
@@ -122,16 +115,12 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     }
   },
   methods: {
-    toCoin (v) {
+    toCoin (v: any) {
       // console.debug('CandidateNominators.vue', this.chainInfo)
       const decimalPlaces = this.chainInfo?.tokenDecimals?.toJSON()[0] || 0
       // const denom = this.denoms[this.chainInfo.tokenDecimals]
       return (v / this.decimals[decimalPlaces]).toLocaleString('en-GB', { maximumFractionDigits: 4 }) // .toFixed(4)
     }
-    // reload () {
-    //   this.loading = true
-    //   // this.loadPools()
-    // }
   },
   async created () {
     console.debug('Pool.vue created()', this.chainId, this.pool, this.$route.params)

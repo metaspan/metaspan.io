@@ -69,7 +69,7 @@
 </template>
 
 <script lang="ts">
-import Vue, { computed } from 'vue'
+import { defineComponent } from 'vue'
 import { mapState } from 'vuex'
 import { GET_IDENTITIES } from '../graphql/queries/identities'
 import { debounce } from 'lodash'
@@ -101,7 +101,7 @@ interface IComputed {
 // eslint-disable-next-line
 interface IProps {}
 
-export default Vue.extend<IData, IMethods, IComputed, IProps>({
+export default defineComponent({
   name: 'Identities',
   components: {
     ClickToCopy,

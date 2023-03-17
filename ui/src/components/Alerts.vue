@@ -53,7 +53,7 @@
 <script lang="ts">
 import moment from 'moment'
 import { mapState } from 'vuex'
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 
 interface IAlert {
   id: string
@@ -61,7 +61,7 @@ interface IAlert {
   text: string
 }
 
-export default Vue.extend({
+export default defineComponent({
   name: 'Alerts',
   computed: {
     ...mapState(['alerts'])

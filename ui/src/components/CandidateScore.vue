@@ -153,7 +153,7 @@ import moment from 'moment'
 import { mapGetters } from 'vuex'
 // import * as vbe from 'github:w3f/1k-validators-be'
 // const {vbe} = require('../../node_modules/1k-validators-be/src/score.ts')
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 
 // const example = {
 //   "score":{
@@ -187,7 +187,7 @@ import Vue from 'vue'
 //   "total":403.00090180980516
 // }
 
-export default Vue.extend({
+export default defineComponent({
   name: 'CandidateScore',
   props: ['candidate'],
   computed: {

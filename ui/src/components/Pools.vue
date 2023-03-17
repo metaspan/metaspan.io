@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { mapState, mapGetters } from 'vuex'
 import { hexToString } from '@polkadot/util'
 import { IPool } from '../types/global'
@@ -38,7 +38,7 @@ import PoolList from './PoolList.vue'
 
 type TF = ReturnType<typeof setInterval>
 
-export default Vue.extend({
+export default defineComponent({
   name: 'Pools',
   components: {
     PoolTable,
@@ -164,7 +164,7 @@ export default Vue.extend({
     }
   },
   async mounted () {
-    this.$ga.page(`/${this.chainId}/pool`)
+    // this.$ga.page(`/${this.chainId}/pool`)
   },
   beforeDestroy () {
     if (this.interval) clearInterval(this.interval)

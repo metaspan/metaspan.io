@@ -87,7 +87,7 @@ import { mapState, mapGetters } from 'vuex'
 // import CandidatesHisto from './CandidatesHisto.vue'
 import CandidatesTable from './CandidatesTable.vue'
 import CandidatesList from './CandidatesList.vue'
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { ICandidate } from '../types/global'
 import Loading from './Loading.vue'
 import { debounce } from 'lodash'
@@ -156,7 +156,7 @@ interface IProps {
   // chain: string
 }
 
-export default Vue.extend<IData, IMethods, IComputed, IProps>({
+export default defineComponent({
   name: 'Candidates',
   components: {
     // CandidatesHisto,

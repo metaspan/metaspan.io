@@ -7,7 +7,7 @@
     <v-list-item v-for="item in list" v-bind:key="item.id">
       <v-list-item-content>
         <v-list-item-title>
-          {{ $utils.shortStash(item.accountId) }}
+          {{ shortStash(item.accountId) }}
         </v-list-item-title>
         <v-list-item-subtitle>
             Points: {{ toCoin(item.points) }}
@@ -24,9 +24,10 @@
 
 <script lang="ts">
 import { IPool } from '@/types/global'
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { mapState, mapGetters } from 'vuex'
 import AccountLink from './AccountLink.vue'
+import { shortStash } from '@/global/utils'
 
 interface IData {
   // loading: boolean
@@ -51,7 +52,7 @@ interface IProps {
   list: any[] // IPool[]
 }
 
-export default Vue.extend<IData, IMethods, IComputed, IProps>({
+export default defineComponent({
   name: 'PoolMemberList',
   components: {
     AccountLink
@@ -80,6 +81,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     }
   },
   methods: {
+    shortStash: shortStash,
     toCoin (v) {
       // console.debug('CandidateNominators.vue', this.chainInfo)
       const decimalPlaces = this.chainInfo?.tokenDecimals?.toJSON()[0] || 0

@@ -80,6 +80,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+// import { defineComponent } from 'vue'
 import { mapState, mapGetters } from 'vuex'
 import { hexToString } from '@polkadot/util'
 import { IValidator, ICandidate, IChainInfo } from '../types/global'
@@ -153,16 +154,10 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
           (this.filter.maxNominators > 0 ? v.nominators?.length <= this.filter.maxNominators : true)
       })
     }
-    // ...mapState('pool', ['apiConnected']),
-    // ...mapGetters('pool', ['list']),
-    // ...mapState('substrate', ['decimals']),
-    // ...mapGetters('substrate', ['chainInfo'])
   },
-  data () {
+  data: () => {
     return {
-      // candidates: [] as ICandidate[],
-      // list: [] as IValidator[],
-      activeSet: [],
+      activeSet: [] as string[],
       count: 0,
       multiplier: 10000000,
       stake: 10,
@@ -390,7 +385,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       const found = this.candidates?.find((c: ICandidate) => c.stash === stash)
       return !!found
     },
-    isActive (stash: string) {
+    isActive (stash: string): boolean {
       return this.activeSet.includes(stash)
     },
     getChipColor (noms: number) {

@@ -27,7 +27,7 @@
 
 <script lang="ts">
 import { IPool } from '@/types/global'
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { mapState, mapGetters } from 'vuex'
 import AccountLink from './AccountLink.vue'
 
@@ -54,7 +54,7 @@ interface IProps {
   list: any[] // IPool[]
 }
 
-export default Vue.extend<IData, IMethods, IComputed, IProps>({
+export default defineComponent({
   name: 'PoolMemberTable',
   components: {
     AccountLink

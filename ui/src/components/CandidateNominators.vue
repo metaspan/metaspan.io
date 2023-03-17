@@ -87,7 +87,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     ...mapGetters('substrate', ['chainInfo']),
     mapItems () {
       // return this.items
-      return this.items.map(m => {
+      return this.items.map((m: any) => {
         m.shortStash = this.shortStash(m.accountId)
         m.balance = this.toCoin(m.account.data.free)
         return m
@@ -100,7 +100,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       }, 0))
     }
   },
-  data () {
+  data: () => {
     return {
       loading: false,
       items: [],

@@ -41,13 +41,13 @@ interface IComputed {
   tokenSymbol: string
 }
 interface IProps {
-  poolId: number
+  poolId: string
 }
 
 export default Vue.extend<IData, IMethods, IComputed, IProps>({
   props: {
     poolId: {
-      type: Number,
+      type: String,
       required: true
     }
   },
@@ -100,17 +100,18 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     async getMembers () {
       // this.$store.dispatch('candidate/getNominators', { chainId: this.chainId, stash: this.stash })
       this.loading = true
+      const id = parseInt(this.poolId)
       const res = await this.$apollo.query({
         query: GET_POOL_MEMBERS,
         variables: {
           chain: this.chainId,
           // stash: this.stash,
-          id: this.poolId
+          id
           // ids: chunk
         }
       })
       // console.log('data', res.data.Nominators.map(n => n.accountId))
-      console.debug('data', res.data)
+      console.debug('data', res)
       this.items = res.data.Pool?.members || []
       this.loading = false
     }

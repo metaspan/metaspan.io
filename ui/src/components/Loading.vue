@@ -13,10 +13,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-// import { mapState } from 'vuex'
+import { defineComponent } from 'vue'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'Loading',
   props: {
     loading: {

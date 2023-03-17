@@ -121,9 +121,9 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     referenda: { type: Object },
     voting: { type: Object }
   },
-  data () {
+  data: () => {
     return {
-      refVote: {},
+      refVote: {} as any,
       convictions: {
         '0x00': { aye: false, nay: true, conviction: '0x' },
         '0x01': { aye: false, nay: true, conviction: '1x' },
@@ -176,9 +176,9 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   },
   async created () {
     console.debug('CandidateReferendaVote', this.referenda, this.refVoting)
-    const refId = this.referenda.id
+    const refId = this.referenda?.id || ''
     console.debug('refId', refId)
-    this.refVote = this.refVoting[this.referenda.id]
+    this.refVote = this.refVoting ? this.refVoting[refId] : null
     console.log('refVote', this.refVote)
   }
 })

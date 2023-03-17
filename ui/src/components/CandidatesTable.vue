@@ -256,7 +256,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     }
   },
   // eslint-disable-next-line
-  data (): any {
+  data: () => {
     return {
       options: {
         page: 1,
@@ -269,7 +269,8 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
         rank: '',
         score: 0,
         valid: false,
-        active: false
+        active: false,
+        nominated_1kv: false
       }
     }
   },

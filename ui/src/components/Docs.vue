@@ -66,7 +66,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 // import Main from '../views/apidocs/Main.vue'
 
 interface IBreadCrumb {
@@ -119,13 +119,13 @@ interface IObj {
   children: Record<string, any>
 }
 
-export default Vue.extend<IData, IMethods, IComputed>({
+export default defineComponent({
   name: 'Docs',
   components: {
     // Main
   },
   computed: {
-    object () {
+    object (): string {
       return this.obj
     }
     // methods () {
@@ -146,7 +146,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
   watch: {
     obj (val) {
       this.loading = true
-      this.parseObj(this.$substrate.polkadot.api[val], null, null)
+      this.parseObj(this.$substrate.polkadot.api[val], false, 0)
       this.loading = false
     }
   },
@@ -155,12 +155,12 @@ export default Vue.extend<IData, IMethods, IComputed>({
     select (att: any) {
       this.level += 1
       // console.debug(att, level, this.parsed[att])
-      this.breadcrumbs.push({ text: att, type: 'attribute', level: this.level })
+      this.breadcrumbs.push({ text: att, type: 'attribute', disabled: false, level: this.level })
       let obj = this.$substrate.polkadot
       this.breadcrumbs.forEach((b: IBreadCrumb, idx: number) => {
         if (idx !== 0) obj = obj[b.text]
       })
-      this.parsed = this.parseObj(obj, null, null)
+      this.parsed = this.parseObj(obj, false, 0)
     },
     // eslint-disable-next-line
     async selectMethod (att: any) {
@@ -175,7 +175,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
       // console.debug(JSON.stringify(obj[att]))
       const test = await obj[att]()
       console.debug('test:', test.toString())
-      this.breadcrumbs.push({ text: att, type: 'method', level: this.level })
+      this.breadcrumbs.push({ text: att, type: 'method', level: this.level, disabled: false })
       this.parseBreadCrumbs()
     },
     // eslint-disable-next-line
@@ -227,7 +227,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
         obj = obj[this.breadcrumbs[i].text]
       }
       // this.breadcrumbs.forEach ((b: IBreadCrumb) => {  })
-      this.parsed = this.parseObj(obj, null, null)
+      this.parsed = this.parseObj(obj, false, 0)
     },
     // eslint-disable-next-line
     parseObj (obj: any, className = false, depth = 1) {

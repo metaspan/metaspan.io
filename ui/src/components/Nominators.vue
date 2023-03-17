@@ -121,9 +121,9 @@ interface IComputed {
   updated: string
   updatedAt: string
 }
-// interface IProps {}
+interface IProps {}
 
-export default Vue.extend<IData, IMethods, IComputed>({
+export default Vue.extend<IData, IMethods, IComputed, IProps>({
   name: 'Nominators',
   components: {
     // CandidatesHisto,

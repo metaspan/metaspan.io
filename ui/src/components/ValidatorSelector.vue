@@ -25,6 +25,7 @@
 </template>
 
 <script lang="ts">
+// import { defineComponent } from 'vue'
 import Vue from 'vue'
 import { mapState, mapGetters } from 'vuex'
 import { hexToString } from '@polkadot/util'
@@ -174,7 +175,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   },
   async created () {
     console.debug(this.$route)
-    this.stash = this.$route.params.stash
+    this.stash = this.$route.params.stash.toString()
     this.$store.dispatch('selector/setValidator', this.stash)
     // console.debug('ValidatorSelector.vue created()', this.chainId, this.list?.length)
     // if (!this.list || this.list.length === 0) {

@@ -60,7 +60,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       return this.chains[this.chainId] || {}
     }
   },
-  data () {
+  data: () => {
     return {
       icons: {
         kusama: require('@/assets/kusama-logo.png'),

@@ -84,7 +84,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { mapState, mapGetters } from 'vuex'
 import ChainMenu from './ChainMenu.vue'
 import Alerts from './Alerts.vue'
@@ -105,7 +105,7 @@ interface IComputed {
 // eslint-disable-next-line
 interface IProps {}
 
-export default Vue.extend<IData, IMethods, IComputed, IProps>({
+export default defineComponent({
   components: {
     Alerts,
     ChainMenu

@@ -55,6 +55,7 @@ class SubstrateAPI {
       await this[chainId].isReady
       return this[chainId]
     }
+    console.debug(`plugins/substrate.ts: not connected to ${chainId}, connecting...`)
     const provider = new WsProvider(endpoints[chainId][endpoint])
     provider.on('error', async (err) => {
       console.warn(`plugins/substrate.ts: on('error', ${chainId})`)
@@ -73,7 +74,7 @@ class SubstrateAPI {
       await store.dispatch('substrate/apiDisconnected', chainId)
     })
     console.debug('plugins/substrate.ts: about to connect', chainId)
-    await provider.connect()
+    // if (!provider.isConnected) await provider.connect()
     const api = await ApiPromise.create({ provider, noInitWarn: true, throwOnConnect: false })
     await api.isReady
     console.debug(`subsrate.ts: createWsProvider(${chainId}) api isReady`)
@@ -81,36 +82,6 @@ class SubstrateAPI {
     // console.debug(`${chain}: debug 6`)
     return api
   }
-
-  // async createScProvider (chain: string): Promise<ScProvider> {
-  //   console.debug('plugins/substrate.ts: createScProvider()', chain)
-  //   const provider = new ScProvider(chain === 'polkadot' ? WellKnownChain.polkadot ? WellKnownChain.ksmcc3)
-  //   // console.debug(`${chain}: debug 1`)
-  //   provider.on('error', async (err) => {
-  //     console.debug(`plugins/substrate.ts: substrate-connect (${chain}) error follows:`)
-  //     await store.dispatch('apiError', { chain, error: err })
-  //     console.error(err)
-  //   })
-  //   // console.debug(`${chain}: debug 2`)
-  //   provider.on('connected', async () => {
-  //     console.debug(`plugins/substrate.ts: substrate-connect  (${chain}) connected`)
-  //     await store.dispatch('apiConnected', { chain })
-  //   })
-  //   // console.debug(`${chain}: debug 3`)
-  //   provider.on('disconnected', async (evt) => {
-  //     console.debug(`plugins/substrate.ts: substrate-connect  (${chain}) disconnected`)
-  //     if (evt) { console.debug(evt) }
-  //     await store.dispatch('apiDisconnected', { chain, evt })
-  //   })
-  //   // console.debug(`${chain}: debug 4`)
-  //   await provider.connect()
-  //   // console.debug(`${chain}: debug 5`)
-  //   const api = await ApiPromise.create({ provider })
-  //   await api.isReady
-  //   this[chain] = api
-  //   // console.debug(`${chain}: debug 6`)
-  //   return provider
-  // }
 
   async connect (chainId = 'kusama'): Promise<void> {
     // const wsProvider = new WsProvider(endpoints[this.config.chain][this.config.endpoint])

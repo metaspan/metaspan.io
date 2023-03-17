@@ -5,8 +5,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-export default Vue.extend({
+import { defineComponent } from 'vue'
+// import { utilsPluginKey } from '../plugins/utils'
+import { shortStash } from '../global/utils'
+
+export default defineComponent({
+  // inject: [utilsPluginKey.toString()],
   props: {
     accountId: {
       type: String,
@@ -29,7 +33,10 @@ export default Vue.extend({
   },
   computed: {
     href () { return (this.provider).replace('§role§', this.role).replace('§accountId§', this.accountId) },
-    textStr () { return this.text ? this.text : this.$utils.shortStash(this.accountId) }
+    textStr () { return this.text ? this.text : shortStash(this.accountId) }
+  },
+  data: () => {
+    return {}
   }
 
 })

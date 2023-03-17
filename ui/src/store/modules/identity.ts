@@ -205,11 +205,6 @@ const pool = {
       state[state.chainId].filteredList = filteredList
       await stateManager.saveState(STORAGE_KEY, state)
     },
-    async SET_POOL (state: IState, model: IPool) {
-      console.debug('store/modules/pool.ts: SET_POOL()', model)
-      Vue.set(state, 'pool', model)
-      await stateManager.saveState(STORAGE_KEY, state)
-    },
     async SET_PAGINATION (state: IState, pagination: IPagination) {
       state[state.chainId].pagination = pagination
       await stateManager.saveState(STORAGE_KEY, state)
@@ -259,10 +254,6 @@ const pool = {
     // eslint-disable-next-line
     async loading ({ commit }: any, loading: boolean) {
       commit('SET_LOADING', loading)
-    },
-    async addPool ({ commit }, pool: IPool) {
-      // console.debug('store/modules/pool.ts: addPool()', pool)
-      await commit('ADD_POOL', pool)
     },
     // async getList ({ commit }) {
     // },

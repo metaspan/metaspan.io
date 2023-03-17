@@ -204,7 +204,7 @@ const trackNames = {
 export default Vue.extend<IData, IMethods, IComputed, IProps>({
   name: 'CandidateReferenda',
   props: {
-    stash: { type: String }
+    stash: { type: String, required: true }
   },
   components: {
     // Loading
@@ -223,7 +223,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     return {
       loading: false,
       referenda: [] as any[],
-      tracks: [],
+      tracks: [] as any[],
       refVoting: {},
       trackVoting: {}
     }
@@ -313,7 +313,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       const refVoting = {}
       // const trackVoting = {}
       for (let i = 0; i < this.tracks.length; i++) {
-        const track = this.tracks[i]
+        const track: any = this.tracks[i]
         // console.debug('track', track)
         // get voting by track.id (not index)
         // let vote = await this.$substrate[this.chainId].query.convictionVoting.votingFor(this.stash, track.id)
@@ -354,7 +354,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     },
     getTrack (id: number) {
       // console.debug('getTrack', id, this.tracks)
-      const t = this.tracks.find(f => f.id === id)
+      const t = this.tracks.find((f: any) => f.id === id)
       if (t) return t; else return { id }
     },
     getProgress (item: IInfo) {

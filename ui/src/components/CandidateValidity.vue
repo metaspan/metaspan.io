@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import moment from 'moment'
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { ICandidate } from '../types/global'
 
 interface IProps {
@@ -36,7 +36,7 @@ interface IMethods {
 // eslint-disable-next-line
 interface IComputed {}
 
-export default Vue.extend<IData, IMethods, IComputed, IProps>({
+export default defineComponent({
   // name: 'CandidateValidity',
   computed: {},
   props: {

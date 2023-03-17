@@ -13,17 +13,14 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { mapState, mapGetters } from 'vuex'
 
-export default Vue.extend({
+export default defineComponent({
   props: {
     loading: {
       type: Boolean
     }
-    // list: {
-    //   type: Object
-    // }
   },
   computed: {
     ...mapGetters('pool', ['list']),

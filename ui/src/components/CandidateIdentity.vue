@@ -25,12 +25,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import Loading from '@/components/Loading.vue'
 import { mapState, mapGetters } from 'vuex'
 import { hexToString } from '@polkadot/util'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'CandidateIdentity',
   components: {
     Loading

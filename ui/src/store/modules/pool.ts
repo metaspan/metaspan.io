@@ -92,7 +92,7 @@ const initialState = {
     favourites: [],
     list: [] as IPool[],
     filteredList: [],
-    pool: {} as IPool
+    pool: { points: 0 } as IPool
   },
   polkadot: {
     apiConnected: false,
@@ -126,7 +126,7 @@ const initialState = {
     favourites: [],
     list: [] as IPool[],
     filteredList: [],
-    pool: {} as IPool
+    pool: { points: 0 } as IPool
   }
 } as IState
 
@@ -164,6 +164,10 @@ const pool = {
     list (state: IState) {
       console.debug('store/modules/pool.ts: getters.list()', state.chainId)
       return state[state.chainId].list
+    },
+    pool (state: IState) {
+      console.debug('store/modules/pool.ts: getters.pool()', state.chainId)
+      return state[state.chainId].pool
     }
   },
   mutations: {
@@ -207,7 +211,8 @@ const pool = {
     },
     async SET_POOL (state: IState, model: IPool) {
       console.debug('store/modules/pool.ts: SET_POOL()', model)
-      Vue.set(state, 'pool', model)
+      // Vue.set(state, 'pool', model) // no longer needed in vue3?
+      state[state.chainId].pool = model
       await stateManager.saveState(STORAGE_KEY, state)
     },
     async SET_PAGINATION (state: IState, pagination: IPagination) {

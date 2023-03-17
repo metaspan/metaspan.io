@@ -48,7 +48,7 @@
 import moment from 'moment'
 import { mapState, mapGetters } from 'vuex'
 import Identicon from '@polkadot/vue-identicon'
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { ICandidate, ICandidateListFilter, ICandidateValidityItem } from '../types/global'
 
 // eslint-disable-next-line
@@ -87,7 +87,7 @@ interface IProps {
   // chain: string
 }
 
-export default Vue.extend<IData, IMethods, IComputed, IProps>({
+export default defineComponent({
   name: 'CandidatesList',
   components: {
     Identicon
@@ -102,7 +102,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     ...mapState(['chain']),
     ...mapGetters('candidate', ['filteredList', 'filter', 'loading', 'filtering', 'favourites'])
   },
-  data () {
+  data: () => {
     return {
       // options: {}
     }
@@ -126,7 +126,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       return (item.score && item.score.total) ? item.score.total.toFixed(2) : 0
     },
     isValid (items = []): boolean {
-      const invalid = items.find(i => i.valid === false)
+      const invalid = items.find((i: any) => i.valid === false)
       return !invalid
     }
   }
