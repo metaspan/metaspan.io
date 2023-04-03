@@ -1,0 +1,275 @@
+
+export interface IChainInfo {
+  ss58Format: number
+  tokenDecimals: number
+  tokenSymbol: string
+}
+
+export interface IWalletBalance {
+  free: number
+  reserved: number
+  miscFrozen: number
+  feeFrozen: number
+}
+
+export interface IdentityInfo {
+  display: string
+  email: string
+  legal: string
+  riot: string
+  twitter: string
+  web: string
+}
+
+export interface IIdentity {
+  _id: string
+  name: string
+  info: IdentityInfo
+  verified: boolean
+  judgements: any[]
+  parentIdentity: IIdentity
+  sub: string
+  subId: string
+}
+
+export interface ICandidateScore {
+  address: string
+  aggregate: number
+  asn: number
+  bonded: number
+  councilStake: number
+  country: number
+  delegations: number
+  democracy: number
+  discovered: number
+  faults: number
+  inclusion: number
+  location: number
+  nominated: number
+  nominatorStake: number
+  offline: number
+  provider: number
+  randomness: number
+  rank: number
+  region: number
+  spanInclusion: number
+  total: number
+  unclaimed: number
+  updated: number
+  __v: number
+  _id: string
+}
+
+export interface ICandidateValidityItem {
+  _id: string
+  valid: boolean
+  type: string
+}
+
+export interface ICandidate {
+  chain?: string
+  active: boolean
+  commission: number
+  councilStake: number
+  councilVotes: number[]
+  democracyVoteCount: number
+  democracyVotes: string[] | number[]
+  discoveredAt: number | Date
+  faults: string[]
+  stash: string
+  total: number
+  score: ICandidateScore
+  rank: number
+  identity: IIdentity
+  location: string
+  name: string
+  nominatedAt: number | Date
+  onlineSince: number | string
+  unclaimedEras: string[]
+  valid: boolean
+  validity: ICandidateValidityItem[]
+  // eslint-disable-next-line
+  nominated_1kv: boolean
+}
+
+export class Candidate implements ICandidate {
+  active = false
+  commission = 0
+  councilStake = 0
+  councilVotes = [] as number[]
+  democracyVoteCount = 0
+  democracyVotes = [] as number[] | string[]
+  discoveredAt = 0 as number | Date
+  faults = [] as string[]
+  stash = ''
+  score = { total: 0 } as ICandidateScore
+  rank = 0
+  identity = {} as IIdentity
+  location = ''
+  name = ''
+  nominatedAt = 0 as number | Date
+  onlineSince = 0 as number | string
+  unclaimedEras = [] as string[]
+  valid = false
+  validity = [] as ICandidateValidityItem[]
+  // eslint-disable-next-line
+  nominated_1kv = false
+
+  constructor (data: ICandidate) {
+    this.active = !!data.active
+    this.commission = data.commission || 0
+    this.councilStake = data.councilStake || 0
+    this.councilVotes = data.councilVotes || [] as number[]
+    this.democracyVoteCount = data.democracyVoteCount || 0
+    this.democracyVotes = data.democracyVotes
+    this.discoveredAt = data.discoveredAt || 0
+    this.faults = data.faults || [] as string[]
+    this.stash = data.stash || ''
+    this.score = data.score || { total: 0 } as ICandidateScore
+    this.rank = data.rank || 0
+    // console.debug('identity', JSON.stringify(Object.keys(data.identity ? data.identity : {})))
+    this.identity = data.identity || {} as IIdentity
+    this.location = data.location || ''
+    this.name = data.name || ''
+    this.nominatedAt = data.nominatedAt || 0
+    this.onlineSince = data.onlineSince || 0
+    this.unclaimedEras = data.unclaimedEras || []
+    this.valid = !!data.valid
+    this.validity = data.validity || [] as ICandidateValidityItem[]
+    this.nominated_1kv = data.nominated_1kv
+    this.setValid()
+  }
+
+  setValid (validity?: ICandidateValidityItem[]): void {
+    if (validity) {
+      this.validity = validity
+    }
+    this.valid = this.validity.filter(f => f.valid === false).length === 0
+  }
+}
+
+// export class Candidate <ICandidate> {
+//   constructor (data: ICandidate) {
+//     Object.keys(data).forEach(k => {
+//       this[k] = data[k]
+//     })
+//     this.setValid()
+//   }
+
+//   setValid (validity?: ICandidateValidityItem[]): void {
+//     if (validity) {
+//       this.validity = validity
+//     }
+//     this.valid = validity.filter(f => f.valid).length === 0
+//   }
+// }
+
+export interface ICache {
+  // eslint-disable-next-line
+  items: Record<string, any>
+}
+
+export interface ICandidateListFilter {
+  favourite?: boolean
+  valid: boolean
+  active: boolean
+  rank?: number
+  score?: number
+  // TODO do we need to split this out?
+  sort: string
+  sortAsc: boolean
+}
+
+export interface ICandidateListSort {
+  sort: string
+  sortAsc: boolean
+}
+
+// export interface CacheItem {
+//   data: Record<string, Item>
+// }
+
+interface IPoolNominee {
+  stash: string
+}
+
+export interface IPoolMember {
+  stash: string
+  reward: string
+}
+
+export interface IPoolRoles {
+  creator: undefined | string
+  root: undefined | string
+  nominator: undefined | string
+  stateToggler: undefined | string
+}
+
+export interface IPool {
+  id: number
+  name: undefined | string
+  roles: IPoolRoles
+  state: undefined | string
+  points: number
+  claimable: number
+  nominees: IPoolNominee[]
+  members: [IPoolMember]
+}
+
+export class Pool implements IPool {
+  id = 0
+  name = ''
+  roles = {
+    creator: undefined,
+    root: undefined,
+    nominator: undefined,
+    stateToggler: undefined
+  }
+
+  state = undefined
+  points = 0
+  claimable = 0
+  nominees = [] as IPoolNominee[]
+  members = {} as IPoolMembers
+
+  constructor (id: number, name: string) {
+    this.id = id
+    this.name = name
+  }
+}
+
+interface IValidatorPrefs {
+  commission: number
+  blocked: boolean
+}
+export interface IValidator {
+  // active: boolean
+  commission: number
+  councilStake: number
+  councilVotes: number[]
+  democracyVoteCount: number
+  // eslint-disable-next-line
+  democracyVotes: any[]
+  discoveredAt: number | Date
+  // eslint-disable-next-line
+  faults: any
+  stash: string
+  shortStash: string
+  prefs: IValidatorPrefs
+  nominators: string[]
+  score: ICandidateScore
+  rank: number
+  identity: IIdentity
+  location: string
+  name: string
+  nominatedAt: number | Date
+  // eslint-disable-next-line
+  onlineSince: any
+  // eslint-disable-next-line
+  unclaimedEras: any[]
+  // valid(): boolean
+  // validity: ICandidateValidityItem[]
+  StorageKey: number[]
+  // eslint-disable-next-line
+  Type: any
+}
