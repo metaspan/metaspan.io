@@ -36,7 +36,7 @@ export default defineComponent({
     }
   },
   methods: {
-    onClickRow (item, event) {
+    onClickRow (item: any, event: any) {
       console.log('PoolList.vue: onClickRow()', item, event)
       this.$emit('clickRow', item)
     },

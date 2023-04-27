@@ -34,6 +34,7 @@ export const GET_CANDIDATES = gql`
   query getCandidates ($chain: String!, $stashes: [String], $offset: Int, $limit: Int) {
     Candidates (chain: $chain, stashes: $stashes, offset: $offset, limit: $limit) {
       # Fields to retrieve
+      chain
       stash
       name
       identity {

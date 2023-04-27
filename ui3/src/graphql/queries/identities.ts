@@ -2,8 +2,8 @@ import gql from 'graphql-tag'
 
 // search for ids
 export const GET_IDENTITIES = gql`
-  query getIdentities ($chain: String!, $ids: [String], $search: String, $offset: Int, $limit: Int) {
-    Identities (chain: $chain, ids: $ids, search: $search, offset: $offset, limit: $limit) {
+  query getIdentities ($chainId: String!, $ids: [String], $search: String, $offset: Int, $limit: Int) {
+    Identities (chain: $chainId, ids: $ids, search: $search, offset: $offset, limit: $limit) {
       accountId
       chain
       identity {
@@ -16,7 +16,7 @@ export const GET_IDENTITIES = gql`
           twitter
           web
         }
-        judgements { any }
+        # judgements
         parent
         sub
         children

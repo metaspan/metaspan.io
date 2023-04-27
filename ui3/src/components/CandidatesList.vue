@@ -1,6 +1,7 @@
 <template>
 
   <v-list lines="two" :loading="filtering">
+    <v-progress-linear height="1px" indeterminate v-show="loading"></v-progress-linear>
 
     <template v-for="item in list" v-bind:key="item.stash">
       <v-list-item @click="clickItem(item)" style="cursor: pointer">
@@ -55,8 +56,6 @@
       </v-row>
     </v-list-item>
 
-    <!-- <v-pagination :size="mobile ? 'small': 'medium'" :length="16" :total-visible="5"></v-pagination> -->
-
     <!-- <Loading :loading="loading" :absolute="true"></Loading> -->
 
   </v-list>
@@ -75,24 +74,14 @@ import gql from 'graphql-tag'
 import Loading from '@/components/Loading.vue'
 import { useDisplay } from 'vuetify'
 
-// const QUERY_CANDIDATES = gql`
-//   query Data($chain: String!, $offset: Int, $limit: Int) {
-//     Candidates(chain: $chain, offset: $offset, limit: $limit) {
-//       active
-//       stash
-//       name
-//       invalidityReasons
-//       location
-//     }
-//   }
-// `
 const QUERY_CANDIDATES = gql`
   query Data($chain: String!, $search: String, $stashes: [String], $active: Boolean, 
-    $valid: Boolean, $rank: Int, $score: Int, $order: String, $orderDir: String, $cursor: String!) {
+    $valid: Boolean, $rank: Int, $score: Int, $order: String, $orderDir: String, $cursor: String!, $limit: Int) {
     CandidatesFeed(chain: $chain, search: $search, stashes: $stashes, active: $active, 
-      valid: $valid, rank: $rank, score: $score, limit: 10, order: $order, orderDir: $orderDir, cursor: $cursor) {
+      valid: $valid, rank: $rank, score: $score, order: $order, orderDir: $orderDir, cursor: $cursor, limit: $limit) {
       cursor
       Candidates {
+        chain
         stash
         name
         active
@@ -131,7 +120,7 @@ export default defineComponent({
     const filtering = computed(() => store.getters['candidate/filtering'])
     const favourites = computed<string[]>(() => store.getters['candidate/favourites'])
     
-    const limit = ref(10)
+    const limit = ref(25)
     const offset = ref(0)
     // const search = ref(props.search)
     const search = computed<String>(() => store.getters['candidate/search'])
@@ -147,6 +136,7 @@ export default defineComponent({
         order: filter.value.sort,
         orderDir: filter.value.sortAsc ? 'asc' : 'desc',
         cursor: fresh ? '' : cursor.value,
+        limit: limit.value,
         stashes: filter.value.favourite? favourites.value : null
       }
       // if (filter.value.rank) params.rank = parseInt(filter.value.rank)
@@ -266,11 +256,11 @@ export default defineComponent({
 })
 </script>
 
-<style scoped>
+<!-- <style scoped>
 .identicon {
   width: 16px;
   max-width: 16px;
   /* white-space:nowrap; */
   display: inline-block;
 }
-</style>
+</style> -->

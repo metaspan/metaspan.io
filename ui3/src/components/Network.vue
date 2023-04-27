@@ -2,7 +2,7 @@
   <v-container>
     <v-toolbar>
       <v-toolbar-item>
-        <v-btn @click="refresh()">Refresh</v-btn>
+        <!-- <v-btn @click="refresh()">Refresh</v-btn> -->
       </v-toolbar-item>
     </v-toolbar>
     <!-- {{ list }} -->

@@ -1,8 +1,8 @@
 
 import { ApolloClient, HttpLink, ApolloLink, InMemoryCache } from '@apollo/client/core'
-import { provideApolloClient } from '@vue/apollo-composable'
+// import { provideApolloClient } from '@vue/apollo-composable'
 import { createApolloProvider } from '@vue/apollo-option'
-import store from '../../store'
+// import store from '../../store'
 import { persistCacheSync, LocalStorageWrapper } from 'apollo3-cache-persist';
 
 // import { gql } from '@apollo/client/core'
@@ -22,7 +22,12 @@ function createApolloClient (ssr = false) {
     // credentials: 'include', // this should send the Bearer token...? but breaks CORS?
   })
 
-  const cache = new InMemoryCache()
+  const cache = new InMemoryCache({
+    typePolicies: {
+      Candidate: { keyFields: ['chain', 'stash'] },
+      CandidateScore: { keyFields: ['address'] }
+    }
+  })
 
   if (ssr) {
     // we are on the server
@@ -30,12 +35,11 @@ function createApolloClient (ssr = false) {
   } else {
     // If on the client, recover & injected state from browser
 
-    console.log('client: hello from ssr...!')
+    // console.log('client: hello from ssr...!')
     persistCacheSync({
       cache,
       storage: new LocalStorageWrapper(window.localStorage),
-    });
-    // // }
+    })
   }
 
   // // add the authorization to the headers

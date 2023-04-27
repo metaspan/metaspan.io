@@ -25,96 +25,82 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, computed, ref, watch, onBeforeMount, inject } from 'vue'
 // import Vue from 'vue'
-import { mapState, mapGetters } from 'vuex'
+import { useStore } from 'vuex'
+import { useRoute } from 'vue-router'
 import { hexToString } from '@polkadot/util'
-import { IValidator, ICandidate, IChainInfo, ICandidateIdentity } from '../types/global'
+import { IValidator, ICandidate, IChainInfo } from '../types/global'
 import Loading from './Loading.vue'
 import axios from 'axios'
+import { SubstrateAPI } from '@/plugins/substrate'
 
 type TF = ReturnType<typeof setInterval>
-
-interface IData {
-  stash: string
-  candidate: ICandidate
-  list: IValidator[]
-  validator: IValidator
-  multiplier: number
-  // commission: [number, number]
-  hasId: boolean
-  loading: boolean
-}
-interface IMethods {
-  loadValidator (): void
-  load (): void
-  toNumber (value: any): number
-  valIs1kv (stash: string): boolean
-  parseId (id: ICandidateIdentity): string
-  getId (): string
-  calcNominations (): void
-}
-interface IComputed {
-  chainId: string
-  decimals: Record<number, number>
-  chainInfo: any // IChainInfo
-  candidates: ICandidate[]
-  // filteredList: IValidator[]
-}
-// eslint-disable-next-line
-interface IProps {}
 
 export default defineComponent({
   name: 'ValidatorSelector',
   components: {
     Loading
   },
-  computed: {
-    ...mapState(['chainId']),
-    ...mapState('substrate', ['decimals']),
-    ...mapGetters('substrate', ['chainInfo']),
-    ...mapGetters('candidate', { candidates: 'list' })
-    // filteredList () {
-    //   const [minCommission, maxCommission] = this.commission
-    //   return this.list.filter((v: IValidator) => {
-    //     return (v.prefs?.commission <= maxCommission * this.multiplier &&
-    //       v.prefs?.commission >= minCommission * this.multiplier) &&
-    //       (this.is1kv ? this.valIs1kv(v.stash) : true) &&
-    //       (this.hasId ? v.identity : true)
-    //   })
-    // }
-    // ...mapState('pool', ['apiConnected']),
-    // ...mapGetters('pool', ['list']),
-    // ...mapState('substrate', ['decimals']),
-    // ...mapGetters('substrate', ['chainInfo'])
-  },
-  data () {
+  setup () {
+    const store = useStore()
+    const route = useRoute()
+    const substrate = inject<SubstrateAPI>('$substrate') || new SubstrateAPI({ lite: false})
+
+    const chainId = computed(()=> store.state.chainId)
+    const decimals = computed(() => store.state['substrate/decimals'])
+    const chainInfo = computed(() => store.getters['substrate/chainInfo'])
+    const candidates = computed<ICandidate[]>(() => store.getters['candidate/list'])
+
+    const stash = ref('')
+    const candidate = ref<ICandidate>({} as ICandidate)
+    const list = ref<IValidator[]>([])
+    const validator = ref<IValidator>({} as IValidator)
+    const multiplier = ref(10000000)
+    const is1kv = ref(false)
+    const hasId = ref(false)
+    const loading = ref(false)
+
+    const calcNominations = async () => {
+      // this.filteredList.forEach((v: IValidator) => {
+      console.debug(chainInfo.value)
+      const decimalPlaces = chainInfo.value.tokenDecimals?.toJSON()[0] || 0
+      // const denom = this.decimals[this.chainInfo.toJSON().tokenDecimals]
+      let nomBal = 0
+      console.debug('checking noms for', stash.value)
+      for (let i = 0; i < validator.value.nominators?.length || 0; i++) {
+        // if (i > 2) continue
+        const nom = validator.value.nominators[i]
+        const bal: any = await substrate.api?.query.system.account(nom)
+        nomBal += bal.data.miscFrozen.toNumber() / decimals.value[decimalPlaces]
+        console.debug(nom, bal.data.miscFrozen.toNumber() / decimals.value[decimalPlaces])
+      }
+      console.debug(validator.value.stash, 'has', nomBal, 'in nominations')
+    }
+
+    onBeforeMount(() => {
+      console.debug(route)
+      stash.value = route.params.stash.toString()
+      store.dispatch('selector/setValidator', stash.value)
+    })
+
     return {
-      stash: '',
-      // candidates: [] as ICandidate[],
-      candidate: {} as ICandidate,
-      list: [] as IValidator[],
-      validator: {} as IValidator,
-      multiplier: 10000000,
-      // minCommission: 1,
-      // maxCommission: 10,
-      // commission: [1, 15], // kusama min = 15%?
-      is1kv: false,
-      hasId: false,
-      loading: false
+      chainId,
+      decimals,
+      chainInfo,
+      list,
+      candidates,
+      stash,
+      candidate,
+      validator,
+      multiplier,
+      is1kv,
+      hasId,
+      loading,
+      calcNominations
     }
   },
-  watch: {
-    // chainId (val) {
-    //   this.$store.dispatch('pool/setChainId', val)
-    // }
-  },
   methods: {
-    // async gotoItem (item: IPool, evt: any) {
-    //   console.debug('gotoItem()', item, evt)
-    //   await this.$store.dispatch('pool/setPool', item)
-    //   this.$router.push(`/${this.chainId}/pool/${item.id}`)
-    // },
     async loadValidator () {
       console.debug('ValidatorSelector.vue: loadValidators()', this.chainId)
       this.loading = true
@@ -132,7 +118,7 @@ export default defineComponent({
     load () {
       this.loadValidator()
     },
-    parseId (id) {
+    parseId (id: any) {
       console.debug('parseId', id)
       if (id) {
         return id.name + '/' + id.sub
@@ -152,35 +138,10 @@ export default defineComponent({
         return Number(value)
       }
     },
-    async calcNominations () {
-      // this.filteredList.forEach((v: IValidator) => {
-      console.debug(this.chainInfo)
-      const decimalPlaces = this.chainInfo?.tokenDecimals?.toJSON()[0] || 0
-      // const denom = this.decimals[this.chainInfo.toJSON().tokenDecimals]
-      let nomBal = 0
-      console.debug('checking noms for', this.stash)
-      for (let i = 0; i < this.validator.nominators?.length || 0; i++) {
-        // if (i > 2) continue
-        const nom = this.validator.nominators[i]
-        const bal = await this.$substrate[this.chainId].query.system.account(nom)
-        nomBal += bal.data.miscFrozen.toNumber() / this.decimals[decimalPlaces]
-        console.debug(nom, bal.data.miscFrozen.toNumber() / this.decimals[decimalPlaces])
-      }
-      console.debug(this.validator.stash, 'has', nomBal, 'in nominations')
-    },
     valIs1kv (stash: string) {
       const found = this.candidates.find((c: ICandidate) => c.stash === stash)
       return !!found
     }
-  },
-  async created () {
-    console.debug(this.$route)
-    this.stash = this.$route.params.stash.toString()
-    this.$store.dispatch('selector/setValidator', this.stash)
-    // console.debug('ValidatorSelector.vue created()', this.chainId, this.list?.length)
-    // if (!this.list || this.list.length === 0) {
-    //   this.load(this.stash)
-    // }
   },
   mounted () {
     this.calcNominations()

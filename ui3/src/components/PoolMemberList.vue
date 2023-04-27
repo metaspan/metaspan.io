@@ -4,7 +4,7 @@
     :items="list"
     @click:row="clickRow">
 
-    <v-list-item v-for="item in list" v-bind:key="item.id">
+    <v-list-item v-for="item in list" v-bind:key="item.accountId">
       <v-list-item-title>
         {{ shortStash(item.accountId) }}
       </v-list-item-title>
@@ -23,30 +23,11 @@
 
 <script lang="ts">
 import { IPool } from '../types/global'
-import { defineComponent, computed } from 'vue'
+import { defineComponent, computed, PropType } from 'vue'
 import { useStore } from 'vuex'
 import AccountLink from './AccountLink.vue'
 import { shortStash } from '../global/utils'
-
-interface IData {
-  // loading: boolean
-  headers: any[]
-}
-interface IMethods {
-  clickRow (item: IPool): void
-  // shortStash (stash: string): string
-  toCoin(value: number): string
-  // getMembers (): void
-}
-interface IComputed {
-  chainId: string
-  chainInfo: any // IChainInfo
-  decimals: Record<number, number>
-}
-interface IProps {
-  // poolId: number
-  list: IPool[]
-}
+import { IPoolMember } from '../types/global'
 
 export default defineComponent({
   name: 'PoolMemberList',
@@ -55,7 +36,8 @@ export default defineComponent({
   },
   props: {
     list: {
-      type: Array,
+      // type: Array,
+      type: Object as PropType<IPoolMember[]>, 
       required: true
     }
   },

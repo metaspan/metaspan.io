@@ -8,6 +8,10 @@ import { fileURLToPath, URL } from 'node:url'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  build: {
+    // target: "es2020",
+    target: "ESNext",
+  },
   plugins: [
     vue({ 
       template: { transformAssetUrls }

@@ -73,7 +73,7 @@ export default defineComponent({
       console.debug('id', id)
       if (!id) return
       if(!id.info) {
-        if (id.parentIdentity.info) {
+        if (id.parentIdentity?.info) {
           info.value = {...id.parentIdentity?.info}
           info.value.display = `${id.parentIdentity?.info.display}/${id.parentIdentity?.subId}`
           judgements.value = id.parentIdentity?.judgements || []

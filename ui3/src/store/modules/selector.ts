@@ -102,17 +102,17 @@ const selector = {
       await commit('SET_INITIAL', false)
     },
     // eslint-disable-next-line
-    async setChainId ({ commit }, chainId: string) {
+    async setChainId ({ commit }: any, chainId: string) {
       await commit('SET_CHAIN_ID', chainId)
     },
     async loading ({ commit }: any, loading: boolean) {
       commit('SET_LOADING', loading)
     },
-    async addValidator ({ commit }, model: IValidator) {
+    async addValidator ({ commit }: any, model: IValidator) {
       // console.debug('store/modules/pool.ts: addPool()', pool)
       await commit('ADD_VALIDATOR', model)
     },
-    async setFilter ({ commit }, filter: any) {
+    async setFilter ({ commit }: any, filter: any) {
       commit('SET_FILTER', filter)
     },
     // async getList ({ state, commit }: any) {

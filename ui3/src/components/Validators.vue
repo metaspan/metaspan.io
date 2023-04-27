@@ -118,11 +118,14 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, computed, ref, watch, inject, onBeforeMount } from 'vue'
 import moment from 'moment'
-import { mapState } from 'vuex'
-import Identicon from '@polkadot/vue-identicon'
-import { defineComponent } from 'vue'
+import { useStore } from 'vuex'
+// import { Identicon } from '@polkadot/vue-identicon'
+import Identicon from './identicon/Identicon.vue'
 import { IValidator } from '../types/global'
+import { SubstrateAPI } from '@/plugins/substrate'
+import { useRouter } from 'vue-router'
 
 interface ITableItem {
   favourite: boolean
@@ -151,15 +154,6 @@ interface IFilter {
   rank: number | null
 }
 
-interface IData {
-  dateTimeFormat: string
-  options: IOptions
-  xfilter: IFilter
-  search: string
-}
-
-// type TVueTableHeaderFilter = function(): boolean
-
 interface IVueTableHeader {
   text: string
   align?: string | null
@@ -168,35 +162,6 @@ interface IVueTableHeader {
   width?: string
   // eslint-disable-next-line
   filter?: Function
-}
-
-interface IComputed {
-  loading: boolean
-  list: IValidator[]
-  updatedAt: number|Date
-  favourites: string[]
-  headers: IVueTableHeader[]
-  items: ITableItem[]
-  updated: string
-}
-
-interface IMethods {
-  // isValid(v: ICandidateValidityItem[]): boolean
-  getList(): void
-  formatDate(d: string|number, f: string): string
-  timeAgo(d: string|number): string
-  toggleFav(item: ITableItem): void
-// eslint-disable-next-line
-  handlePaginate(evt: any): void
-// eslint-disable-next-line
-  handlePage(evt: any): void
-  handleItemsPerPage(evt: Event): void
-  handleOptions(evt: IOptions): void
-  gotoValidator(item: ITableItem): void
-}
-
-interface IProps {
-  chain: string
 }
 
 export default defineComponent({
@@ -211,18 +176,38 @@ export default defineComponent({
       required: true
     }
   },
-  computed: {
-    ...mapState('validator', ['loading', 'list', 'updatedAt', 'favourites']),
-    headers (): IVueTableHeader[] {
+  setup (props) {
+    const store = useStore()
+    const router = useRouter()
+    const substrate = inject<SubstrateAPI>('$substrate') || new SubstrateAPI({ lite: false })
+
+    const loading = computed(() => store.state['validator/loading'])
+    const list = computed(() => store.state['validator/list'])
+    const updatedAt = computed(() => store.state['validator/updatedAt'])
+    const favourites = computed(() => store.state['validator/favourites'])
+
+    const dateTimeFormat = ref( 'YYYY/MM/DD hh:mm')
+    const search = ref('')
+    const options = ref<IOptions>({
+      page: 1,
+      itemsPerPage: 10,
+      sortBy: [],
+      sortDesc: []
+    })
+    const xfilter = ref<IFilter>({
+      favourite: false,
+      rank: null,
+      score: null,
+      valid: false,
+      active: false
+    })
+    const updated = computed(() => { return moment(updatedAt.value).format(dateTimeFormat.value) })
+    const headers = computed((): IVueTableHeader[] => {
       return [
         {
-          text: 'Favourite',
-          align: 'center',
-          sortable: true,
-          value: 'favourite',
-          width: '5%',
+          text: 'Favourite', align: 'center', sortable: true, value: 'favourite', width: '5%',
           filter: (value: boolean) => {
-            if (this.xfilter.favourite) return value
+            if (xfilter.value.favourite) return value
             else return true
           }
         },
@@ -240,44 +225,32 @@ export default defineComponent({
         //   }
         // },
         {
-          text: 'Active',
-          align: 'center',
-          sortable: true,
-          value: 'active',
-          width: '5%',
+          text: 'Active', align: 'center', sortable: true, value: 'active', width: '5%',
           filter: (value: boolean) => {
             // console.debug(this.xfilter, value)
-            return (this.xfilter.active) ? value === true : true
+            return (xfilter.value.active) ? value === true : true
           }
         },
         {
-          text: 'Rank',
-          align: 'center',
-          sortable: true,
-          value: 'rank',
-          width: '5%',
+          text: 'Rank', align: 'center', sortable: true, value: 'rank', width: '5%',
           filter: (value: number) => {
-            if (!this.xfilter.rank) return true
-            return value >= parseInt(this.xfilter.rank.toString())
+            if (!xfilter.value.rank) return true
+            return value >= parseInt(xfilter.value.rank.toString())
           }
         },
         {
-          text: 'Score',
-          align: 'center',
-          sortable: true,
-          value: 'score',
-          width: '5%',
+          text: 'Score', align: 'center', sortable: true, value: 'score', width: '5%',
           filter: (value: number) => {
-            if (!this.xfilter.score) return true
-            return value >= parseInt(this.xfilter.score.toString())
+            if (!xfilter.value.score) return true
+            return value >= parseInt(xfilter.value.score.toString())
           }
         }
       ]
-    },
-    items (): ITableItem[] {
-      return this.list.map((item: IValidator) => {
+    })
+    const items = computed((): ITableItem[] => {
+      return list.value.map((item: IValidator) => {
         return {
-          favourite: this.favourites.includes(item.stash),
+          favourite: favourites.value.includes(item.stash),
           stash: item.stash,
           name: item.StorageKey.toString(), // item.name,
           discoveredAt: item.discoveredAt,
@@ -287,76 +260,96 @@ export default defineComponent({
           totalScore: item.score?.total
         }
       })
-    },
-    updated () { return moment(this.updatedAt).format(this.dateTimeFormat) }
-  },
-  data: () => ({
-    dateTimeFormat: 'YYYY/MM/DD hh:mm',
-    search: '',
-    options: {
-      page: 1,
-      itemsPerPage: 10,
-      sortBy: [],
-      sortDesc: []
-    } as IOptions,
-    xfilter: {
-      favourite: false,
-      rank: null,
-      score: null,
-      valid: false,
-      active: false
-    } as IFilter
-  }),
-  watch: {
-    search (newval) {
-      this.$store.dispatch('validator/setSearch', newval)
-    },
-    xfilter: {
-      deep: true,
-      handler (newval, oldval) {
-        if (oldval === false) console.debug(newval, oldval)
-        this.$store.dispatch('validator/handleFilter', newval)
-      }
-    }
-  },
-  methods: {
-    // isValid (items: ICandidateValidityItem[]): boolean {
-    //   const invalid = items.find((i: ICandidateValidityItem) => i.valid === false)
-    //   return !invalid
-    // },
-    formatDate (d: string|number): string {
-      return moment(d).format(this.dateTimeFormat)
-    },
-    timeAgo (d: string|number): string {
-      return moment(d).fromNow()
-    },
-    async getList () {
+    })
+
+    const getList = async () => {
       console.debug('getList')
-      await this.$store.dispatch('validator/loading', true)
-      const era = await this.$substrate.polkadot.api.query.staking.activeEra()
+      await store.dispatch('validator/loading', true)
+      const era = await substrate.api?.query.staking.activeEra()
       console.debug('era', era)
       // let vals = await this.$substrate.polkadot.api.query.staking.erasValidatorPrefs.entries(era.value.index)
       // let vals = await this.$substrate.polkadot.api.query.staking.validators(account_hash_stash)
       // let vals = await this.$substrate.polkadot.api.query.session.validators()
       // const vals = await this.$substrate.polkadot.api.query.staking.validators.entries()
       // const vals = await this.$substrate.polkadot.api.query.staking.validators.at(era)
-      const countForVals = await this.$substrate.polkadot.api.query.staking.counterForValidators()
-      const countForNoms = await this.$substrate.polkadot.api.query.staking.counterForNominators()
+      const countForVals: any = await substrate.api?.query.staking.counterForValidators()
+      const countForNoms: any = await substrate.api?.query.staking.counterForNominators()
       console.debug('vals', countForVals.toNumber(), countForNoms.toNumber())
 
-      const vals = await this.$substrate.polkadot.api.query.session.validators()
+      const vals = await substrate.api?.query.session.validators()
       console.debug('vals', vals)
 
       // await this.$store.dispatch('validator/setList', vals)
-      await this.$store.dispatch('validator/loading', false)
-    },
-    toggleFav (item: ITableItem) {
-      this.$store.dispatch('validator/toggleFav', item.stash)
-    },
-    // eslint-disable-next-line
-    handlePaginate (evt: any) {
+      await store.dispatch('validator/loading', false)
+    }
+    const toggleFav = (item: ITableItem) => {
+      store.dispatch('validator/toggleFav', item.stash)
+    }
+
+    const handlePaginate = (evt: any) => {
       // console.debug(evt)
-      this.$store.dispatch('validator/paginate', evt)
+      store.dispatch('validator/paginate', evt)
+    }
+    const handleOptions = (evt: IOptions) => {
+      store.dispatch('validator/handleOptions', evt)
+    }
+    const gotoValidator = (item: ITableItem) => {
+      // console.debug('gotoValidator', item)
+      store.dispatch('validator/setValidator', item.stash)
+      router.push('/validator/' + item.stash)
+    }
+
+    watch(() => search.value, newVal => {
+      store.dispatch('validator/setSearch', newVal)
+    })
+    watch(() => xfilter.value, (oldVal, newVal) => {
+      // if (oldVal === false) console.debug(newVal, oldVal)
+      store.dispatch('validator/handleFilter', newVal)
+    })
+
+    onBeforeMount(() => {
+      // console.debug('Validators.vue: chain: ' + chainId.value)
+      options.value = store.state.validator.options
+      // this.itemsPerPage = this.$store.state.validator.pagination.itemsPerPage
+      xfilter.value = store.state.validator.filter
+      search.value = store.state.validator.search
+      if (!updatedAt.value || moment(updatedAt.value).diff(moment(), 'seconds') > 15) { getList() }
+    }) 
+
+    return {
+      loading,
+      list,
+      updatedAt,
+      updated,
+      favourites,
+      dateTimeFormat,
+      search,
+      options,
+      xfilter,
+      headers,
+      items,
+      getList,
+      toggleFav,
+      handlePaginate,
+      handleOptions,
+      gotoValidator
+    }
+  },
+  watch: {
+    search (newval) {
+    },
+    xfilter: {
+      deep: true,
+      handler (newval, oldval) {
+      }
+    }
+  },
+  methods: {
+    formatDate (d: string|number): string {
+      return moment(d).format(this.dateTimeFormat)
+    },
+    timeAgo (d: string|number): string {
+      return moment(d).fromNow()
     },
     // eslint-disable-next-line
     handlePage (evt: any) {
@@ -366,31 +359,6 @@ export default defineComponent({
     handleItemsPerPage (evt: any) {
       console.debug(evt)
     },
-    handleOptions (evt: IOptions) {
-      this.$store.dispatch('validator/handleOptions', evt)
-    },
-    gotoValidator (item: ITableItem) {
-      // console.debug('gotoValidator', item)
-      this.$store.dispatch('validator/setValidator', item.stash)
-      this.$router.push('/validator/' + item.stash)
-    }
-  },
-  created () {
-    console.debug('Validators.vue: chain: ' + this.chain)
-    this.options = this.$store.state.validator.options
-    // this.itemsPerPage = this.$store.state.validator.pagination.itemsPerPage
-    this.xfilter = this.$store.state.validator.filter
-    this.search = this.$store.state.validator.search
-  },
-  async mounted () {
-    if (!this.updatedAt || moment(this.updatedAt).diff(moment(), 'seconds') > 15) {
-      this.getList()
-    // } else {
-    //   await this.$store.dispatch('validator/loading', false)
-    //   this.$substrate.polkadot.api.query.validators()
-    }
-    // console.debug("List mounted")
-    // this.$store.dispatch("init")
   }
 })
 </script>

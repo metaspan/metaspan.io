@@ -16,17 +16,8 @@ export default defineComponent({
   name: 'About',
   data() {
     return {
-      // showDialog: false,
       version: '0.1.2'
     }
-  },
-  watch: {
-    showDialog(v: boolean) {
-      this.$store.dispatch('showAboutDialog', v)
-    }
-    // showAboutDialog(v) {
-    //   this.showDialog = v
-    // }
-  },
+  }
 })
 </script>

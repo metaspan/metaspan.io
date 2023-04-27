@@ -67,24 +67,7 @@
         <v-col align="center">Council Votes<br>{{candidate.unclaimedEras ? candidate.unclaimedEras.length : 0}}</v-col>
       </v-row>
     </v-container>
-    <v-list>
-      <!-- <v-list-item>Name: {{candidate.name}}</v-list-item> -->
-      <!-- <v-list-item>Stash: {{candidate.stash}}</v-list-item> -->
-      <!-- <v-list-item>total: {{candidate.total}}</v-list-item> -->
-      <!-- <v-list-item>active: {{candidate.active}}</v-list-item> -->
-      <!-- <v-list-item>valid: {{valid}}</v-list-item> -->
-      <!-- <v-list-item>nominatedAt: </v-list-item> -->
-      <!-- <v-list-item>offlineSince: {{candidate.offlineSince}}</v-list-item> -->
-      <!-- <v-list-item>offlineAccumulated: {{candidate.offlineAccumulated}}</v-list-item> -->
-      <!-- <v-list-item>rank: {{candidate.rank}}</v-list-item> -->
-      <!-- <v-list-item>faults: {{candidate.faults}}</v-list-item> -->
-      <!-- <v-list-item>invalidityReasons: {{candidate.invalidityReasons}}</v-list-item> -->
-      <!-- <v-list-item>unclaimedEras: {{candidate.unclaimedEras}}</v-list-item> -->
-      <!-- <v-list-item>inclusion: {{candidate.inclusion}}</v-list-item> -->
-      <!-- <v-list-item>kusamaStash: {{candidate.kusamaStash}}</v-list-item> -->
-      <!-- <v-list-item>commission: {{candidate.commission}}</v-list-item> -->
-      <!-- <v-list-item>identity: {{candidate.identity}}</v-list-item> -->
-    </v-list>
+    
     <CandidateValidity :candidate="candidate"></CandidateValidity>
 
     <v-card>
@@ -99,7 +82,7 @@
 
       <v-window v-model="tab">
         <v-window-item key="score">
-          <CandidateScore :candidate="candidate"></CandidateScore>
+          <!-- <CandidateScoreTable :candidate="candidate"></CandidateScoreTable> -->
           <CandidateScoreList :candidate="candidate"></CandidateScoreList>
         </v-window-item>
         <!-- <v-tab-item key="democracy">
@@ -126,7 +109,7 @@ import { useRouter, useRoute } from 'vue-router'
 import moment from 'moment'
 
 import CandidateValidity from './CandidateValidity.vue'
-import CandidateScore from './CandidateScore.vue'
+// import CandidateScoreTable from './CandidateScoreTable.vue'
 // import CandidateBalance from './CandidateBalance.vue'
 import CandidateIcons from './CandidateIcons.vue'
 import { ICandidate, ICandidateValidityItem } from '../types/global'
@@ -145,6 +128,8 @@ import gql from 'graphql-tag'
 // import Identicon from '@polkadot/vue-identicon'
 import Identicon from './identicon/Identicon.vue'
 
+import { ICandidateScore } from '../types/global'
+
 interface IData {
   // eslint-disable-next-line
   unsubscribe(): any|null
@@ -157,7 +142,7 @@ interface IData {
 }
 
 const initialScore = {
-  address: 0,
+  address: '',
   aggregate: 0,
   asn: 0,
   bonded: 0,
@@ -180,7 +165,8 @@ const initialScore = {
   total: 0,
   unclaimed: 0,
   updated: 0,
-}
+} as ICandidateScore
+
 const QUERY_CANDIDATE = gql`
 query Data($chain: String!, $stash: String) {
   Candidate(chain: $chain, stash: $stash) {
@@ -264,7 +250,7 @@ export default defineComponent({
   // mixins: [polkadot],
   components: {
     CandidateExternalLinks,
-    CandidateScore,
+    // CandidateScoreTable,
     CandidateValidity,
     // CandidateBalance,
     CandidateIcons,
@@ -285,13 +271,13 @@ export default defineComponent({
     console.debug('Candidate.vue: setup(), stash', stash)
     const chainId = computed(() => store.state.chainId)
     // const candidate: ICandidate = computed(() => store.state['candidate/candidate']) as any
-    const candidate = ref<ICandidate>({ stash: '', name: '', total: 0, score: initialScore })
+    const candidate = ref<ICandidate>({} as ICandidate)
     // if (!candidate?.stash) router.push(`/${chainId.value}/candidate`)
     const substrate: SubstrateAPI = inject('$substrate') || new SubstrateAPI({ lite: false })
     // const loading = computed(() => store.state['candidate/loading'])
     const ranges = computed(() => store.state['candidate/ranges'])
 
-    var { result, loading, error, refetch, onResult } = useQuery(QUERY_CANDIDATE, {
+    var { result, loading, error, refetch, onResult }: any = useQuery(QUERY_CANDIDATE, {
       chain: chainId.value,
       stash: stash
     }, {
@@ -366,9 +352,9 @@ export default defineComponent({
       console.debug('no chain?', this.$route.params)
       await this.store.dispatch('setChainId', this.$route.params.chainId)
       console.debug('App.vue: reading chain info()...')
-      const chainInfo = await this.substrate.api?.registry.getChainProperties()
+      const chainInfo: any = await this.substrate.api?.registry.getChainProperties()
       console.log('chainInfo.tokenDecimals', chainInfo?.tokenDecimals?.toJSON()[0] || 'undefined')
-      await this.store.dispatch('substrate/setChainInfo', { chain: this.chainId, chainInfo })
+      await this.store.dispatch('substrate/setChainInfo', { chainId: this.chainId, chainInfo })
     }
     // if (!this.candidate?.stash || this.candidate?.stash === '') {
     //   console.debug('no stash?', this.$route.params)

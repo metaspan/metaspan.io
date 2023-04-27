@@ -29,41 +29,43 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { mapGetters, mapState } from 'vuex'
+import { defineComponent, ref, computed, watch, onBeforeMount } from 'vue'
+import { useStore } from 'vuex'
 export default defineComponent({
-  computed: {
-    ...mapGetters('polkadot', ['kusamaEndpoints']),
-    ...mapState({
-      settingsDialog: 'showSettingsDialog'
-    })
-  },
-  data () {
-    return {
-      showSettingsDialog: false,
-      loading: false,
-      rad_endpoint: null
-    }
-  },
-  watch: {
-    settingsDialog (val) {
+  setup () {
+    const store = useStore()
+    const kusamaEndpoints = computed(() => store.state['polkadot/kusamaEndpoints'])
+    const settingsDialog = computed(() => store.state.showSettingsDialog)
+    const showSettingsDialog = ref(false)
+    const loading = ref(false)
+    const rad_endpoint = ref()
+    watch(() => settingsDialog.value, newVal => {
       // console.debug('SettingsDialog.vue: watch.showSettingsDialog()', val)
       // this.$store.dispatch('setShowSettingsDialog', val)
-      this.showSettingsDialog = val
-    },
-    showSettingsDialog (val) {
+      showSettingsDialog.value = newVal
+    })
+    watch(() => showSettingsDialog.value, newVal => {
       // console.debug('SettingsDialog.vue: watch.showSettingsDialog()', val)
-      this.$store.dispatch('setShowSettingsDialog', val)
+      store.dispatch('setShowSettingsDialog', newVal)
       // this.showSettingsDialog = val
-    },
-    rad_endpoint (val) {
+    })
+    watch(() => rad_endpoint.value, newVal => {
       console.warn('DEPRICATED: rad_endpoint()')
-      this.$store.dispatch('polkadot/setEndpoint', val)
+      store.dispatch('polkadot/setEndpoint', newVal)
+    })
+
+    onBeforeMount(() => {
+      rad_endpoint.value = store.state.polkadot.endpoint
+      showSettingsDialog.value = store.state.showSettingsDialog
+    })
+
+    return {
+      settingsDialog,
+      showSettingsDialog,
+      kusamaEndpoints,
+      loading,
+      rad_endpoint
     }
-  },
-  created () {
-    this.rad_endpoint = this.$store.state.polkadot.endpoint
-    this.showSettingsDialog = this.$store.state.showSettingsDialog
   }
 })
 </script>

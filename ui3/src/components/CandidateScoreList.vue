@@ -1,6 +1,7 @@
 <template>
 
-  <div class="d-block d-sm-none">
+  <!-- <div class="d-block d-sm-none"> -->
+  <div>
     <v-card tile elevation="1" width="100%">
       <v-card-title>
         <span class="text-h5">Score: {{model.score?.total?.toFixed(3) | 0.00}}</span>
@@ -80,7 +81,7 @@ export default defineComponent({
         aggregate: { title: 'Aggregate' },
         randomness: { title: 'Randomness' },
         total: { title: 'Total' }
-      },
+      } as Record<string, any>,
       denoms: {
         // "_id": "62700be629cee192f7723e41",
         updated: 1652607338086,
@@ -101,7 +102,7 @@ export default defineComponent({
         // "democracy": 96,
         // "randomness": 1.1229874082822877,
         // "__v": 0
-      }
+      } as Record<string, number>
     }
   },
   methods: {
@@ -113,7 +114,7 @@ export default defineComponent({
       }
     },
     getTitle (key: string) {
-      return this.fields[key].title
+      return this.fields[key as keyof typeof this.fields].title
     },
     formatDate (v: number|string, format: string) {
       // console.debug(v, this.dateTimeFormat)

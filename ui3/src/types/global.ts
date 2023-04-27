@@ -56,8 +56,8 @@ export interface ICandidateScore {
   total: number
   unclaimed: number
   updated: number
-  __v: number
-  _id: string
+  __v?: number
+  _id?: string
 }
 
 export interface ICandidateValidityItem {
@@ -72,9 +72,10 @@ export interface ICandidate {
   commission: number
   councilStake: number
   councilVotes: number[]
+  country: string
   democracyVoteCount: number
   democracyVotes: string[] | number[]
-  discoveredAt: number | Date
+  discoveredAt: string | number //| Date
   faults: string[]
   stash: string
   total: number
@@ -83,32 +84,41 @@ export interface ICandidate {
   identity: IIdentity
   location: string
   name: string
-  nominatedAt: number | Date
+  nominatedAt: string | number //| Date
   onlineSince: number | string
+  provider: string
+  region: string
   unclaimedEras: string[]
   valid: boolean
   validity: ICandidateValidityItem[]
   // eslint-disable-next-line
   nominated_1kv: boolean
+  nominations?: number | INomination[]
 }
+
+export interface INomination {}
 
 export class Candidate implements ICandidate {
   active = false
   commission = 0
   councilStake = 0
   councilVotes = [] as number[]
+  country = ''
   democracyVoteCount = 0
   democracyVotes = [] as number[] | string[]
-  discoveredAt = 0 as number | Date
+  discoveredAt: any = 0 // as number //| Date
   faults = [] as string[]
   stash = ''
+  total = 0
   score = { total: 0 } as ICandidateScore
   rank = 0
   identity = {} as IIdentity
   location = ''
   name = ''
-  nominatedAt = 0 as number | Date
+  nominatedAt: any = 0 // as number //| Date
   onlineSince = 0 as number | string
+  provider = ''
+  region = ''
   unclaimedEras = [] as string[]
   valid = false
   validity = [] as ICandidateValidityItem[]
@@ -125,6 +135,7 @@ export class Candidate implements ICandidate {
     this.discoveredAt = data.discoveredAt || 0
     this.faults = data.faults || [] as string[]
     this.stash = data.stash || ''
+    this.total = data.total || 0
     this.score = data.score || { total: 0 } as ICandidateScore
     this.rank = data.rank || 0
     // console.debug('identity', JSON.stringify(Object.keys(data.identity ? data.identity : {})))
@@ -194,12 +205,15 @@ interface IPoolNominee {
 }
 
 export interface IPoolMember {
-  stash: string
-  reward: string
+  accountId: string
+  stash?: string
+  reward?: string
+  points: number
 }
 
 export interface IPoolRoles {
   creator: undefined | string
+  depositor: undefined | string
   root: undefined | string
   nominator: undefined | string
   stateToggler: undefined | string
@@ -213,7 +227,7 @@ export interface IPool {
   points: number
   claimable: number
   nominees: IPoolNominee[]
-  members: [IPoolMember]
+  members: IPoolMember[]
 }
 
 export class Pool implements IPool {
@@ -222,6 +236,7 @@ export class Pool implements IPool {
   roles = {
     creator: undefined,
     root: undefined,
+    depositor: undefined,
     nominator: undefined,
     stateToggler: undefined
   }
@@ -230,7 +245,7 @@ export class Pool implements IPool {
   points = 0
   claimable = 0
   nominees = [] as IPoolNominee[]
-  members = {} as IPoolMembers
+  members = [] as IPoolMember[]
 
   constructor (id: number, name: string) {
     this.id = id

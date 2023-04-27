@@ -65,13 +65,10 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, computed, ref, watch, onBeforeMount } from 'vue'
+import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
 import moment from 'moment'
-import { mapState } from 'vuex'
-// import * as d3 from 'd3'
-// import CandidatesHisto from './CandidatesHisto.vue'
-// import CandidatesTable from './CandidatesTable.vue'
-// import CandidatesList from './CandidatesList.vue'
-import { defineComponent } from 'vue'
 import { ICandidate } from '../types/global'
 
 interface IWindowSize {
@@ -94,35 +91,6 @@ interface IFilter {
   sortDir: string
 }
 
-interface IData {
-  windowSize: IWindowSize
-  showFilterDialog: boolean
-  dateTimeFormat: string
-  search: string
-  sort: string
-  sortDir: string
-  sortItems: ISortItem[]
-  xfilter: IFilter
-  // options: any
-}
-interface IMethods {
-  // eslint-disable-next-line
-  timeAgo (d: any): string
-  // eslint-disable-next-line
-  formatDate (d: any): string
-  reload (): void
-  // eslint-disable-next-line
-  gotoCandidate (item: any): void
-}
-
-interface IComputed {
-  loading: boolean
-  nominators: string[]
-  updated: string
-  updatedAt: string
-}
-interface IProps {}
-
 export default defineComponent({
   name: 'Nominators',
   components: {
@@ -130,24 +98,25 @@ export default defineComponent({
     // CandidatesTable,
     // CandidatesList
   },
-  computed: {
-    ...mapState('polkadot', ['loading', 'updatedAt', 'nominators']),
-    updated (): string { return moment(this.updatedAt as string).format(this.dateTimeFormat as string) }
-  },
-  data (): IData {
-    return {
-      windowSize: { x: 0, y: 0 },
-      showFilterDialog: false,
-      dateTimeFormat: 'YYYY/MM/DD hh:mm',
-      search: '',
-      sort: 'rank', // {text: 'Rank', value: 'rank'},
-      sortDir: 'asc',
-      sortItems: [
+  setup () {
+    const store = useStore()
+    const router = useRouter()
+    const loading = computed(() => store.state['polkadot/loading'])
+    const updatedAt = computed(() => store.state['polkadot/updatedAt'])
+    const nominators = computed(() => store.state['polkadot/nominators'])
+    const updated = computed((): string => { return moment(updatedAt.value as string).format(dateTimeFormat.value as string) })
+    const windowSize = ref({ x: 0, y: 0 })
+    const showFilterDialog = ref(false)
+    const dateTimeFormat = ref('YYYY/MM/DD hh:mm')
+    const search = ref('')
+    const sort = ref('rank') // {text: 'Rank', value: 'rank'},
+    const sortDir = ref('asc')
+    const sortItems = ref([
         { text: 'Name', value: 'name' },
         { text: 'Rank', value: 'rank' },
         { text: 'Score', value: 'score' }
-      ],
-      xfilter: {
+      ])
+    const xfilter = ref({
         rank: null,
         score: null,
         valid: null,
@@ -155,20 +124,49 @@ export default defineComponent({
         favourite: false,
         sort: 'name',
         sortDir: 'asc'
-      }
-      // options: {}
+      })
+
+    const reload = () => {
+      // console.debug('reload...')
+      store.dispatch('polkadot/nominators')
     }
-  },
-  watch: {
-    search (newval: string) {
-      this.$store.dispatch('candidate/setSearch', newval)
-    },
-    xfilter: {
-      deep: true,
-      handler (newval, oldval) {
-        if (oldval === false) console.debug(newval, oldval)
-        this.$store.dispatch('candidate/handleFilter', newval)
-      }
+    const gotoCandidate = (item: ICandidate) => {
+      // console.debug('gotoCandidate', item)
+      store.dispatch('candidate/setCandidate', item.stash)
+      router.push('/candidate/' + item.stash)
+    }
+
+    watch(() => search.value, newVal => {
+      store.dispatch('candidate/setSearch', newVal)
+    })
+    watch(() => xfilter.value, newVal => {
+      // if (oldval === false) console.debug(newval, oldval)
+      store.dispatch('candidate/handleFilter', newVal)
+    })
+
+    onBeforeMount(() => {
+      windowSize.value = { x: window.innerWidth, y: window.innerHeight }
+      // this.options = this.$store.state.candidate.options // .pagination.page
+      // this.itemsPerPage = this.$store.state.candidate.pagination.itemsPerPage
+      xfilter.value = store.state.candidate.filter
+      search.value = store.state.candidate.search
+    })
+
+    return {
+      loading,
+      updatedAt,
+      nominators,
+      updated,
+      windowSize,
+      showFilterDialog,
+      dateTimeFormat,
+      search,
+      sort,
+      sortDir,
+      sortItems,
+      xfilter,
+      reload,
+      gotoCandidate
     }
   },
   methods: {
@@ -176,28 +174,12 @@ export default defineComponent({
     timeAgo (d: any) {
       return moment(d).fromNow()
     },
-    formatDate (d) {
+    formatDate (d: any) {
       return moment(d).format(this.dateTimeFormat)
     },
-    reload () {
-      // console.debug('reload...')
-      this.$store.dispatch('polkadot/nominators')
-    },
-    gotoCandidate (item: ICandidate) {
-      // console.debug('gotoCandidate', item)
-      this.$store.dispatch('candidate/setCandidate', item.stash)
-      this.$router.push('/candidate/' + item.stash)
-    }
     // handleResize (evt: any) {
     //   console.debug('handleResize', evt)
     // }
-  },
-  created () {
-    this.windowSize = { x: window.innerWidth, y: window.innerHeight }
-    // this.options = this.$store.state.candidate.options // .pagination.page
-    // this.itemsPerPage = this.$store.state.candidate.pagination.itemsPerPage
-    this.xfilter = this.$store.state.candidate.filter
-    this.search = this.$store.state.candidate.search
   }
 })
 </script>

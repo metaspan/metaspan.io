@@ -58,8 +58,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, inject } from 'vue'
-import { mapState, mapGetters } from 'vuex'
+import { defineComponent, computed, ref, watch, inject } from 'vue'
+import { useStore } from 'vuex'
 import { useTheme } from 'vuetify'
 import ChainMenu from './ChainMenu.vue'
 import Alerts from './Alerts.vue'
@@ -70,10 +70,22 @@ export default defineComponent({
     Alerts,
     ChainMenu
   },
-  setup () {
+  setup (props, ctx) {
+    const store = useStore()
     const theme = useTheme()
+    const chainId = computed(() => store.state.chainId)
+    const dark = computed(() => store.state.dark)
+    const settingsDialog = computed(() => store.state.showSettingsDialog)
+    const apiConnected = computed(() => store.getters['substrate/connected'])
+
+    const showSettingsDialog = ref(false)
     const bgColor = ref('grey-lighten-3')
-    const substrate: SubstrateAPI = inject('$substrate') || new SubstrateAPI({ lite: false })
+    const substrate = inject<SubstrateAPI>('$substrate') || new SubstrateAPI({ lite: false })
+
+    const toggleNavDrawer = () => {
+      store.dispatch('toggleNavDrawer')
+    }
+
     watch(() => substrate.connected, (newVal) => {
       console.debug('Toolbar.vue: watch substrate connected', newVal)
     })
@@ -81,51 +93,23 @@ export default defineComponent({
       console.debug('watch theme', newVal)
       bgColor.value = (newVal.dark) ? '' : 'grey-lighten-3'
     })
+    watch(() => settingsDialog.value, (val) => {
+      showSettingsDialog.value = val
+    })
+    watch(() => showSettingsDialog.value, (val) => {
+      ctx.emit('onSettingsDialog', val)
+      store.dispatch('setShowSettingsDialog', val)
+    })
+
     return {
-      bgColor
+      chainId,
+      dark,
+      settingsDialog,
+      showSettingsDialog,
+      apiConnected,
+      bgColor,
+      toggleNavDrawer
     }
-  },
-  computed: {
-    ...mapState({ chainId: 'chainId', dark: 'dark', settingsDialog: 'showSettingsDialog' }),
-    ...mapGetters('substrate', { apiConnected: 'connected' }),
-  },
-  data () {
-    return {
-      showSettingsDialog: false
-      // apiConnected: false
-    }
-  },
-  watch: {
-    settingsDialog (val) {
-      this.showSettingsDialog = val
-    },
-    showSettingsDialog (val) {
-      this.$emit('onSettingsDialog', val)
-      this.$store.dispatch('setShowSettingsDialog', val)
-    }
-  },
-  methods: {
-    toggleNavDrawer () {
-      this.$store.dispatch('toggleNavDrawer')
-    }
-  },
-  mounted () {
-    // let count = 0
-    // const int = setInterval(async () => {
-    //   count++
-    //   if (this.$substrate.polkadot) {
-    //     // var nominators = await this.$substrate.polkadot.api.query.staking.nominators(this.candidate.stash)
-    //     // console.debug('nominators', this.candidate.stash, nominators)
-    //     // var vals = await this.$substrate.polkadot.api.query.staking.validators(this.candidate.stash)
-    //     // console.debug('vals', this.candidate.stash, vals)
-    //     this.apiConnected = true
-    //     clearInterval(int)
-    //   }
-    //   if (count > 10) {
-    //     console.debug('Toolbar.vue: no api found, clearing interval...')
-    //     clearInterval(int)
-    //   }
-    // }, 1000)
   }
 })
 </script>

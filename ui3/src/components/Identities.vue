@@ -32,13 +32,14 @@
                 <span v-if="item.identity.info.email"><v-icon small>mdi-email</v-icon> <a :href="`mailto:${item.identity.info.email}`">{{item.identity.info.email}}</a> <br></span>
                 <span v-if="item.identity.info.legal"><v-icon small>mdi-domain</v-icon> {{item.identity.info.legal}} <br></span>
                 <span v-if="item.identity.info.riot"><v-icon small>mdi-account-box-outline</v-icon> {{item.identity.info.riot}} <br></span>
-                <span v-if="item.identity.info.twitter"><v-icon small>mdi-twitter</v-icon> {{item.identity.info.twitter}} <br></span>
+                <span v-if="item.identity.info.twitter"><v-icon small>mdi-twitter</v-icon> <a :href="`https://twitter.com/${item.identity?.info?.twitter}`" target="_blank" rel="noopener noreferrer">{{item.identity?.info?.twitter}}</a> <br></span>
                 <span v-if="item.identity.info.web"><v-icon small>mdi-web</v-icon> <a :href="formatUrl(item.identity.info.web)" target="_blank">{{item.identity.info.web}}</a> </span>
               </v-container>
             </v-col>
             <v-col v-if="item.identity.children?.length > 0">Sub-identities <br>
               <v-list>
                 <v-list-item v-for="child in item.identity.children" v-bind:key="child.accountId">
+                  <!-- {{ child }} -->
                   <v-list-item-title>
                     <v-row>
                       <v-col>{{child.subId}} / </v-col>
@@ -69,37 +70,41 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { mapState } from 'vuex'
+import { defineComponent, computed, ref, watch, inject, onBeforeMount } from 'vue'
+import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
 import { GET_IDENTITIES } from '../graphql/queries/identities'
+import { useQuery } from '@vue/apollo-composable'
 import { debounce } from 'lodash'
 import { shortStash, parseIdentity } from '../global/utils'
 import { hexToString } from '@polkadot/util'
 import Loading from './Loading.vue'
 import ClickToCopy from './ClickToCopy.vue'
+// import { IIdentity } from '../types/global'
+import { SubstrateAPI } from '@/plugins/substrate'
 
-interface IData {
-  search: string
-  list: any[]
-  debouncing: boolean
-  loading: boolean
-  offset: number
-  limit: number
+interface IIdentityInfo {
+  display?: string
+  email?: string
+  legal?: string
+  riot?: string
+  twitter?: string
+  web?: string
 }
-interface IMethods {
-  getSuperOf (stash: string): Promise<any>
-  superOf (child: string): string
-  shortStash (stash: string): string
-  debouncedSearch (search: string): void
-  getList (): void
-  formatUrl (url: string): string
+
+interface IItemIdentity {
+  deposit: number
+  info: IIdentityInfo
+  // judgements
+  parent: any
+  sub: string
+  children: any
 }
-// eslint-disable-next-line
-interface IComputed {
-  chainId: string
+interface IItem {
+  accountId: string
+  chain: string
+  identity: IItemIdentity
 }
-// eslint-disable-next-line
-interface IProps {}
 
 export default defineComponent({
   name: 'Identities',
@@ -107,99 +112,117 @@ export default defineComponent({
     ClickToCopy,
     Loading
   },
-  computed: {
-    ...mapState(['chainId'])
-  },
-  data () {
-    return {
-      search: '',
-      list: [] as any[],
-      debouncing: false,
-      loading: false,
-      offset: 0,
-      limit: 20
+  setup() {
+    const store = useStore()
+    const router = useRouter()
+    const chainId = computed(() => store.state.chainId)
+    const search = ref('')
+    const list = ref<IItem[]>()
+    const debouncing = ref(false)
+    // const loading = ref(false)
+    const offset = ref(0)
+    const limit = ref(20)
+    const substrate: SubstrateAPI = inject('$substrate') || new SubstrateAPI({ lite: false })
+
+    const variables: Record<string, any> | null = {
+      chainId: chainId.value,
+      // ids,
+      search: search.value,
+      // limit: limit.value,
+      // offset: offset.value
     }
-  },
-  watch: {
-    chainId (newVal: string) {
-      this.$router.push(`/${newVal}/identity`)
-      this.getList()
-    },
-    search (newVal: string) {
-      this.debouncing = true
-      this.debouncedSearch(newVal)
+    const { query, result, loading, error, refetch, fetchMore, onResult } = useQuery(GET_IDENTITIES, variables, {
+      fetchPolicy: 'cache-and-network'
+    })
+    
+    const getSuperOf = async (stash: string) => {
+      // console.debug(stash)
+      const id = await substrate.api?.query.identity.superOf(stash)
+      return Promise.resolve(id?.toJSON())
     }
-  },
-  methods: {
-    shortStash,
-    superOf (child: string) {
+    const superOf = async (child: string) => {
       let ret = ''
       // const id = await this.$substrate[this.chainId].query.identity.superOf(child)
-      const id = this.getSuperOf(child).then(id => id)
+      const id = await getSuperOf(child).then((id: any) => id)
       if (id) {
         console.debug('id', id)
         ret = hexToString(id[1]?.raw)
       }
       return ret
-    },
-    async getSuperOf (stash: string) {
-      console.debug(stash)
-      const id = await this.$substrate[this.chainId].query.identity.superOf(stash)
-      return Promise.resolve(id.toJSON())
-    },
-    debouncedSearch: (str: string) => { console.debug(str) },
-    async getList () {
-      // this.$store.dispatch('candidate/getNominators', { chainId: this.chainId, stash: this.stash })
-      this.loading = true
-      const res = await this.$apollo.query({
-        query: GET_IDENTITIES,
-        variables: {
-          chain: this.chainId,
-          search: this.search,
-          offset: this.offset,
-          limit: this.limit
-        }
-      })
-      // console.log('data', res.data.Nominators.map(n => n.accountId))
-      console.debug('data', res.data)
-      this.list = [] as any[]
-      // console.debug('woot')
-      for (let i = 0; i < res.data.Identities.length; i++) {
-        // console.debug('idx', i)
-        const identity = res.data.Identities[i]
-        const children = identity.identity?.children || []
+    }
+    var debouncedSearch = (str: string) => { console.debug(str) }
+    onBeforeMount(() => {
+      // hack to get around this inside debounce?
+      debouncedSearch = debounce((str: string) => {
+        console.debug('debouncedSearch', str)
+        getList()
+        debouncing.value = false
+      }, 1500)
+
+    })
+
+    const getList = async () => {
+      // console.debug('getList', search.value)
+      loading.value = true
+      const variables = { chainId: chainId.value, search: search.value }
+      const res = await refetch(variables)
+      // console.debug('data', res)
+      list.value = [] as IItem[]
+      for (let i = 0; i < res?.data.Identities.length; i++) {
+        var identity = res?.data.Identities[i]
+        var children = identity.identity?.children || []
+        var newKids = []
         for (let j = 0; j < children.length; j++) {
-          // console.debug('child', children[j])
           let subId = ''
           if (typeof children[j] === 'string') {
-            const sup = await this.$substrate[this.chainId].query.identity.superOf(children[j])
-            if (sup.toJSON()) subId = hexToString(sup.toJSON()[1]?.raw)
-            children[j] = { accountId: children[j], subId }
+            const sup = await substrate.api?.query.identity.superOf(children[j])
+            console.debug('sup?.toJSON()', sup?.toJSON(), children[j])
+            const supp: any = sup?.toJSON()
+            if (supp) subId = hexToString(supp[1]?.raw)
+            // children[j] = { accountId: children[j], subId }
           } else {
             console.debug('get super of', children[j])
           }
+          newKids.push({ accountId: children[j], subId })
         }
-        identity.children = children
-        this.list.push(identity)
+        list.value.push({ ...identity, children: newKids })
       }
-      this.loading = false
-      // console.debug('getList done...')
-    },
-    formatUrl (url: string) {
+      loading.value = false
+    }
+
+    const formatUrl = (url: string) => {
       if (url.startsWith('https://') || url.startsWith('http://')) {
         return url
       } else {
         return 'https://' + url
       }
     }
+
+    watch(() => chainId.value, newVal => {
+      router.push(`/${newVal}/identity`)
+      getList()
+    })
+    watch(() => search.value, newVal => {
+      // console.debug('watch.search', newVal)
+      debouncing.value = true
+      debouncedSearch(newVal)
+    })
+
+    return {
+      chainId,
+      search,
+      list,
+      debouncing,
+      loading,
+      shortStash,
+      formatUrl,
+      superOf,
+      getSuperOf,
+      getList,
+      debouncedSearch
+    }
   },
   created () {
-    // hack to get around this inside debounce?
-    this.debouncedSearch = debounce((str: string) => {
-      console.debug('debouncedSearch', str)
-      this.getList()
-      this.debouncing = false
-    }, 1500)
   }
 })
 </script>

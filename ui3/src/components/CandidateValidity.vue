@@ -4,7 +4,7 @@
       <span class="text-h6">Validity</span>
     </v-card-title>
     <v-row justify="center">
-      <v-col class="cicon" align="center" v-for="item in candidate.validity" v-bind:key="item._id">
+      <v-col class="cicon" align="center" v-for="item in candidate?.validity" v-bind:key="item._id">
         {{getText(item.type)}}<br><v-icon :color="item.valid?'green':'red'">mdi-{{ item.valid?'check-circle':'close-circle' }}</v-icon>
       </v-col>
     </v-row>
@@ -12,39 +12,20 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, PropType } from 'vue'
 import moment from 'moment'
-import { defineComponent } from 'vue'
 import { ICandidate } from '../types/global'
-
-interface IProps {
-  candidate: ICandidate
-}
-
-interface IData {
-  dateTimeFormat: string
-  // eslint-disable-next-line
-  text: any
-}
-
-interface IMethods {
-  // eslint-disable-next-line
-  formatDate(v: any, format: string): string
-  dateSpan(span: number, unit: string, format: string): string
-  getText(t: string): string
-}
-
-// eslint-disable-next-line
-interface IComputed {}
 
 export default defineComponent({
   // name: 'CandidateValidity',
   computed: {},
   props: {
     candidate: {
-      type: undefined
+      // type: undefined
+      type: Object as PropType<ICandidate>, 
     }
   },
-  data (): IData {
+  data () {
     return {
       dateTimeFormat: 'YYYY/MM/DD hh:mm',
       text: {

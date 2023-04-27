@@ -48,6 +48,7 @@ const api = {
   },
   getters: {
     chainInfo (state: IState) {
+      console.debug('getters.chainInfo', state)
       return state.chains[state.chainId]?.chainInfo || {}
     },
     connected (state: IState) {

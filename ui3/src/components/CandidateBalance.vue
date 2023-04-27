@@ -81,7 +81,7 @@ export default defineComponent({
       }
       try {
         await substrate.api?.isReady
-        if (!candidate) return
+        if (!candidate || !candidate.stash) return
         var acct = await substrate.api?.query.system.account(candidate.stash)
         // console.log('CandidateBalance.vue: acct', acct)
         // acct = acct?.toJSON() || {}

@@ -92,13 +92,13 @@ export default defineComponent({
     }
   },
   methods: {
-    toCoin (v) {
+    toCoin (v: any) {
       // console.debug('CandidateNominators.vue', this.chainInfo)
       const decimalPlaces = this.chainInfo?.tokenDecimals?.toJSON()[0] || 0
       // const denom = this.denoms[this.chainInfo.tokenDecimals]
       return (v / this.decimals[decimalPlaces]).toLocaleString('en-GB', { maximumFractionDigits: 4 }) // .toFixed(4)
     },
-    clickRow (item) {
+    clickRow (item: any) {
       this.$emit('clickRow', item)
     }
   }

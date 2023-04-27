@@ -12,10 +12,9 @@ import Candidates from '@/components/Candidates.vue'
 import Candidate from '@/components/Candidate.vue'
 import Pools from '@/components/Pools.vue'
 import Pool from '@/components/Pool.vue'
-import Docs from '@/components/Docs.vue'
 import ValidatorsSelector from '@/components/ValidatorsSelector.vue'
 import ValidatorSelector from '@/components/ValidatorSelector.vue'
-import Network from '@/components/Network.vue'
+// import Network from '@/components/Network.vue'
 import Identities from '@/components/Identities.vue'
 
 import ComingSoon from '@/components/ComingSoon.vue'
@@ -48,7 +47,7 @@ const routes = [
       { path: 'selector', name: 'PolkadotsSelector', component: ValidatorsSelector, meta: { title: 'metaspan.io - validator selector' }, props: true },
       { path: 'selector/:stash', name: 'KusamaSelector', component: ValidatorSelector, meta: { title: 'metaspan.io - validator selector' }, props: true },
       { path: 'identity', name: 'KusamaIdentities', component: Identities, meta: { title: 'metaspan.io - identity' }, props: true },
-      { path: 'network', name: 'KusamaNetwork', component: Network, meta: { title: 'metaspan.io - network' }, props: true }
+      // { path: 'network', name: 'KusamaNetwork', component: Network, meta: { title: 'metaspan.io - network' }, props: true }
     ]
   },
   {
@@ -66,69 +65,6 @@ const routes = [
       { path: 'identity', name: 'PolkadotIdentities', component: Identities, meta: { title: 'metaspan.io - identity' }, props: true }
     ]
   },
-  // {
-  //   path: '/chain/:chain',
-  //   name: 'KusamaHome',
-  //   component: KusamaHome,
-  //   props: true,
-  //   children: [
-  //     // { path: 'pool', name: 'Pools', component: ComingSoon, meta: { title: 'metaspan.io - kusama pools' } },
-  //     // { path: 'validator', name: 'Validators', component: Validators },
-  //     // { path: 'validator/:stash', name: 'Validator', component: ComingSoon, props: true },
-  //     // { path: 'nominator', name: 'Nominators', component: Nominators },
-  //     { path: 'candidate', name: 'Candidates', component: Candidates, meta: { title: 'metaspan.io - 1kv' }, props: true },
-  //     { path: 'candidate/:stash', name: 'Candidate', component: Candidate, props: true, meta: { title: 'metaspan.io - kusama 1kv' } }
-  //   ]
-  // },
-  // { path: '/polkadot', name: 'PolkadotHome', component: ComingSoon },
-  // {
-  //   path: '/polkadot',
-  //   name: 'PolkadotHome',
-  //   component: PolkadotHome,
-  //   children: [
-  //     // { path: 'pool', name: 'Pools', component: ComingSoon, meta: { title: 'metaspan.io - kusama pools' } },
-  //     // { path: 'validator', name: 'Validators', component: Validators, props: { chain: 'polkadot' } },
-  //     // { path: 'validator/:stash', name: 'PolkadotValidator', component: ComingSoon, props: true },
-  //     // { path: 'nominator', name: 'Nominators', component: Nominators },
-  //     {
-  //       path: 'candidate',
-  //       name: 'PolkadotCandidates',
-  //       component: Candidates,
-  //       props: { chain: 'polkadot' },
-  //       meta: { title: 'metaspan.io - kusama 1kv' }
-  //     },
-  //     {
-  //       path: 'candidate/:stash',
-  //       name: 'PolkadotCandidate',
-  //       component: Candidate,
-  //       props: { chain: 'polkadot' },
-  //       meta: { title: 'metaspan.io - kusama 1kv' }
-  //     }
-  //   ]
-  // },
-  // {
-  //   path: '/validator',
-  //   name: 'Validators',
-  //   component: Validators,
-  //   meta: { title: 'metaspan.io - validators' }
-  // },
-  // {
-  //   path: '/candidate',
-  //   name: 'Candidates',
-  //   component: Candidates,
-  //   meta: { title: 'metaspan.io - candidates' }
-  // },
-  // {
-  //   path: '/candidate/:stash',
-  //   name: 'Candidate',
-  //   component: Candidate
-  // },
-  {
-    path: '/docs',
-    name: 'Docs',
-    component: Docs,
-    meta: { title: 'metaspan.io - api docs' }
-  }
 ]
 
 const router = createRouter({
@@ -144,5 +80,16 @@ const router = createRouter({
     }
   }
 })
+
+// import { PlausiblePlugin } from '@/plugins/plausible'
+// router.beforeEach((to, from, next) => {
+//   // document.title = to.meta?.title || 'baseTitle'
+  
+//   Vue.$plausible.trackPageview({
+//     // apiHost: 'http://192.168.1.99:8000',
+//     url: to.path
+//   })
+//   return next()
+// })
 
 export default router

@@ -1,35 +1,38 @@
 <template>
   <div>
-    <!-- {{ refVote }} -->
     <v-row density="compact">
-      <v-col align-self="center" class="col-3" v-if="casting">
-        <v-icon small>mdi-arrow-right</v-icon>Casting:
-      </v-col>
-      <v-col align-self="center" class="col-3" v-if="delegating">
-        <v-icon small class="col-1">mdi-arrow-decision-auto</v-icon> Delegating:
-      </v-col>
-      <v-col align-self="center" class="col-3" v-if="!(casting || delegating)">
-        <v-icon small class="col-1">mdi-arrow-decision-auto</v-icon> ???: {{casting}} {{delegating}}
+      <v-col align-self="center" cols="12" sm="4">
+        <div v-if="casting">
+          <v-icon size="18">mdi-arrow-right</v-icon><small>Casting:</small>
+        </div>
+        <div v-if="delegating">
+          <v-icon size="18">mdi-arrow-decision-auto</v-icon><small>Delegating:</small>
+        </div>
+        <div v-if="!(casting || delegating)">
+          <v-icon size="18">mdi-arrow-decision-auto</v-icon><small>???:</small>
+        </div>
       </v-col>
 
-      <v-col align-self="center">
-        <span v-show="(!(refVote?.voted?.standard || refVote?.voted?.splitAbstain))"> <em>No vote found</em> </span>
+      <v-col align-self="center" cols="12" sm="8">
+        <span v-show="(!(refVote?.voted?.standard || refVote?.voted?.splitAbstain))"> <small>No vote</small> </span>
         <span v-if="refVote?.voted?.splitAbstain">
-          <v-icon small class="col-1" color="purple">mdi-call-split</v-icon>
+          <v-icon size="18" color="purple">mdi-call-split</v-icon>
           <!-- {{refVote}} -->
-          {
-          aye:{{ formatAmount(refVote?.voted?.splitAbstain?.aye, 1) }},
-          nay:{{ formatAmount(refVote?.voted?.splitAbstain?.nay, 1) }},
-          abstain:{{ formatAmount(refVote?.voted?.splitAbstain?.abstain, 1) }}
-          }
+          <small>(
+          <v-icon size="12">mdi-arrow-up</v-icon>
+          {{ formatAmount(refVote?.voted?.splitAbstain?.aye, 1) }},
+          <v-icon size="12">mdi-arrow-down</v-icon>{{ formatAmount(refVote?.voted?.splitAbstain?.nay, 1) }},
+          <v-icon size="12">mdi-arrow-left-right</v-icon>{{ formatAmount(refVote?.voted?.splitAbstain?.abstain, 1) }}
+          )</small>
         </span>
         <span v-if="refVote?.voted?.standard">
-          <v-icon small class="col-1" :color="ayeOrNay(refVote.voted.standard.vote).aye ? 'success' : 'red'">mdi-thumb-{{ayeOrNay(refVote.voted.standard.vote).aye ? 'up' : 'down'}}-outline</v-icon>
+          <v-icon size="18" :color="ayeOrNay(refVote.voted.standard.vote).aye ? 'success' : 'red'">mdi-thumb-{{ayeOrNay(refVote.voted.standard.vote).aye ? 'up' : 'down'}}-outline</v-icon>
           {{ formatAmount(refVote?.voted?.standard?.balance, 2)}} {{ symbol }}
           ({{ getConviction(refVote) }})
           <!-- {{referenda.casting.votes}} -->
         </span>
       </v-col>
+
     </v-row>
 
     <v-row dense v-if="delegating">
@@ -45,58 +48,15 @@
       </v-col>
     </v-row>
 
-    <!-- <v-row dense v-if="referenda.delegating">
-      <v-col class="col-3">
-        <v-icon small class="col-1">mdi-arrow-decision-auto</v-icon> Delegating:
-      </v-col>
-      <v-col align-self="center">
-        {{formatAmount(referenda.delegating.balance, 3)}} {{chainInfo.tokenSymbol}}
-        <ClickToCopy :display="shortStash(referenda.delegating.target)" :text="referenda.delegating.target"></ClickToCopy>
-      </v-col>
-    </v-row> -->
-
-    <!-- <v-row>
-      <v-col>
-        {{referenda.delegating}} ||
-        {{refVote}}
-      </v-col>
-    </v-row> -->
   </div>
 
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { mapState, mapGetters } from 'vuex'
-// import { shortStash } from '../global/utils'
+import { defineComponent, computed, ref, watch, onBeforeMount } from 'vue'
+import { useStore } from 'vuex'
 import ClickToCopy from './ClickToCopy.vue'
-
-interface IData {
-  refVote: any
-  convictions: Record<string, any>
-}
-// eslint-disable-next-line
-interface IMethods {
-  shortStash (stash: string): string
-  formatAmount (amount: number, decimals: number): string
-  getConviction (item: any): string
-  getStack (): string
-  ayeOrNay (key: any): any
-}
-interface IComputed {
-  chainId: string
-  decimals: any[]
-  chainInfo: any
-  symbol: string
-  casting: boolean
-  delegating: boolean
-}
-interface IProps {
-  refVoting: any
-  stash: string
-  referenda: any
-  voting: any
-}
+import { shortStash } from '../global/utils'
 
 export default defineComponent({
   name: 'CandidateReferendaVote',
@@ -104,28 +64,19 @@ export default defineComponent({
     ClickToCopy
   },
   props: {
-    refVoting: { type: Object },
+    refVoting: { type: Array, required: true },
     stash: { type: String },
     referenda: { type: Object },
     voting: { type: Object }
   },
-  computed: {
-    ...mapState(['chainId']),
-    ...mapState('substrate', ['decimals']),
-    ...mapGetters('substrate', ['chainInfo']),
-    symbol () {
-      // const symbol = this.chainInfo.tokenSymbol.toJSON()[0]
-      const symbol = this.chainId === 'kusama' ? 'KSM' : 'DOT'
-      console.debug('getSymbol', symbol)
-      return symbol
-    },
-    casting () { return !this.refVote?.stack || this.refVote?.stack.length === 0 },
-    delegating () { return this.refVote?.stack.length > 0 }
-  },
-  data: () => {
-    return {
-      refVote: {} as any,
-      convictions: {
+  setup (props) {
+    const { stash, referenda, voting } = props
+    const refVoting = ref(props.refVoting)
+    const store = useStore()
+    const chainId = computed(() => store.state.chainId)
+    const decimals = computed(() => store.state['substrate/decimals'])
+    const chainInfo = computed(() => store.getters['substrate/chainInfo'])
+    const convictions = {
         '0x00': { aye: false, nay: true, conviction: '0x' },
         '0x01': { aye: false, nay: true, conviction: '1x' },
         '0x02': { aye: false, nay: true, conviction: '2x' },
@@ -145,6 +96,58 @@ export default defineComponent({
         '0x87': { aye: true, nay: false, conviction: '7x' },
         '0x88': { aye: true, nay: false, conviction: '8x' }
       } as Record<string, any>
+
+    // what is this?
+    const refVote = ref<Record<any, any>>({})
+
+    const symbol = computed(() => {
+      // const symbol = this.chainInfo.tokenSymbol.toJSON()[0]
+      const symbol = chainId.value === 'kusama' ? 'KSM' : 'DOT'
+      // console.debug('getSymbol', symbol)
+      return symbol
+    })
+    const delegating = computed<boolean>(() => refVote.value?.stack?.length > 0)
+    const casting = computed(() => !refVote?.value?.stack || Object.keys(refVote.value.stack).length === 0 || refVote.value.stack.length === 0)
+    // const casting = computed<boolean>(() => !delegating.value)
+
+    const getConviction = (item: any) => {
+      // console.debug('getConviction', item)
+      const cv = item?.voted?.standard?.vote || ''
+      // console.debug('cv', cv)
+      return convictions[cv]?.conviction
+    }
+    const getStack = () => {
+      const ret = refVote.value.stack.map((m: string) => shortStash(m)).join(',') || ''
+      // console.debug('getStack', ret)
+      return ret
+    }
+
+    watch(() => refVoting.value, newVal => {
+      // console.debug('refVoting changed...', newVal)
+      refVote.value = newVal[`r${referenda?.id}` as keyof typeof newVal] as any
+    })
+    
+    onBeforeMount(() => {
+      // console.debug('CandidateReferendaVote', {...referenda}, {...refVoting.value})
+      const tmpReferenda = {...referenda}
+      const refId = tmpReferenda.id || ''
+      // console.debug('refId', refId)
+      refVote.value = refVoting.value.find((f: any) => f.id === refId) as Record<any, any>
+      // console.log('refVote', refVote.value)
+    })
+
+    return {
+      chainId,
+      decimals,
+      chainInfo,
+      convictions,
+      refVote,
+      symbol,
+      casting,
+      delegating,
+      shortStash,
+      getConviction,
+      getStack
     }
   },
   methods: {
@@ -158,31 +161,10 @@ export default defineComponent({
       const denom = this.chainId === 'kusama' ? 1000000000000 : 10000000000
       return (amount / denom).toFixed(decimals)
     },
-    shortStash (stash: string): string {
-      return stash.slice(0, 6) + '...' + stash.slice(-6)
-    },
     ayeOrNay (key: string) {
       // const keyType = key of this.convictions
       return this.convictions[key]
-    },
-    getConviction (item: any) {
-      console.debug('getConviction', item)
-      const cv = item?.voted?.standard?.vote || ''
-      console.debug('cv', cv)
-      return this.convictions[cv]?.conviction
-    },
-    getStack () {
-      const ret = this.refVote?.stack.map((m: string) => this.shortStash(m)).join(',') || ''
-      console.debug('getStack', ret)
-      return ret
     }
-  },
-  async created () {
-    console.debug('CandidateReferendaVote', this.referenda, this.refVoting)
-    const refId = this.referenda?.id || ''
-    console.debug('refId', refId)
-    this.refVote = this.refVoting ? this.refVoting[refId] : null
-    console.log('refVote', this.refVote)
   }
 })
 </script>

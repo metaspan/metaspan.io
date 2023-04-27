@@ -34,7 +34,7 @@ export class StateManager {
   // TODO why do we need a sync method? we use this to return initial state for a store/module
   getStateSync (key: string, initialState: any): any {
     console.debug('store/state-manager.ts: getStateSync()', key)
-    const savedState = this.idb.getSync(key)
+    const savedState: any = this.idb.getSync(key)
     console.debug('savedState', savedState)
     if (savedState !== undefined) {
       return Object.assign(initialState, {

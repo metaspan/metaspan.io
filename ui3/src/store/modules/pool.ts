@@ -53,80 +53,83 @@ interface IChainState {
 interface IState {
   initial: boolean
   chainId: string
-  kusama: IChainState
-  polkadot: IChainState
+  chains: Record<string, IChainState>
+  // kusama: IChainState
+  // polkadot: IChainState
 }
 
 const initialState = {
   initial: true,
   chainId: 'kusama',
-  kusama: {
-    apiConnected: false,
-    updatedAt: null,
-    loading: false,
-    pagination: {
-      page: 1,
-      itemsPerPage: 15
-    } as IPagination,
-    options: {
-      page: 1,
-      itemsPerPage: 10,
-      sortBy: 'name',
-      sortDesc: false
-    } as IOptions,
-    search: '',
-    filter: {
-      valid: false,
-      active: false
-    } as IFilter,
-    // ranges: {
-    //   rank: {
-    //     min: 0,
-    //     max: 0
-    //   },
-    //   bonded: {
-    //     min: 0,
-    //     max: 0
-    //   }
-    // } as TRanges,
-    favourites: [],
-    list: [] as IPool[],
-    filteredList: [],
-    pool: { points: 0 } as IPool
-  },
-  polkadot: {
-    apiConnected: false,
-    updatedAt: null,
-    loading: false,
-    pagination: {
-      page: 1,
-      itemsPerPage: 15
-    } as IPagination,
-    options: {
-      page: 1,
-      itemsPerPage: 10,
-      sortBy: 'name',
-      sortDesc: false
-    } as IOptions,
-    search: '',
-    filter: {
-      valid: false,
-      active: false
-    } as IFilter,
-    // ranges: {
-    //   rank: {
-    //     min: 0,
-    //     max: 0
-    //   },
-    //   bonded: {
-    //     min: 0,
-    //     max: 0
-    //   }
-    // } as TRanges,
-    favourites: [],
-    list: [] as IPool[],
-    filteredList: [],
-    pool: { points: 0 } as IPool
+  chains: {
+    kusama: {
+      apiConnected: false,
+      updatedAt: null,
+      loading: false,
+      pagination: {
+        page: 1,
+        itemsPerPage: 15
+      } as IPagination,
+      options: {
+        page: 1,
+        itemsPerPage: 10,
+        sortBy: 'name',
+        sortDesc: false
+      } as IOptions,
+      search: '',
+      filter: {
+        valid: false,
+        active: false
+      } as IFilter,
+      // ranges: {
+      //   rank: {
+      //     min: 0,
+      //     max: 0
+      //   },
+      //   bonded: {
+      //     min: 0,
+      //     max: 0
+      //   }
+      // } as TRanges,
+      favourites: [],
+      list: [] as IPool[],
+      filteredList: [],
+      pool: { points: 0 } as IPool
+    },
+    polkadot: {
+      apiConnected: false,
+      updatedAt: null,
+      loading: false,
+      pagination: {
+        page: 1,
+        itemsPerPage: 15
+      } as IPagination,
+      options: {
+        page: 1,
+        itemsPerPage: 10,
+        sortBy: 'name',
+        sortDesc: false
+      } as IOptions,
+      search: '',
+      filter: {
+        valid: false,
+        active: false
+      } as IFilter,
+      // ranges: {
+      //   rank: {
+      //     min: 0,
+      //     max: 0
+      //   },
+      //   bonded: {
+      //     min: 0,
+      //     max: 0
+      //   }
+      // } as TRanges,
+      favourites: [],
+      list: [] as IPool[],
+      filteredList: [],
+      pool: { points: 0 } as IPool
+    }
   }
 } as IState
 
@@ -163,11 +166,11 @@ const pool = {
   getters: {
     list (state: IState) {
       console.debug('store/modules/pool.ts: getters.list()', state.chainId)
-      return state[state.chainId].list
+      return state.chains[state.chainId].list
     },
     pool (state: IState) {
       console.debug('store/modules/pool.ts: getters.pool()', state.chainId)
-      return state[state.chainId].pool
+      return state.chains[state.chainId].pool
     }
   },
   mutations: {
@@ -177,71 +180,71 @@ const pool = {
       if (!state.initial) await stateManager.saveState(STORAGE_KEY, state)
     },
     SET_LOADING (state: IState, loading: boolean): void {
-      state[state.chainId].loading = loading
+      state.chains[state.chainId].loading = loading
     },
-    API_STATUS (state, { connected, chainId }) {
+    API_STATUS (state: IState, { connected, chainId }: any) {
       // state[chainId].apiConnected = connected
-      state.apiConnected = connected
+      state.chains[chainId].apiConnected = connected
     },
     async ADD_POOL (state: IState, pool: IPool) {
       console.debug('store/modules/pool.ts: ADD_POOL()', state.chainId, pool.id)
-      const px = state[state.chainId].list.findIndex(f => f.id === pool.id)
+      const px = state.chains[state.chainId].list.findIndex(f => f.id === pool.id)
       if (px > -1) {
-        state[state.chainId].list[px] = pool
+        state.chains[state.chainId].list[px] = pool
       } else {
-        state[state.chainId].list.push(pool)
+        state.chains[state.chainId].list.push(pool)
       }
       await stateManager.saveState(STORAGE_KEY, state)
     },
     async SET_LIST (state: IState, list: IPool[]) {
       console.debug('SET_LIST', list)
-      state[state.chainId].list = list
-      state[state.chainId].updatedAt = new Date()
+      state.chains[state.chainId].list = list
+      state.chains[state.chainId].updatedAt = new Date()
 
       // var ranks = list.map(m => m.rank).sort( (a,b) => {return a-b} )
       // var udata = [...new Set(ranks)]
       // udata = udata.slice(udata.length*0.055, udata.length*0.854)
       // console.debug('length', udata.length, 'min:', Math.min(...udata), 'max:', Math.max(...udata))
-      // state[state.chainId].ranges.rank = {min: Math.min(...udata), max: Math.max(...udata)}
+      // state.chains[state.chainId].ranges.rank = {min: Math.min(...udata), max: Math.max(...udata)}
       await stateManager.saveState(STORAGE_KEY, state)
     },
     async SET_FILTERED_LIST (state: IState, filteredList: IPool[]) {
-      state[state.chainId].filteredList = filteredList
+      state.chains[state.chainId].filteredList = filteredList
       await stateManager.saveState(STORAGE_KEY, state)
     },
     async SET_POOL (state: IState, model: IPool) {
       console.debug('store/modules/pool.ts: SET_POOL()', model)
       // Vue.set(state, 'pool', model) // no longer needed in vue3?
-      state[state.chainId].pool = model
+      state.chains[state.chainId].pool = model
       await stateManager.saveState(STORAGE_KEY, state)
     },
     async SET_PAGINATION (state: IState, pagination: IPagination) {
-      state[state.chainId].pagination = pagination
+      state.chains[state.chainId].pagination = pagination
       await stateManager.saveState(STORAGE_KEY, state)
     },
     async SET_OPTIONS (state: IState, options: IOptions) {
-      state[state.chainId].options = options
+      state.chains[state.chainId].options = options
       await stateManager.saveState(STORAGE_KEY, state)
     },
     async SET_FILTER (state: IState, filter: IFilter) {
-      state[state.chainId].filter = filter
+      state.chains[state.chainId].filter = filter
       await stateManager.saveState(STORAGE_KEY, state)
     },
     async SET_SEARCH (state: IState, search: string) {
-      state[state.chainId].search = search
+      state.chains[state.chainId].search = search
       await stateManager.saveState(STORAGE_KEY, state)
     },
     async TOGGLE_FAV (state: IState, stash: string) {
-      const idx = state[state.chainId].favourites.findIndex((v) => {
+      const idx = state.chains[state.chainId].favourites.findIndex((v) => {
         return v === stash
       })
       // console.debug('idx', idx)
       if (idx > -1) {
-        state[state.chainId].favourites = state[state.chainId].favourites.filter((f) => {
+        state.chains[state.chainId].favourites = state.chains[state.chainId].favourites.filter((f) => {
           return f !== stash
         })
       } else {
-        state[state.chainId].favourites.push(stash)
+        state.chains[state.chainId].favourites.push(stash)
       }
       await stateManager.saveState(STORAGE_KEY, state)
     }
@@ -251,21 +254,21 @@ const pool = {
     async init ({ dispatch }: any): Promise<void> {
       // await dispatch('getList')
     },
-    async setChainId ({ commit }, chainId: string) {
+    async setChainId ({ commit }: any, chainId: string) {
       await commit('SET_CHAIN_ID', chainId)
     },
-    async apiClose ({ dispatch }) {
+    async apiClose ({ dispatch }: any) {
       await dispatch('apiStatus', { connected: false, chainId: 'kusama' })
       await dispatch('apiStatus', { connected: false, chainId: 'polkadot' })
     },
-    async apiStatus ({ commit }, { connected, chainId }) {
+    async apiStatus ({ commit }: any, { connected, chainId }: any) {
       await commit('API_STATUS', { connected, chainId })
     },
     // eslint-disable-next-line
     async loading ({ commit }: any, loading: boolean) {
       commit('SET_LOADING', loading)
     },
-    async addPool ({ commit }, pool: IPool) {
+    async addPool ({ commit }: any, pool: IPool) {
       // console.debug('store/modules/pool.ts: addPool()', pool)
       await commit('ADD_POOL', pool)
     },
@@ -278,7 +281,7 @@ const pool = {
     },
     // eslint-disable-next-line
     async setIds ({ state, commit, dispatch }: any, ids: any[]) {
-      const list = state.list.map(m => {
+      const list = state.list.map((m: any) => {
         const id = ids.find(f => f.id === m.id)
         if (id) {
           m.display = id.display
@@ -312,7 +315,7 @@ const pool = {
     // eslint-disable-next-line
     async setPool ({ state, commit }: any, { id }: any) {
       console.debug('store/modules/pool.ts: setPool()', id)
-      const v = state[state.chainId].list.find((i: IPool) => {
+      const v = state.chains[state.chainId].list.find((i: IPool) => {
         return i.id === id
       })
       // if (!v) {

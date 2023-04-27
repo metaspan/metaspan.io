@@ -6,13 +6,13 @@
       <v-btn icon text
         v-bind="props"
         >
-        <v-icon>mdi-menu</v-icon>
+        <v-icon>mdi-link-variant</v-icon>
       </v-btn> <span class="d-none d-sm-inline">Links</span>
     </template>
 
     <v-list>
 
-      <v-list-item>
+      <v-list-item v-if="false">
         <template v-slot:prepend>
         <!-- <v-list-item-icon> -->
           <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 990 319.84">
@@ -34,47 +34,50 @@
 
       <v-list-item>
         <template v-slot:prepend>
-          <img width="18px" heithg="18px" src="https://polkadot.js.org/apps/static/subscan.11e2654a..svg">
+          <!-- <img width="18px" heithg="18px" src="https://polkadot.js.org/apps/static/subscan.11e2654a..svg"> -->
+          <v-avatar size="22">
+            <v-img src="/image/subscan-logo2.png"></v-img>
+          </v-avatar>
         </template>
         <v-list-item-title>
-          <!-- <v-btn small text> -->
-          <a class="none" :href="'https://'+chainId+'.subscan.io/validator/'+candidate.stash" target="_blank"> subscan</a>
-          <!-- </v-btn> -->
+          <a :href="`https://${chainId}.subscan.io/validator/${candidate.stash}`" style="text-decoration: none;" target="_blank"> subscan</a>
         </v-list-item-title>
       </v-list-item>
 
-      <v-list-item>
+      <!-- <v-list-item>
         <template v-slot:prepend>
-          <img width="18px" heithg="18px" src="https://polkadot.js.org/apps/static/subscan.11e2654a..svg">
+          <v-img src="/image/subscan-logo2.png"></v-img>
         </template>
         <v-list-item-title>
-          <!-- <v-btn small text> -->
           <a class="none" :href="`https://${chainId}.subscan.io/account/${candidate.stash}?tab=reward`" target="_blank"> subscan Rewards</a>
-          <!-- </v-btn> -->
         </v-list-item-title>
-      </v-list-item>
+      </v-list-item> -->
 
-      <v-list-item>
+      <!-- <v-list-item>
         <template v-slot:prepend>
-          <img class="polkastats-logo" src="https://kusama.polkastats.io/img/polkastats_logo_dark@1x.png">
+          <v-avatar size="22">
+            <v-img src="/image/polkastats-logo.png"></v-img>
+          </v-avatar>
         </template>
         <v-list-item-title>
-          <a class="none" :href="'https://'+chainId+'.polkastats.io/validator/'+candidate.stash" target="_blank">
+          <a :href="'https://'+chainId+'.polkastats.io/validator/'+candidate.stash" style="text-decoration: none;" target="_blank">
             polkastats
           </a>
         </v-list-item-title>
-      </v-list-item>
+      </v-list-item> -->
 
-      <v-list-item>
+      <!-- <v-list-item>
         <template v-slot:prepend>
-          <svg height="16px" class="w-6 h-6" viewBox="0 0 44.426 44.424" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"><path fill="#7c3aed" d="M28.272 25.817c1.006-.551 1.754-1.306 2.24-2.268.486-.96.73-2.065.73-3.314 0-1.247-.244-2.346-.73-3.296-.486-.949-1.236-1.691-2.25-2.223-1.013-.533-2.314-.799-3.905-.799h-5.839V26.64h5.873c1.58 0 2.873-.274 3.881-.823z"></path><path fill="#7c3aed" d="M22.213 0C9.945 0 0 9.945 0 22.213c0 7.366 3.588 13.892 9.109 17.933.264.103.544.171.844.171a2.364 2.364 0 0 0 2.363-2.363l.004-2.257V8.594h13.014c2.702 0 4.972.504 6.809 1.511 1.838 1.008 3.229 2.39 4.173 4.146.944 1.757 1.417 3.752 1.417 5.983 0 2.256-.476 4.259-1.426 6.011-.95 1.75-2.354 3.127-4.207 4.128-1.853 1.001-4.138 1.502-6.851 1.502h-6.606l-.014 9.086a3.59 3.59 0 0 0 2.559 3.437c.34.016.682.026 1.025.026 12.269 0 22.213-9.944 22.213-22.213C44.426 9.945 34.482 0 22.213 0Z"></path></svg>
+          <v-avatar size="22">
+            <svg height="16px" class="w-6 h-6" viewBox="0 0 44.426 44.424" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"><path fill="#7c3aed" d="M28.272 25.817c1.006-.551 1.754-1.306 2.24-2.268.486-.96.73-2.065.73-3.314 0-1.247-.244-2.346-.73-3.296-.486-.949-1.236-1.691-2.25-2.223-1.013-.533-2.314-.799-3.905-.799h-5.839V26.64h5.873c1.58 0 2.873-.274 3.881-.823z"></path><path fill="#7c3aed" d="M22.213 0C9.945 0 0 9.945 0 22.213c0 7.366 3.588 13.892 9.109 17.933.264.103.544.171.844.171a2.364 2.364 0 0 0 2.363-2.363l.004-2.257V8.594h13.014c2.702 0 4.972.504 6.809 1.511 1.838 1.008 3.229 2.39 4.173 4.146.944 1.757 1.417 3.752 1.417 5.983 0 2.256-.476 4.259-1.426 6.011-.95 1.75-2.354 3.127-4.207 4.128-1.853 1.001-4.138 1.502-6.851 1.502h-6.606l-.014 9.086a3.59 3.59 0 0 0 2.559 3.437c.34.016.682.026 1.025.026 12.269 0 22.213-9.944 22.213-22.213C44.426 9.945 34.482 0 22.213 0Z"></path></svg>
+          </v-avatar>
         </template>
         <v-list-item-title>
-          <a class="none" :href="'https://polkachu.com/'+chainId+'/thousand_validators/'+candidate.stash" target="_blank">
+          <a :href="'https://polkachu.com/'+chainId+'/thousand_validators/'+candidate.stash" style="text-decoration: none;" target="_blank">
             polkachu
           </a>
         </v-list-item-title>
-      </v-list-item>
+      </v-list-item> -->
 
     </v-list>
   </v-menu>
@@ -98,6 +101,8 @@ export default defineComponent({
     width: 95px;
     height: 18px;
     margin-right: -655px;
+    object-fit: cover;
+    object-position: ;
 }
 
 .cls-1{

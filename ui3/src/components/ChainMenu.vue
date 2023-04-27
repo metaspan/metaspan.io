@@ -58,6 +58,7 @@ export default defineComponent({
   setup () {
     const store = useStore()
     const chainId = computed(() => store.state.chainId)
+    const chainInfo = computed(() => store.state.chainInfo)
     const chains = computed(() => store.state.chains)
     const substrate: SubstrateAPI = inject('$substrate') || new SubstrateAPI({ lite: false })
     // const icons = ref({
@@ -80,8 +81,8 @@ export default defineComponent({
       await substrate.api?.isReady
       await store.dispatch('setChainId', _chain.id)
       console.debug('ChainHome.vue: reading chainId info()...')
-      const chainInfo = await substrate.api?.registry.getChainProperties()
-      console.log('chainInfo.tokenDecimals', chainInfo.tokenDecimals.toJSON()[0])
+      // const chainInfo = await substrate.api?.registry.getChainProperties()
+      console.log('chainInfo.tokenDecimals', chainInfo.value?.tokenDecimals.toJSON()[0])
       // TODO: let parent do this?
       await store.dispatch('substrate/setChainInfo', { chainId: _chain.id, chainInfo })
     }

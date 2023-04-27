@@ -1,6 +1,6 @@
 <template>
 
-  <v-data-table dense
+  <!-- <v-data-table dense
     :loading="loading"
     :headers="headers"
     :items="items"
@@ -14,59 +14,95 @@
     @update:options="handleOptions"
     @update:page="handlePage"
     @update:items-per-page="handleItemsPerPage"
-    :footer-props="{'items-per-page-options': [10, 20, 30, 40, 50]}">
+    :footer-props="{'items-per-page-options': [10, 20, 30, 40, 50]}"> -->
+  <v-table>
+    <thead>
+      <th v-for="(head, idx) in headers" v-bind:key="idx">
+        {{ head.text }}
+      </th>
+    </thead>
+    <tbody>
+      <tr v-for="(item, idx) in items" v-bind:key="idx">
+        <td>{{ item.favourite }}</td>
+        <td>
+          <span class="identicon">
+            <Identicon :value="item.stash" :size="16" theme="polkadot"></Identicon>
+          </span> {{ item.name }}
+        </td>
+        <td>{{ item.identity_name }}</td>
+        <td>{{ item.discoveredAt }}</td>
+        <td>
+          <div align="center">
+            <v-icon small :color="item.valid?'green':'red'">mdi-{{ item.valid ? 'check-circle' : 'close-circle'}}</v-icon>
+          </div>
+        </td>
+        <td>
+          <v-icon small :color="item.active?'green':'grey'">mdi-{{ item.active ? 'check-circle' : 'minus-circle'}}</v-icon>
+        </td>
+        <td>
+          <v-icon small :color="item.nominated_1kv?'green':'grey'">mdi-{{ item.nominated_1kv ? 'check-circle' : 'minus-circle'}}</v-icon>
+        </td>
+        <td>{{ item.rank }}</td>
+        <td>
+          {{item.score ? item.score.toFixed(2) : 0.00 }}
+        </td>
+      </tr>
+    </tbody>
 
-    <template v-slot:[`item.favourite`]="{item}">
+    <!-- <template v-slot:[`item.favourite`]="{item}">
       <v-btn small icon @click="toggleFav(item)">
       <v-icon small :color="item.favourite?'orange':'grey'">mdi-star</v-icon>
       </v-btn>
-    </template>
+    </template> -->
 
-    <template v-slot:[`item.name`]="{item}">
+    <!-- <template v-slot:[`item.name`]="{item}">
       <div style="cursor:pointer" @click="clickItem(item)">
         <span class="identicon">
           <Identicon :value="item.stash" :size="16" theme="polkadot"></Identicon>
         </span> {{item.name}}
       </div>
-    </template>
+    </template> -->
 
-    <template v-slot:[`item.identity_name`]="{item}">
+    <!-- <template v-slot:[`item.identity_name`]="{item}">
       <div style="cursor:pointer" @click="clickItem(item)">
         {{item.identity_name}}
       </div>
-    </template>
+    </template> -->
 
-    <template v-slot:[`item.discoveredAt`]="{item}">
+    <!-- <template v-slot:[`item.discoveredAt`]="{item}">
       {{timeAgo(item.discoveredAt) }}
-    </template>
+    </template> -->
 
-    <template v-slot:[`item.valid`]="{item}">
+    <!-- <template v-slot:[`item.valid`]="{item}">
       <div align="center">
       <v-icon small :color="item.valid?'green':'red'">mdi-{{ item.valid ? 'check-circle' : 'close-circle'}}</v-icon>
       </div>
-    </template>
+    </template> -->
 
-    <template v-slot:[`item.active`]="{item}">
+    <!-- <template v-slot:[`item.active`]="{item}">
       <v-icon small :color="item.active?'green':'grey'">mdi-{{ item.active ? 'check-circle' : 'minus-circle'}}</v-icon>
-    </template>
+    </template> -->
 
-    <template v-slot:[`item.nominated_1kv`]="{item}">
+    <!-- <template v-slot:[`item.nominated_1kv`]="{item}">
       <v-icon small :color="item.nominated_1kv?'green':'grey'">mdi-{{ item.nominated_1kv ? 'check-circle' : 'minus-circle'}}</v-icon>
-    </template>
+    </template> -->
 
-    <template v-slot:[`item.score`]="{item}">
+    <!-- <template v-slot:[`item.score`]="{item}">
       {{item.score ? item.score.toFixed(2) : 0.00 }}
-    </template>
+    </template> -->
 
-  </v-data-table>
+  <!-- </v-data-table> -->
+
+  </v-table>
 
 </template>
 
 <script lang="ts">
+import { defineComponent, computed, ref, watch, onBeforeMount } from 'vue'
+import { useStore } from 'vuex'
 import moment from 'moment'
-import { mapState, mapGetters } from 'vuex'
-import Identicon from '@polkadot/vue-identicon'
-import { defineComponent } from 'vue'
+// import Identicon from '@polkadot/vue-identicon'
+import Identicon from './identicon/Identicon.vue'
 import { ICandidate, ICandidateValidityItem } from '../types/global'
 import { VDataTable } from 'vuetify/labs/VDataTable'
 
@@ -95,71 +131,48 @@ interface IFilteredListItem {
   stash: string
   name: string
   discoveredAt: string | number | Date
+  identity_name: string
   valid: boolean
+  nominated_1kv: boolean
   active: boolean
   rank: number | undefined
   score: number | undefined
 }
 
-interface IData {
-  options: IOptions
-  xfilter: IFilter
-}
-
-interface IMethods {
-  isValid(validity: ICandidateValidityItem[]): boolean
-  timeAgo(d: string): string
-  clickItem(item: IFilteredListItem): void
-  toggleFav (item: IFilteredListItem): void
-  handlePaginate (evt: IPaginate): void
-  // eslint-disable-next-line
-  handlePage (evt: any): void
-  // eslint-disable-next-line
-  handleItemsPerPage (evt: any): void
-  fetchOptions (chainId: string): void
-  handleOptions (evt: IOptions): void
-}
-
-interface IComputed {
-  chainId: string
-  loading: boolean
-  filtering: boolean
-  filteredList: ICandidate[]
-  // eslint-disable-next-line
-  updatedAt: any
-  favourites: string[]
-  // eslint-disable-next-line
-  headers: any[]
-  // eslint-disable-next-line
-  items: any[]
-}
-
-interface IProps {
-  // chain: string
-  search: string
-  filter: IFilter
-}
-
 export default defineComponent({
   props: {
-    // chain: {
-    //   type: String,
-    //   required: true
-    // },
     search: { type: String },
-    // 'list': {type: Array},
     filter: { type: Object }
-    // loading: {type: Boolean},
   },
   components: {
     VDataTable,
     Identicon
   },
-  computed: {
-    ...mapState(['chainId']),
-    ...mapGetters('candidate', ['filtering', 'updatedAt', 'filteredList', 'favourites', 'loading']),
-    headers () {
-      return [
+  setup () {
+    const store = useStore()
+    const chainId = computed(() => store.state.chainId)
+    const filtering = computed<boolean>(() => store.getters['candidate/filtering'])
+    const updatedAt = computed(() => store.getters['candidate/updatedAt'])
+    const filteredList = computed<ICandidate[]>(() => store.getters['candidate/filteredList'])
+    const favourites = computed<string[]>(() => store.getters['candidate/favourites'])
+    const loading = computed<boolean>(() => store.getters['candidate/loading'])
+
+    const options = ref<Record<string, any>>({
+      page: 1,
+      itemsPerPage: 10,
+      sortBy: [],
+      sortDesc: []
+    })
+    const xfilter = ref({
+      favourite: false,
+      rank: '',
+      score: 0,
+      valid: false,
+      active: false,
+      nominated_1kv: false
+    })
+
+    const headers: any[] = [
         {
           text: 'Favourite',
           align: 'center',
@@ -168,7 +181,7 @@ export default defineComponent({
           width: '5%',
           // eslint-disable-next-line
           filter: (value: any) => {
-            if (this.xfilter.favourite) return value
+            if (xfilter.value.favourite) return value
             else return true
           }
         },
@@ -183,7 +196,7 @@ export default defineComponent({
           width: '5%',
           filter: (value: boolean) => {
             // console.debug(this.xfilter, value)
-            return (this.xfilter.valid) ? value === true : true
+            return (xfilter.value.valid) ? value === true : true
           }
         },
         {
@@ -194,7 +207,7 @@ export default defineComponent({
           width: '5%',
           filter: (value: boolean) => {
             // console.debug(this.xfilter, value)
-            return (this.xfilter.nominated_1kv) ? value === true : true
+            return (xfilter.value.nominated_1kv) ? value === true : true
           }
         },
         {
@@ -205,7 +218,7 @@ export default defineComponent({
           width: '5%',
           filter: (value: boolean) => {
             // console.debug(this.xfilter, value)
-            return (this.xfilter.active) ? value === true : true
+            return (xfilter.value.active) ? value === true : true
           }
         },
         {
@@ -215,8 +228,8 @@ export default defineComponent({
           value: 'rank',
           width: '5%',
           filter: (value: number) => {
-            if (!this.xfilter.rank) return true
-            return value >= parseInt(this.xfilter.rank)
+            if (!xfilter.value.rank) return true
+            return value >= parseInt(xfilter.value.rank)
           }
         },
         {
@@ -226,19 +239,18 @@ export default defineComponent({
           value: 'score',
           width: '5%',
           filter: (value: number) => {
-            if (!this.xfilter.score) return true
+            if (!xfilter.value.score) return true
             // return value >= parseInt(this.xfilter.score)
-            return value >= this.xfilter.score
+            return value >= xfilter.value.score
           }
         }
       ]
-    },
-    items () {
-      const list = this.filteredList as ICandidate[]
-      return list.map((item: ICandidate, idx: number) => {
+    const items = computed(() => {
+      const list = filteredList.value // as ICandidate[]
+      const newList = list.map((item: ICandidate, idx: number): IFilteredListItem => {
         return {
           id: `${item.stash}-${idx}`,
-          favourite: this.favourites.includes(item.stash),
+          favourite: favourites.value.includes(item.stash),
           stash: item.stash,
           name: item.name,
           identity_name: item.identity.name,
@@ -249,31 +261,51 @@ export default defineComponent({
           rank: item.rank,
           score: item.score?.total
         } as IFilteredListItem
-      })
+      }) //as IFilteredListItem[]
+      return newList
+    })
+
+    const toggleFav  = (item: IFilteredListItem) => {
+      store.dispatch('candidate/toggleFav', { stash: item.stash })
     }
-  },
-  watch: {
-    chainId (newChainId) {
-      this.fetchOptions(newChainId)
+    const handlePaginate  = (evt: IPaginate) => {
+      // console.debug(evt)
+      store.dispatch('candidate/paginate', { pagination: evt })
     }
-  },
-  // eslint-disable-next-line
-  data: () => {
+
+    const fetchOptions = (chainId: string) => {
+      options.value = store.state.candidate[chainId]?.options || {}
+      console.debug('fetchOptions', chainId, chainId, options.value)
+    }
+    const handleOptions = (evt: IOptions) => {
+      console.debug('CandidatesTable.vue: ', evt)
+      store.dispatch('candidate/handleOptions', { options: evt })
+    }
+
+    watch(() => chainId.value, newVal => {
+      fetchOptions(newVal)
+    })
+
+    onBeforeMount(() => {
+      console.debug('CandidatesTable.vue: created()', chainId, store.state.candidate[chainId.value]?.options)
+      fetchOptions(chainId.value)
+    })
+
     return {
-      options: {
-        page: 1,
-        itemsPerPage: 10,
-        sortBy: [],
-        sortDesc: []
-      },
-      xfilter: {
-        favourite: false,
-        rank: '',
-        score: 0,
-        valid: false,
-        active: false,
-        nominated_1kv: false
-      }
+      headers,
+      items,
+      chainId,
+      loading,
+      filtering,
+      updatedAt,
+      filteredList,
+      favourites,
+      options,
+      xfilter,
+      toggleFav,
+      handlePaginate,
+      fetchOptions,
+      handleOptions
     }
   },
   methods: {
@@ -287,33 +319,12 @@ export default defineComponent({
     clickItem (item: IFilteredListItem) {
       this.$emit('click-item', item)
     },
-    toggleFav (item: IFilteredListItem) {
-      this.$store.dispatch('candidate/toggleFav', { stash: item.stash })
-    },
-    handlePaginate (evt: IPaginate) {
-      // console.debug(evt)
-      this.$store.dispatch('candidate/paginate', { pagination: evt })
-    },
-    // eslint-disable-next-line
     handlePage (evt: any) {
       if (!evt) console.debug(evt)
     },
-    // eslint-disable-next-line
     handleItemsPerPage (evt: any) {
       console.debug(evt)
     },
-    fetchOptions (chainId) {
-      this.options = this.$store.state.candidate[chainId]?.options || {}
-      console.debug('fetchOptions', this.chainId, chainId, this.options)
-    },
-    handleOptions (evt: IOptions) {
-      console.debug('CandidatesTable.vue: ', evt)
-      this.$store.dispatch('candidate/handleOptions', { options: evt })
-    }
-  },
-  created () {
-    console.debug('CandidatesTable.vue: created()', this.chainId, this.$store.state.candidate[this.chainId]?.options)
-    this.fetchOptions(this.chainId)
   }
 })
 </script>

@@ -52,9 +52,9 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, ref, watch } from 'vue'
+import { useStore } from 'vuex'
 import moment from 'moment'
-import { mapState } from 'vuex'
-import { defineComponent } from 'vue'
 
 interface IAlert {
   id: string
@@ -64,37 +64,35 @@ interface IAlert {
 
 export default defineComponent({
   name: 'Alerts',
-  computed: {
-    ...mapState(['alerts'])
-  },
-  data () {
-    return {
-      snackbar: false,
-      text: '',
-      timeout: 2000
+  setup () {
+    const store = useStore()
+    const alerts: any[] = store.state.alerts
+    const snackbar = ref(false)
+    const text = ref('')
+    const timeout = ref(2000)
+    const test = (type: string) => {
+      store.dispatch('addAlert', { id: moment().valueOf(), type: type, text: 'this is a test' })
     }
-  },
-  watch: {
-    alerts: {
-      deep: true,
-      handler (newval, oldval) {
-        console.debug(newval, oldval)
-        newval.forEach((a: IAlert) => {
-          if (!oldval.find((f: IAlert) => f.id === a.id)) {
+    const delAlert = (item: IAlert) => {
+      store.dispatch('clearAlert', item)
+    }
+    watch(() => alerts, (newVal, oldVal) => {
+      console.debug(newVal, oldVal)
+        newVal.forEach((a: IAlert) => {
+          if (!oldVal.find((f: IAlert) => f.id === a.id)) {
             console.debug('new', a)
-            this.text = a.text
-            this.snackbar = true
+            text.value = a.text
+            snackbar.value = true
           }
         })
-      }
-    }
-  },
-  methods: {
-    test (type: string) {
-      this.$store.dispatch('addAlert', { id: moment().valueOf(), type: type, text: 'this is a test' })
-    },
-    delAlert (item: IAlert) {
-      this.$store.dispatch('clearAlert', item)
+    })
+    return {
+      alerts,
+      snackbar,
+      text,
+      timeout,
+      test,
+      delAlert,
     }
   }
 })

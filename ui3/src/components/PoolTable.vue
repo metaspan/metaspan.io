@@ -1,15 +1,20 @@
 <template>
-  <v-data-table
-    :loading="loading"
-    :items="list"
-    :headers="headers"
-    @click:row="onClickRow">
-
-    <template v-slot:[`item.points`]="{ item }">
-      {{ toCoin(item.points) }}
-    </template>
-
-  </v-data-table>
+  <v-table>
+    <thead>
+      <th v-for="(head, idx) in headers" :key="idx">
+        {{ head.text }}
+      </th>
+    </thead>
+    <tbody>
+      <tr v-for="(item, idx) in list" :key="idx" @click="onClickRow">
+        <td>{{ item.id }}</td>
+        <td>{{ item.name }}</td>
+        <td>{{ item.state }}</td>
+        <td>{{ item.memberCounter }}</td>
+        <td>{{ toCoin(item.points) }}</td>
+      </tr>
+    </tbody>
+  </v-table>
 </template>
 
 <script lang="ts">
@@ -43,7 +48,7 @@ export default defineComponent({
     }
   },
   methods: {
-    onClickRow (event) {
+    onClickRow (event: any) {
       this.$emit('clickRow', event)
     },
     toCoin (v: number): string {

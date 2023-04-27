@@ -60,8 +60,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref } from 'vue'
+import { defineComponent, computed, ref, onBeforeMount } from 'vue'
 import { useStore } from 'vuex'
+import { useRoute } from 'vue-router'
 import { IPool } from '../types/global'
 import AccountLink from './AccountLink.vue'
 import PoolMembers from './PoolMembers.vue'
@@ -99,9 +100,10 @@ export default defineComponent({
   },
   setup (props) {
     const store = useStore()
+    const route = useRoute()
     const chainId = computed(() => store.state.chainId)
     const chainInfo = computed(() => store.getters['substrate/chainInfo'])
-    const decimals = computed(() => store.getters['substrate/decimals'])
+    const decimals = computed(() => store.state['substrate/decimals'])
     const pool = ref<IPool>({ roles: {} } as IPool)
     var { result, loading, error, refetch, onResult } = useQuery(GET_POOL_VIEW, {
       chain: chainId.value,
@@ -113,6 +115,17 @@ export default defineComponent({
       console.debug('onResult', event)
       const { loading, data, networkStatus } = event
       pool.value = {...data.Pool}
+    })
+
+    onBeforeMount(() => {
+      console.debug('Pool.vue created()', chainId.value, pool.value, route.params)
+      if (!pool.value || pool.value.id !== parseInt(route.params.id.toString())) {
+        console.debug('ID not same, loading id')
+        console.debug('params.id', typeof parseInt(route.params.id.toString()))
+        console.debug('pool.id', typeof pool.value.id)
+        store.dispatch('pool/setPool', { id: parseInt(route.params.id.toString()) })
+      }
+
     })
 
     return {
@@ -142,24 +155,6 @@ export default defineComponent({
       // return (v / this.decimals[decimalPlaces]).toLocaleString('en-GB', { maximumFractionDigits: 4 }) // .toFixed(4)
       return (v / denom).toLocaleString('en-GB', { maximumFractionDigits: 4 }) // .toFixed(4)
     }
-  },
-  async created () {
-    console.debug('Pool.vue created()', this.chainId, this.pool, this.$route.params)
-    if (!this.pool || this.pool.id !== parseInt(this.$route.params.id)) {
-      console.debug('ID not same, loading id')
-      console.debug('params.id', typeof parseInt(this.$route.params.id))
-      console.debug('pool.id', typeof this.pool?.id)
-      this.store.dispatch('pool/setPool', { id: parseInt(this.$route.params.id) })
-    }
   }
 })
 </script>
-
-<!-- <style scoped>
-.nowrap {
-  max-width: 425px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-</style> -->

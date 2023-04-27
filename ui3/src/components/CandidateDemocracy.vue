@@ -18,24 +18,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { mapGetters, mapState } from 'vuex'
-// import { } from '../global/utils'
-
-// eslint-disable-next-line
-interface IData {}
-interface IMethods {
-  formatAmount (amount: any): string
-}
-interface IComputed {
-  chainInfo: any
-  decimals: Record<number, number>
-  democracy: any
-  tokenSymbol: string
-}
-interface IProps {
-  stash: string
-}
+import { defineComponent, computed, onBeforeMount } from 'vue'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'CandidateDemocracy',
@@ -44,12 +28,23 @@ export default defineComponent({
       type: String
     }
   },
-  computed: {
-    ...mapGetters('substrate', ['chainInfo']),
-    ...mapState('substrate', ['decimals']),
-    ...mapState('candidate', ['democracy']),
-    tokenSymbol () {
-      return this.chainInfo.tokenSymbol.toJSON()[0] || '???'
+  setup (props) {
+    const store = useStore()
+    const chainInfo = computed(() => store.getters['substrate/chainInfo'])
+    const decimals = computed(() => store.state['substrate/decimals'])
+    const democracy = computed(() => store.state['candidate/democracy'])
+    const tokenSymbol = computed(() => {
+      return chainInfo.value.tokenSymbol.toJSON()[0] || '???'
+    })
+    onBeforeMount(() => {
+    // TODO get this from the chain
+      store.dispatch('candidate/getDemocracy', { stash: props.stash })
+    })
+    return {
+      chainInfo,
+      decimals,
+      democracy,
+      tokenSymbol
     }
   },
   methods: {
@@ -61,10 +56,6 @@ export default defineComponent({
       const denom = this.decimals[tokenDecimals]
       return (amount / denom).toFixed(4)
     }
-  },
-  created () {
-    // TODO get this from the chain
-    this.$store.dispatch('candidate/getDemocracy', { stash: this.stash })
   }
 })
 </script>

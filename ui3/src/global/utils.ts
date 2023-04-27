@@ -13,7 +13,7 @@ export function parseIdentity (id: any) {
     res.deposit = idj.deposit
     res.info = {
       // additional...
-      additional: idj.info.additional.map(item => {
+      additional: idj.info.additional.map((item: any) => {
         const [key, val] = item
         return {
           key: hexToString(key.raw),

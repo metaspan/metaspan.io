@@ -7,13 +7,13 @@
         <v-col class="cicon" align="center">Nom. 1kv<br><v-icon :color="model.nominated_1kv?'green':'grey'">mdi-{{ model.nominated_1kv?'minus-circle':'minus-circle' }}</v-icon></v-col>
         <v-col class="cicon" align="center">Active<br><v-icon :color="model.active?'green':'grey'">mdi-{{ model.active?'check-circle':'minus-circle' }}</v-icon></v-col>
         <v-col class="cicon" align="center">Rank<br>{{ model.rank }}</v-col>
-        <v-col class="cicon" align="center">Score<br>{{ model.total?.toFixed(2) | 0.00 }}</v-col>
-        <v-col class="cicon" align="center">Commission<br>{{ model.commission?.toFixed(2) | 0.00 }}%</v-col>
+        <v-col class="cicon" align="center">Score<br>{{ model.total ? model.total.toFixed(2) : 0.00 }}</v-col>
+        <v-col class="cicon" align="center">Commission<br>{{ model.commission ? model.commission.toFixed(2) : 0.00 }}%</v-col>
         <v-col class="cicon" align="center">Discovered<br>{{ timeAgo(model.discoveredAt) }}</v-col>
         <v-col class="cicon" align="center">Nominated<br>{{ timeAgo(model.nominatedAt) }}</v-col>
         <v-col class="cicon" align="center">Online<br>{{ timeAgo(model.onlineSince) }}</v-col>
         <v-col class="cicon" align="center">Node version<br>TBC</v-col>
-        <v-col class="cicon" align="center">Stash<br>{{ formatStash(model.stash) }}</v-col>
+        <v-col class="cicon" align="center">Stash<br>{{ shortStash(model.stash) }}</v-col>
         <v-col class="cicon" align="center">Controller<br>TBC</v-col>
         <v-col class="cicon" align="center">Queued key<br>TBC</v-col>
         <v-col class="cicon" align="center">Next Key<br>TBC</v-col>
@@ -34,8 +34,9 @@
 import { defineComponent, computed, ref, watch } from 'vue'
 import moment from 'moment'
 import { useStore } from 'vuex'
-import { ICandidate } from '../../../ui/bak/src/types/global'
+import { ICandidate } from '../types/global'
 // import { ICandidate } from '../types/global'
+import { shortStash } from '../global/utils'
 
 export default defineComponent({
   name: 'Candidate',
@@ -45,13 +46,15 @@ export default defineComponent({
     const store = useStore()
     const chainId = computed(() => store.state.chainId)
     const model = ref<ICandidate>(props.candidate)
+    // const dateTimeFormat = ref('')
     watch(() => props.candidate, (newVal) => {
       console.debug('CandidateIcons.vue: watch candidate', props.candidate)
       model.value = newVal
     }, { immediate: true })
     return {
       chainId,
-      model
+      model,
+      // dateTimeFormat
     }
   },
   methods: {
@@ -64,15 +67,7 @@ export default defineComponent({
       const invalid = items.find((i: any) => { return i.valid === false })
       return !invalid
     },
-    // eslint-disable-next-line
-    formatDate (v: any): string {
-      // console.debug(v, this.dateTimeFormat)
-      return moment(v).format(this.dateTimeFormat)
-    },
-    formatStash (stash: string, len = 5) {
-      if (stash.length <= len * 2 + 3) return stash
-      return stash.substr(0, len) + '..' + stash.substr(stash.length - len)
-    }
+    shortStash
   }
 })
 </script>

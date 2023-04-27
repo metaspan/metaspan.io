@@ -113,7 +113,7 @@ import { ICandidate } from '../types/global'
 import Loading from './Loading.vue'
 import { debounce } from 'lodash'
 
-import WalletAddDialog from './WalletAddDialog.vue';
+// import WalletAddDialog from './WalletAddDialog.vue';
 import CirclesTest from './identicon/CirclesTest.vue'
 
 interface IWindowSize {
@@ -231,9 +231,10 @@ export default defineComponent({
     },
     xfilter: {
       deep: true,
-      handler (newval) {
+      handler (newVal) {
+        console.debug('watch.xfilter', newVal)
         this.debouncing = true
-        this.debouncedFilter(newval)
+        this.debouncedFilter(newVal)
       }
     }
   },
@@ -245,9 +246,10 @@ export default defineComponent({
       console.debug(f)
     },
     fetchFilter () {
-      if (this.store.state.candidate[this.chainId]) {
-        this.xfilter = this.store.state.candidate[this.chainId].filter
-        this.search = this.store.state.candidate[this.chainId].search
+      console.debug('fetchFilter', this.store.state.candidate.chains[this.chainId])
+      if (this.store.state.candidate.chains[this.chainId]) {
+        this.xfilter = this.store.state.candidate.chains[this.chainId].filter
+        this.search = this.store.state.candidate.chains[this.chainId].search
       }
     },
     checkFilterActive () {
@@ -288,6 +290,7 @@ export default defineComponent({
     // this.itemsPerPage = this.$store.state.candidate.pagination.itemsPerPage
 
     this.debouncedSearch = debounce((newVal: string) => {
+      console.debug('debouncedSearch()', newVal)
       this.checkFilterActive()
       this.store.dispatch('candidate/setSearch', { chainId: this.chainId, search: newVal })
       this.debouncing = false
@@ -295,6 +298,7 @@ export default defineComponent({
     }, 1000)
 
     this.debouncedFilter = debounce((newVal: IFilter) => {
+      console.debug('debouncedFilter()', newVal)
       this.checkFilterActive()
       this.store.dispatch('candidate/handleFilter', { chainId: this.chainId, filter: {...newVal} })
       this.debouncing = false
