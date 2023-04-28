@@ -27,8 +27,13 @@
           </v-row>
         </v-list-item-title>
 
+        <v-row>
+          <!-- {{ item }} -->
+          <!-- {{ refVoting }} -->
+        </v-row>
+
         <v-row density="compact">
-          <v-col>
+          <v-col cols="6">
             <CandidateReferendaVote
               :stash="candidate.stash"
               :referenda="item"
@@ -39,7 +44,7 @@
           <v-col v-if="item.approved" align="right">approved</v-col>
           <v-col v-if="item.rejected" align="right">rejected</v-col>
           <v-col v-if="item.timedOut" align="right">timedOut</v-col>
-          <v-col v-if="!item.approved && !item.rejected && !item.timedOut">
+          <v-col cols="4" v-if="!item.approved && !item.rejected && !item.timedOut">
             <!-- <div> -->
               <v-progress-linear :model-value="getAyes(item)"
                 height="15" background-color="grey"
@@ -64,7 +69,7 @@
               <template v-slot:activator="{props}">
                 <v-btn size="28" icon v-bind="props">
                   <!-- <v-icon size="18">mdi-dots-vertical</v-icon> -->
-                  <v-icon size="18" :color="hasVoted(item) ? 'success' : 'grey'">mdi-vote-outline</v-icon>
+                  <v-icon size="18" :color="hasVotedInRef(item) ? 'success' : 'grey'">mdi-vote-outline</v-icon>
                 </v-btn>
               </template>
               <v-list>
@@ -193,7 +198,7 @@ export default defineComponent({
     const refresh =  async () => {
       loading.value = true
       tracks.value = await getTracks()
-      refVoting.value = await getRefVoting()
+      await getRefVoting()
       // console.debug('refVoting', refVoting.value)
       await nextTick()
       referenda.value = await getReferenda()
@@ -254,37 +259,70 @@ export default defineComponent({
       return Promise.resolve(ttracks)
     }
 
+    const refVotingExample = [
+      {
+        refId: 1,
+        voteStack: [
+          // [accountId, "how voted"]
+          [ 123, { delegating: {} }],
+          [ 789, { delegating: {} }],
+          [ 456, { voting: {} }]
+        ]
+      }
+    ]
+
+    const collectTrackVotes = (accountId: string, refId: number, trackId: number, vote: any) => {
+      console.debug('collectTrackVotes', accountId, refId, trackId, vote)
+      const ref = refVoting.value.find((f: any) => f.refId === refId)
+      if (ref) {
+        ref.voteStack.push([accountId, vote])
+      } else {
+        refVoting.value.push({ refId, voteStack: [[accountId, vote]] })
+      }
+    }
+
     // did we vote or delegate?
-    // returns [delegationStack, vote]
-    const getDelegatedVote = async (accountId: string, trackId: number): Promise<any> => {
-      // console.debug('getDelegatedVote', accountId, trackId)
-      let ret = {}
+    // returns [[accountId, vote]]
+    const getTrackVotes = async (accountId: string, trackId: number, delegations: any[]): Promise<void> => {
+      // console.debug('getTrackVotes', accountId, trackId)
       // let stack = [accountId]
       let vote = await substrate.api?.query.convictionVoting.votingFor(accountId, trackId)
       const vote2: any = vote?.toJSON()
-      // console.log('vote', i, track.name, track.id.toString(), vote)
+      // console.log('vote2', trackId, vote2)
       if (vote2.casting) {
-        console.debug('--> casting', vote2)
-        ret = [[], vote2]
+        console.debug('--> casting', vote2.casting)
+        // vote2.casting.votes?.forEach(([refId, vote]: any) => {
+        for (let j = 0; j < vote2.casting.votes?.length; j++) {
+          const [refId, vote] = vote2.casting.votes[j]
+          // console.debug('handle votes for', refId)
+          // finally we know what the parent voted for!
+          // delegations.forEach((delegation: any) => {
+          for(let i = 0; i < delegations.length; i++) {
+            const [accid, delegation] = delegations[i]
+            // console.debug('delegation', accid, delegation)
+            collectTrackVotes(accid, refId, trackId, {...delegation})
+          }
+          collectTrackVotes(accountId, refId, trackId, vote)
+        }
       } else if (vote2.delegating) {
-        console.debug('--> delegating to', vote2.delegating.target)
+        // console.debug('--> delegating to', vote2.delegating.target)
+        // we don't yet know how the delegation was used...
+        // collectTrackVotes(accountId, refId, trackId, vote)
         const target = vote2.delegating.target
-        const [stack, delegatedVote] = await getDelegatedVote(target, trackId)
-        console.debug('===> delegated', stack, delegatedVote)
-        // stack.push(accountId)
-        // delegatedVote = delegatedVote.toJSON()
-        return [[target, ...stack], delegatedVote]
+        // const [stack, delegatedVote] = await getTrackVotes(target, trackId)
+        await getTrackVotes(target, trackId, [...delegations, [accountId, vote2]])
       } else {
         console.warn('unknown vote status...???', vote2)
-        return [[], vote2]
       }
-      return Promise.resolve(ret)
     }
 
-    const getRefVoting = async (): Promise<any[]> => {
+    /**
+     * For each Track, get the voting for each Referendum (if any)
+     */
+    const getRefVoting = async (): Promise<void> => {
       console.debug('getRefVoting()...')
       // const voting: any[] = []
-      const refVoting2: any[] = []
+      refVoting.value = []
       // const trackVoting = {}
       for (let i = 0; i < tracks.value.length; i++) {
         const track: any = tracks.value[i]
@@ -292,40 +330,12 @@ export default defineComponent({
         // get voting by track.id (not index)
         // let vote = await this.$substrate[this.chainId].query.convictionVoting.votingFor(this.stash, track.id)
         // vote = vote.toJSON()
-        const [stack, vote] = await getDelegatedVote(candidate.value.stash, track.id) as [any[], any]
-        // console.log('getRefVoting', track.id, stack, vote)
-        // if (vote.delegating) {
-        //   console.debug('delegating', vote.delegating)
-        //   const target = vote.delegating.target
-        //   let [stack, delegatedVote] = await this.getDelegatedVote(target, track.id)
-        //   //delegatedVote = delegatedVote.toJSON()
-        //   console.debug('delegatedVote', delegatedVote)
-        //   for (let k = 0; k < delegatedVote.casting?.votes?.length; k++) {
-        //     const v = vote.casting?.votes[k]
-        //     console.debug('===> v', v)
-        //     const [refId, voted] = v // id is the referendum Id
-        //     console.log('i.k.id', i, k, refId.toString(), voted)
-        //     refVoting[`${refId}`] = { voted }
-        //   }
-        // } else
-        if (vote.casting) {
-          // console.log('casting...')
-          // for each vote, assing this to the refVoting dict
-          for (let j = 0; j < vote.casting?.votes?.length; j++) {
-            const v = vote.casting?.votes[j]
-            const [refId, voted] = v // id is the referendum Id
-            // console.log('i.j.id', i, j, refId.toString(), voted)
-            refVoting2.push({ id: refId, voted: {...voted}, stack: {...stack}, track: {...track} })
-          }
-        } else {
-          console.warn('we did nothing...')
-        }
-        // trackVoting[track.id.toString] = vote
+        await getTrackVotes(candidate.value.stash, track.id, [])
       }
-      // console.debug('refVoting2', refVoting2)
+      console.debug('refVoting', refVoting.value)
       // refVoting.value = refVoting2
       // this.trackVoting = trackVoting
-      return Promise.resolve(refVoting2)
+      // return Promise.resolve(refVoting2)
     }
 
     const getTrack = (id: number) => {
@@ -334,9 +344,19 @@ export default defineComponent({
       if (t) return t; else return { id }
     }
 
-    const hasVoted = (item: any) => {
-      const refVote = refVoting.value.find(f => f.id===item.id)
-      return refVote?.voted || item.delegating
+    const hasVotedInRef = (item: any) => {
+      // const iitem = {...item}
+      console.debug('hasVotedInRef', {...item})
+      // const [refId, _] = iitem
+      if (item.id) {
+        const refVote = refVoting.value.find(f => f.refId === item.id)
+        console.debug('=>', refVote)
+        const hasVote = refVote?.voteStack.find(([_, vote]: any) => vote.standard)
+        return hasVote ? true : false
+      } else {
+        return false
+      }
+      //const standard = vote.votes?.find()
     }
     const getTrackName = (item: any) => {
       const iitem = {...item}
@@ -354,7 +374,7 @@ export default defineComponent({
 
     onBeforeMount(() => {
       console.debug('CandidateReferenda.onBeforeMount()')
-      refresh()
+      // refresh()
     })
 
     refresh()
@@ -372,7 +392,7 @@ export default defineComponent({
       refVoting,
       refresh,
       getTrack,
-      hasVoted,
+      hasVotedInRef,
       getTrackName
     }
   },

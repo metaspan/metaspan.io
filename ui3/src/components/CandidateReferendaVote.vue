@@ -1,6 +1,34 @@
 <template>
-  <div>
-    <v-row density="compact">
+  <v-container fluid class="ma-0 pa-0">
+
+    <small>
+    <v-row no-gutters v-for="([accountId, vote], idx) in refVote?.voteStack" :key="idx">
+      <v-col class="text-no-wrap">
+        <!-- {{ idx }}. -->
+        <span v-if="vote.delegating">
+          <v-icon size="18" color="grey">mdi-arrow-right</v-icon>
+          {{ formatAmount(vote.delegating.balance, 1) }} {{ symbol }} {{ vote.delegating.conviction }}
+        </span>
+
+        <span v-if="vote.standard">
+          <!-- {{ formatAmount(vote.standard.balance, 1) }} {{ getConviction(vote) }} -->
+          <v-icon size="18" :color="ayeOrNay(vote.standard.vote).aye ? 'success' : 'red'">mdi-thumb-{{ayeOrNay(vote.standard.vote).aye ? 'up' : 'down'}}-outline</v-icon>
+          {{ formatAmount(vote.standard?.balance, 2)}} {{ symbol }}
+          ({{ getConviction(vote) }})
+        </span>
+
+        <span v-if="vote.splitAbstain">
+          <v-icon size="18" color="purple">mdi-call-split</v-icon>
+          (<v-icon size="12">mdi-arrow-up</v-icon>{{ formatAmount(vote.splitAbstain?.aye, 0) }},
+          <v-icon size="12">mdi-arrow-down</v-icon>{{ formatAmount(vote.splitAbstain?.nay, 0) }},
+          <v-icon size="12">mdi-arrow-left-right</v-icon>{{ formatAmount(vote?.splitAbstain?.abstain, 0) }})
+        </span>
+
+      </v-col>
+      <!-- </v-list-item> -->
+    </v-row>
+  </small>
+    <!-- <v-row density="compact">
       <v-col align-self="center" cols="12" sm="4">
         <div v-if="casting">
           <v-icon size="18">mdi-arrow-right</v-icon><small>Casting:</small>
@@ -17,10 +45,8 @@
         <span v-show="(!(refVote?.voted?.standard || refVote?.voted?.splitAbstain))"> <small>No vote</small> </span>
         <span v-if="refVote?.voted?.splitAbstain">
           <v-icon size="18" color="purple">mdi-call-split</v-icon>
-          <!-- {{refVote}} -->
           <small>(
-          <v-icon size="12">mdi-arrow-up</v-icon>
-          {{ formatAmount(refVote?.voted?.splitAbstain?.aye, 1) }},
+          <v-icon size="12">mdi-arrow-up</v-icon>{{ formatAmount(refVote?.voted?.splitAbstain?.aye, 1) }},
           <v-icon size="12">mdi-arrow-down</v-icon>{{ formatAmount(refVote?.voted?.splitAbstain?.nay, 1) }},
           <v-icon size="12">mdi-arrow-left-right</v-icon>{{ formatAmount(refVote?.voted?.splitAbstain?.abstain, 1) }}
           )</small>
@@ -29,26 +55,12 @@
           <v-icon size="18" :color="ayeOrNay(refVote.voted.standard.vote).aye ? 'success' : 'red'">mdi-thumb-{{ayeOrNay(refVote.voted.standard.vote).aye ? 'up' : 'down'}}-outline</v-icon>
           {{ formatAmount(refVote?.voted?.standard?.balance, 2)}} {{ symbol }}
           ({{ getConviction(refVote) }})
-          <!-- {{referenda.casting.votes}} -->
         </span>
       </v-col>
 
-    </v-row>
+    </v-row> -->
 
-    <v-row dense v-if="delegating">
-      <v-col align-self="center">
-        Delegation route:
-      </v-col>
-      <v-col align-self="center">
-      <!-- {{ getStack() }} -->
-        <span v-for="(accountId, idx) in refVote.stack" v-bind:key="idx">
-          <ClickToCopy
-          :display="(idx+1) +':'+shortStash(accountId)" :text="accountId"></ClickToCopy>
-        </span>
-      </v-col>
-    </v-row>
-
-  </div>
+  </v-container>
 
 </template>
 
@@ -112,7 +124,7 @@ export default defineComponent({
 
     const getConviction = (item: any) => {
       // console.debug('getConviction', item)
-      const cv = item?.voted?.standard?.vote || ''
+      const cv = item?.standard?.vote || ''
       // console.debug('cv', cv)
       return convictions[cv]?.conviction
     }
@@ -132,8 +144,8 @@ export default defineComponent({
       const tmpReferenda = {...referenda}
       const refId = tmpReferenda.id || ''
       // console.debug('refId', refId)
-      refVote.value = refVoting.value.find((f: any) => f.id === refId) as Record<any, any>
-      // console.log('refVote', refVote.value)
+      refVote.value = refVoting.value.find((f: any) => f.refId === refId) as Record<any, any>
+      console.log('refVote', refVote.value)
     })
 
     return {
