@@ -99,7 +99,7 @@ class SubstrateAPI implements ISubstrateAPI {
 
   async connect (chainId = 'kusama'): Promise<void> {
     console.debug('plugins/substrate.ts: connect()', chainId)
-    const api = await this.createWsProvider(chainId)
+    const api = await this.createWsProvider(chainId, this.config.endpoint)
     this.api = api
     console.debug(`plugins/substrate.ts: connect(${chainId}): we have an api...`)
 

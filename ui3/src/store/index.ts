@@ -7,6 +7,7 @@ import validator from './modules/validator'
 import candidate from './modules/candidate'
 import pool from './modules/pool'
 import selector from './modules/selector'
+import plausible from './modules/plausible'
 
 import { StateManager } from './state-manager'
 const stateManager = new StateManager('metaspan.io')
@@ -147,6 +148,7 @@ export default createStore({
     candidate,
     polkadot,
     pool,
-    selector
+    selector,
+    plausible
   }
 })

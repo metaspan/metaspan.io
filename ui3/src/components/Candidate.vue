@@ -73,25 +73,25 @@
     <v-card>
       <br>
       <v-tabs v-model="tab">
-        <v-tab key="score">Score</v-tab>
+        <v-tab key="score" value="score">Score</v-tab>
         <!-- <v-tab key="democracy">Democracy</v-tab> -->
-        <v-tab key="referenda">Referenda</v-tab>
-        <v-tab key="nominators">Nominators</v-tab>
+        <v-tab key="referenda" value="referenda">Referenda</v-tab>
+        <v-tab key="nominators" value="nominators">Nominators</v-tab>
         <!-- <v-tabs-slider></v-tabs-slider> -->
       </v-tabs>
 
       <v-window v-model="tab">
-        <v-window-item key="score">
+        <v-window-item key="score" value="score">
           <!-- <CandidateScoreTable :candidate="candidate"></CandidateScoreTable> -->
           <CandidateScoreList :candidate="candidate"></CandidateScoreList>
         </v-window-item>
         <!-- <v-tab-item key="democracy">
           <CandidateDemocracy :stash="candidate.stash"></CandidateDemocracy>
         </v-tab-item> -->
-        <v-window-item key="referenda">
+        <v-window-item key="referenda" value="referenda">
           <CandidateReferenda :candidate="candidate"></CandidateReferenda>
         </v-window-item>
-        <v-window-item key="nominators">
+        <v-window-item key="nominators" value="nominators">
           <CandidateNominators :stash="stash"></CandidateNominators>
         </v-window-item>
       </v-window>
@@ -106,6 +106,7 @@
 import { defineComponent, inject, computed, watch, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter, useRoute } from 'vue-router'
+import Plausible from 'plausible-tracker'
 import moment from 'moment'
 
 import CandidateValidity from './CandidateValidity.vue'
@@ -123,7 +124,7 @@ import CandidateNominators from './CandidateNominators.vue'
 import CandidateReferenda from './CandidateReferenda.vue'
 import { SubstrateAPI } from '@/plugins/substrate'
 
-import { useQuery, useMutation, useApolloClient } from '@vue/apollo-composable'
+import { useQuery } from '@vue/apollo-composable'
 import gql from 'graphql-tag'
 // import Identicon from '@polkadot/vue-identicon'
 import Identicon from './identicon/Identicon.vue'
@@ -244,10 +245,10 @@ query Data($chain: String!, $stash: String) {
   }
 }`
 
+const p = Plausible()
+
 export default defineComponent({
   name: 'Candidate',
-  // props: ['model'],
-  // mixins: [polkadot],
   components: {
     CandidateExternalLinks,
     // CandidateScoreTable,
@@ -267,6 +268,7 @@ export default defineComponent({
     const store = useStore()
     const router = useRouter()
     const route = useRoute()
+    const plausible = inject<typeof p>('$plausible')
     const stash = route.params.stash.toString()
     console.debug('Candidate.vue: setup(), stash', stash)
     const chainId = computed(() => store.state.chainId)
@@ -276,6 +278,7 @@ export default defineComponent({
     const substrate: SubstrateAPI = inject('$substrate') || new SubstrateAPI({ lite: false })
     // const loading = computed(() => store.state['candidate/loading'])
     const ranges = computed(() => store.state['candidate/ranges'])
+    const tab = ref('score')
 
     var { result, loading, error, refetch, onResult }: any = useQuery(QUERY_CANDIDATE, {
       chain: chainId.value,
@@ -294,26 +297,34 @@ export default defineComponent({
     watch(() => route.params.stash, (newVal) => {
       console.debug('watch: route.params.stash', newVal)
     })
+    watch(() => tab.value, newVal => {
+      if (plausible) {
+        plausible.trackPageview({
+          url: `${window.location.pathname}?tab=${newVal}`
+        })
+      }
+    })
 
     return {
       store,
       substrate,
       chainId,
       stash,
+      tab,
       loading,
       refetch,
       candidate,
       ranges
     }
   },
-  data (): IData {
+  data () {
     return {
       dateTimeFormat: 'YYYY/MM/DD hh:mm',
       activeEra: {},
       header: {},
       // eslint-disable-next-line
       unsubscribe () {},
-      tab: null
+      // tab: 'score'
     }
   },
   watch: {

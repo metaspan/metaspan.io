@@ -1,11 +1,10 @@
 // Composables
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, RouteLocationNormalized, NavigationGuardNext } from 'vue-router'
+// import { PlausiblePlugin } from '@/plugins/plausible'
+import Plausible from 'plausible-tracker'
 
 import Home from '../views/Home.vue'
-
 import ChainHome from '@/components/ChainHome.vue'
-// import PolkadotHome from '@/components/polkadot/PolkadotHome.vue'
-
 import Validators from '@/components/Validators.vue'
 import Nominators from '@/components/Nominators.vue'
 import Candidates from '@/components/Candidates.vue'
@@ -14,10 +13,9 @@ import Pools from '@/components/Pools.vue'
 import Pool from '@/components/Pool.vue'
 import ValidatorsSelector from '@/components/ValidatorsSelector.vue'
 import ValidatorSelector from '@/components/ValidatorSelector.vue'
-// import Network from '@/components/Network.vue'
 import Identities from '@/components/Identities.vue'
 
-import ComingSoon from '@/components/ComingSoon.vue'
+import store from '@/store'
 
 const routes = [
   {
@@ -81,15 +79,19 @@ const router = createRouter({
   }
 })
 
-// import { PlausiblePlugin } from '@/plugins/plausible'
-// router.beforeEach((to, from, next) => {
-//   // document.title = to.meta?.title || 'baseTitle'
-  
-//   Vue.$plausible.trackPageview({
-//     // apiHost: 'http://192.168.1.99:8000',
-//     url: to.path
-//   })
-//   return next()
-// })
+// TODO move this to a plugin?
+const plausible = Plausible(store.getters['plausible/options'])
+plausible.enableAutoPageviews();
+
+router.beforeEach((to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
+  // document.title = to.meta?.title || 'baseTitle'
+  // const plausible = inject<typeof p>('$plausible') //|| new PlausiblePlugin()
+  if (plausible) {
+    plausible.trackPageview({
+      url: to.path
+    })
+  }
+  return next()
+})
 
 export default router
