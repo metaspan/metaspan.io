@@ -7,10 +7,11 @@
 // Plugins
 import { loadFonts } from './webfontloader'
 import vuetify from './vuetify'
-import router from '../router'
 import store from '../store'
+import router from '../router'
 import { SubstratePlugin } from './substrate'
 import { PlausiblePlugin } from './plausible'
+import plausibleModule from '@/store/modules/plausible'
 import { apolloProvider } from './apollo'
 import { DefaultApolloClient } from '@vue/apollo-composable'
 
@@ -27,5 +28,6 @@ export function registerPlugins (app: App) {
     // .provide('$substrate', substrate)
     .use(apolloProvider)
     .provide(DefaultApolloClient, apolloProvider.defaultClient)
-    .use(PlausiblePlugin, store.getters['plausible/options'])
+    // .use(PlausiblePlugin, store.getters['plausible/options'])
+    .use(PlausiblePlugin, plausibleModule.state.options)
 }

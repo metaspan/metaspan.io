@@ -145,7 +145,7 @@ export default defineComponent({
       const refId = tmpReferenda.id || ''
       // console.debug('refId', refId)
       refVote.value = refVoting.value.find((f: any) => f.refId === refId) as Record<any, any>
-      console.log('refVote', refVote.value)
+      // console.log('refVote', refVote.value)
     })
 
     return {

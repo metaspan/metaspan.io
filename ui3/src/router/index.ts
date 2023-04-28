@@ -79,8 +79,9 @@ const router = createRouter({
   }
 })
 
-// TODO move this to a plugin?
-const plausible = Plausible(store.getters['plausible/options'])
+// // TODO move this to a plugin?
+import plausibleModule from '../store/modules/plausible'
+const plausible = Plausible(plausibleModule.state.options)
 plausible.enableAutoPageviews();
 
 router.beforeEach((to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {

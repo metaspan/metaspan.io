@@ -272,7 +272,7 @@ export default defineComponent({
     ]
 
     const collectTrackVotes = (accountId: string, refId: number, trackId: number, vote: any) => {
-      console.debug('collectTrackVotes', accountId, refId, trackId, vote)
+      // console.debug('collectTrackVotes', accountId, refId, trackId, vote)
       const ref = refVoting.value.find((f: any) => f.refId === refId)
       if (ref) {
         ref.voteStack.push([accountId, vote])
@@ -290,7 +290,7 @@ export default defineComponent({
       const vote2: any = vote?.toJSON()
       // console.log('vote2', trackId, vote2)
       if (vote2.casting) {
-        console.debug('--> casting', vote2.casting)
+        // console.debug('--> casting', vote2.casting)
         // vote2.casting.votes?.forEach(([refId, vote]: any) => {
         for (let j = 0; j < vote2.casting.votes?.length; j++) {
           const [refId, vote] = vote2.casting.votes[j]
@@ -332,7 +332,7 @@ export default defineComponent({
         // vote = vote.toJSON()
         await getTrackVotes(candidate.value.stash, track.id, [])
       }
-      console.debug('refVoting', refVoting.value)
+      // console.debug('refVoting', refVoting.value)
       // refVoting.value = refVoting2
       // this.trackVoting = trackVoting
       // return Promise.resolve(refVoting2)
@@ -346,11 +346,11 @@ export default defineComponent({
 
     const hasVotedInRef = (item: any) => {
       // const iitem = {...item}
-      console.debug('hasVotedInRef', {...item})
+      // console.debug('hasVotedInRef', {...item})
       // const [refId, _] = iitem
       if (item.id) {
         const refVote = refVoting.value.find(f => f.refId === item.id)
-        console.debug('=>', refVote)
+        // console.debug('=>', refVote)
         const hasVote = refVote?.voteStack.find(([_, vote]: any) => vote.standard)
         return hasVote ? true : false
       } else {
