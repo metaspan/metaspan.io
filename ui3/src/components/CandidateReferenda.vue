@@ -351,7 +351,7 @@ export default defineComponent({
       if (item.id) {
         const refVote = refVoting.value.find(f => f.refId === item.id)
         // console.debug('=>', refVote)
-        const hasVote = refVote?.voteStack.find(([_, vote]: any) => vote.standard)
+        const hasVote = refVote?.voteStack.find(([_, vote]: any) => vote.standard || vote.splitAbstain)
         return hasVote ? true : false
       } else {
         return false
