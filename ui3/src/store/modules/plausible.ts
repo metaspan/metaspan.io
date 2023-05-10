@@ -11,6 +11,7 @@ const plausible = {
   },
   getters: {
     options (state: any) {
+      console.debug('plausible.ts: getters.options', state)
       return state.options
     }
   },

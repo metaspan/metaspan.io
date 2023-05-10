@@ -86,7 +86,7 @@ export default defineComponent({
       // this.$store.dispatch('setChainId', _chain.id)
       await substrate.connect(_chain.id)
       //chainInfo = await substrate.api?.isReady
-      const chainInfo = JSON.parse(substrate.api?.registry.getChainProperties().toString())
+      const chainInfo = JSON.parse(substrate.api?.registry?.getChainProperties()?.toString() || '{}')
       // console.debug('ChainMenu.vue: chainInfo', chainInfo)
       // console.debug('ChainHome.vue: reading chainId info()...')
       // const chainInfo = await substrate.api?.registry.getChainProperties()

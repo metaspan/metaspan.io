@@ -209,10 +209,10 @@ export default defineComponent({
     const getTracks = async (): Promise<any[]> => {
       console.debug('getTracks', chainId.value)
       // tracks.value = []
-      try { await substrate.api.isReady } catch (err) {
+      try { await substrate.api?.isReady } catch (err) {
         console.warn('getTracks', err)
       }
-      let tracks = await substrate.api?.consts.referenda?.tracks || null // JSON.parse('[]')
+      let tracks: any = await substrate.api?.consts.referenda?.tracks || JSON.parse('[]')
       console.debug('tracks', tracks)
       try { tracks = tracks.toJSON() } catch (err) {
         console.warn('getTracks', err)
@@ -226,7 +226,7 @@ export default defineComponent({
       const ttracks = []
       // tracks.forEach(async (track: any[]) => {
       for (let i = 0; i < tracks.length; i++) {
-        const track = tracks[i]
+        const track: any = tracks[i]
         const [id, meta] = track
         // console.log('id', id)
         // const voting = await this.$substrate[this.chainId].query.convictionVoting.votingFor(this.stash, id.toJSON())

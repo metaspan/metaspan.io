@@ -22,7 +22,7 @@
         <tr v-for="(item, idx) in result?.Validator?.nominators" v-bind:key="idx">
           <!-- {{ item }} -->
           <td>
-            <div style="cursor:pointer" @click="clickItem(item)">
+            <div style="cursor:pointer">
               <ClickToCopy :display="shortStash(item.accountId)" :text="item.accountId" />
             </div>
           </td>
