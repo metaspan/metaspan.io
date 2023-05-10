@@ -148,21 +148,21 @@ interface IInfo {
 }
 
 const trackNames: Record<string, string> = {
-  root: 'Root', // 0
+  root:               'Root', // 0
   whitelisted_caller: 'Whitelisted Caller', // 1
-  staking_admin: 'Staking Admin', // 2
-  treasurer: 'Treasurer', // 3
-  lease_admin: 'Lease Admin', // 4
-  fellowship_admin: 'Fellowship Admin', // 5
-  general_admin: 'General Admin', // 6
-  auction_admin: 'Auction Admin', // 7
+  staking_admin:      'Staking Admin', // 2
+  treasurer:          'Treasurer', // 3
+  lease_admin:        'Lease Admin', // 4
+  fellowship_admin:   'Fellowship Admin', // 5
+  general_admin:      'General Admin', // 6
+  auction_admin:      'Auction Admin', // 7
   referendum_canceller: 'Referendum Canceller', // 8
-  referendum_killer: 'Referendum Killer', // 9
-  small_tipper: 'Small Tipper', // 10
-  big_tipper: 'Big Tipper', // 11
-  small_spender: 'Small Spender', // 12
-  medium_spender: 'Medium Spender', // 13
-  big_spender: 'Big Spender' // 14
+  referendum_killer:  'Referendum Killer', // 9
+  small_tipper:       'Small Tipper', // 10
+  big_tipper:         'Big Tipper', // 11
+  small_spender:      'Small Spender', // 12
+  medium_spender:     'Medium Spender', // 13
+  big_spender:        'Big Spender' // 14
 }
 
 export default defineComponent({
@@ -235,7 +235,7 @@ export default defineComponent({
       // tracks.value = []
       try { await substrate.api?.connect() } catch (err) {}
       let tracks = await substrate.api?.consts.referenda?.tracks || JSON.parse('[]')
-      //console.debug('ntracks', ntracks)
+      // console.debug('ntracks', tracks.toJSON())
       try { tracks = tracks.toJSON() } catch (err) {}
       // if (tracks.hasOwnProperty('toJSON')) tracks = tracks.toJSON()
       // tracks = {...tracks}

@@ -76,6 +76,7 @@
         <v-tab key="score" value="score">Score</v-tab>
         <!-- <v-tab key="democracy">Democracy</v-tab> -->
         <v-tab key="referenda" value="referenda">Referenda</v-tab>
+        <v-tab key="delegation" value="delegation">Delegation</v-tab>
         <v-tab key="nominators" value="nominators">Nominators</v-tab>
         <!-- <v-tabs-slider></v-tabs-slider> -->
       </v-tabs>
@@ -90,6 +91,9 @@
         </v-tab-item> -->
         <v-window-item key="referenda" value="referenda">
           <CandidateReferenda :candidate="candidate"></CandidateReferenda>
+        </v-window-item>
+        <v-window-item key="delegation" value="delegation">
+          <CandidateDelegation :candidate="candidate"></CandidateDelegation>
         </v-window-item>
         <v-window-item key="nominators" value="nominators">
           <CandidateNominators :stash="stash"></CandidateNominators>
@@ -122,6 +126,7 @@ import CandidateIdentity from './CandidateIdentity.vue'
 import CandidateNominators from './CandidateNominators.vue'
 // import CandidateDemocracy from './CandidateDemocracy.vue'
 import CandidateReferenda from './CandidateReferenda.vue'
+import CandidateDelegation from './CandidateDelegation.vue'
 import { SubstrateAPI } from '@/plugins/substrate'
 
 import { useQuery } from '@vue/apollo-composable'
@@ -262,7 +267,8 @@ export default defineComponent({
     CandidateIdentity,
     CandidateNominators,
     // CandidateDemocracy,
-    CandidateReferenda
+    CandidateReferenda,
+    CandidateDelegation,
   },
   setup () {
     const store = useStore()
