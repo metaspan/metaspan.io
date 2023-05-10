@@ -14,6 +14,7 @@ import Pool from '@/components/Pool.vue'
 import ValidatorsSelector from '@/components/ValidatorsSelector.vue'
 import ValidatorSelector from '@/components/ValidatorSelector.vue'
 import Identities from '@/components/Identities.vue'
+import OpenGovDelegation from '@/components/OpenGovDelegation.vue'
 
 import store from '@/store'
 
@@ -46,6 +47,8 @@ const routes = [
       { path: 'selector/:stash', name: 'KusamaSelector', component: ValidatorSelector, meta: { title: 'metaspan.io - validator selector' }, props: true },
       { path: 'identity', name: 'KusamaIdentities', component: Identities, meta: { title: 'metaspan.io - identity' }, props: true },
       // { path: 'network', name: 'KusamaNetwork', component: Network, meta: { title: 'metaspan.io - network' }, props: true }
+      { path: 'delegate', name: 'KusamaOpenGovDelegation', component: OpenGovDelegation, meta: { title: 'metaspan.io - opengov delegation' }, props: true },
+      { path: 'delegate/:address', name: 'KusamaOpenGovDelegation2', component: OpenGovDelegation, meta: { title: 'metaspan.io - opengov delegation' }, props: true }
     ]
   },
   {
@@ -60,7 +63,9 @@ const routes = [
       // { path: 'pool/:id', name: 'PolkadotPool', component: Pool, props (route) { return { id: parseInt(route.params.id) } }, meta: { title: 'metaspan.io - polkadot pool' } },
       { path: 'pool/:id', name: 'PolkadotPool', component: Pool, props: true, meta: { title: 'metaspan.io - polkadot pool' } },
       { path: 'selector', name: 'PolkadotSelector', component: ValidatorSelector, meta: { title: 'metaspan.io - validator selector' }, props: true },
-      { path: 'identity', name: 'PolkadotIdentities', component: Identities, meta: { title: 'metaspan.io - identity' }, props: true }
+      { path: 'identity', name: 'PolkadotIdentities', component: Identities, meta: { title: 'metaspan.io - identity' }, props: true },
+      { path: 'delegate', name: 'PolkadotOpenGovDelegation', component: OpenGovDelegation, meta: { title: 'metaspan.io - opengov delegation' }, props: true },
+      { path: 'delegate/:address', name: 'PolkadotOpenGovDelegation2', component: OpenGovDelegation, meta: { title: 'metaspan.io - opengov delegation' }, props: true }
     ]
   },
 ]

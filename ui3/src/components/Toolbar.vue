@@ -20,6 +20,11 @@
         <span class="d-none d-sm-inline">1KV</span>
       </v-btn>
 
+      <v-btn @click="$router.push(`/${chainId}/delegate`)" class="d-none d-sm-block">
+        <v-icon size="large">mdi-vote-outline</v-icon>
+        <span class="d-none d-sm-inline">Delegate</span>
+      </v-btn>
+
       <v-btn @click="$router.push(`/${chainId}/pool`)" class="d-none d-sm-block">
         <v-icon>mdi-waves</v-icon>
         <span class="d-none d-sm-inline">Pools</span>

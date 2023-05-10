@@ -33,8 +33,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, inject } from 'vue'
+import { defineComponent, ref, computed, inject, nextTick } from 'vue'
 import { useStore } from 'vuex'
+import { useRoute, useRouter } from 'vue-router'
 import { SubstrateAPI } from '../plugins/substrate'
 
 // interface IData {
@@ -61,6 +62,8 @@ export default defineComponent({
     const chainInfo = computed(() => store.state.chainInfo)
     const chains = computed(() => store.state.chains)
     const substrate: SubstrateAPI = inject('$substrate') || new SubstrateAPI({ lite: false })
+    const route = useRoute()
+    const router = useRouter()
     // const icons = ref({
     //   kusama: import('@/assets/kusama-logo.png'),
     //   polkadot: import('@/assets/polkadot-logo.png')
@@ -75,16 +78,24 @@ export default defineComponent({
       return chains.value[chainId.value] || {}
     }
     const setChain = async (_chain: any) => {
-      console.debug('ChainMenu.vue: setChain', _chain.id)
+      console.debug('ChainMenu.vue: setChain', chainId.value, _chain.id)
+      // console.debug('ChainMenu.vue: setChain', route, router)
+      if (chainId.value === _chain.id) return
+      // const newPath = route.fullPath.replace(chainId.value, _chain.id)
+      // console.debug('ChainMenu.vue: setChain', route.fullPath, newPath)
       // this.$store.dispatch('setChainId', _chain.id)
       await substrate.connect(_chain.id)
-      await substrate.api?.isReady
-      await store.dispatch('setChainId', _chain.id)
-      console.debug('ChainHome.vue: reading chainId info()...')
+      //chainInfo = await substrate.api?.isReady
+      const chainInfo = JSON.parse(substrate.api?.registry.getChainProperties().toString())
+      // console.debug('ChainMenu.vue: chainInfo', chainInfo)
+      // console.debug('ChainHome.vue: reading chainId info()...')
       // const chainInfo = await substrate.api?.registry.getChainProperties()
-      console.log('chainInfo.tokenDecimals', chainInfo.value?.tokenDecimals.toJSON()[0])
+      console.log('chainInfo.tokenDecimals', {...chainInfo})
       // TODO: let parent do this?
+      await store.dispatch('setChainId', _chain.id)
       await store.dispatch('substrate/setChainInfo', { chainId: _chain.id, chainInfo })
+      // await nextTick()
+      // router.push(newPath)
     }
     return {
       // icons,

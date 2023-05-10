@@ -8,6 +8,7 @@ import store from '../store'
 type TEndpoints = Record<string, Record<string, string>>
 const endpoints: TEndpoints = {
   polkadot: {
+    ibp: 'wss://rpc.ibp.network/polkadot',
     dotters: 'wss://rpc.dotters.network/polkadot',
     parity: 'wss://rpc.polkadot.io',
     onFinality: 'wss://polkadot.api.onfinality.io/public-ws',
@@ -16,6 +17,7 @@ const endpoints: TEndpoints = {
   kusama: {
     // local: 'wss://192.168.1.85:30225',
     // local: 'http://192.168.1.85:40224',
+    ibp: 'wss://rpc.ibp.network/kusama',
     dotters: 'wss://rpc.dotters.network/kusama',
     onFinality: 'wss://kusama.api.onfinality.io/public-ws',
     parity: 'wss://kusama-rpc.polkadot.io',
@@ -40,18 +42,18 @@ class SubstrateAPI implements ISubstrateAPI {
   config: any = {
     lite: false,
     chain: 'kusama',
-    endpoint: 'dotters'
+    endpoint: 'ibp'
   }
 
   connected: boolean = false
-  chainId: string = 'kusama'
+  chainId: string = '' // 'kusama'
   api: ApiPromise | undefined
 
   constructor (options: any) {
     this.config = { ...this.config, ...options }
   }
 
-  async createWsProvider (chainId = 'kusama', endpoint = 'parity') {
+  async createWsProvider (chainId = 'kusama', endpoint = 'ibp') {
     console.debug('plugins/substrate.ts: createWsProvider()', chainId, endpoint)
     if (this.chainId === chainId && this.api) {
       console.debug('plugins/substrate.ts: we already have api for', chainId)
@@ -92,7 +94,7 @@ class SubstrateAPI implements ISubstrateAPI {
 
     await api.isReady
     console.debug(`subsrate.ts: createWsProvider(${chainId}) api isReady`)
-    this.api = api // TODO duplication!
+    // this.api = api // TODO duplication!
     // console.debug(`${chain}: debug 6`)
     return api
   }
@@ -112,8 +114,8 @@ class SubstrateAPI implements ISubstrateAPI {
     console.debug('plugins/substrate.ts: chainInfo()', chainId)
     // const chainInfo = await this[chain].api.registry.getChainProperties()
     const chainInfo = await this.api?.registry.getChainProperties()
-    console.debug(`plugins/substrate.ts: chainInfo(${chainId})`, chainInfo)
-    return chainInfo
+    console.debug(`plugins/substrate.ts: chainInfo(${chainId})`, chainInfo?.toString())
+    return JSON.parse(chainInfo?.toString()|| '{}')
   }
 }
 
