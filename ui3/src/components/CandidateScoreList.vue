@@ -35,9 +35,6 @@
 import { defineComponent, computed, watch, ref } from 'vue'
 import moment from 'moment'
 import { useStore } from 'vuex'
-// import * as vbe from 'github:w3f/1k-validators-be'
-// const {vbe} = require('../../node_modules/1k-validators-be/src/score.ts')
-import { ICandidate } from '@/types/global'
 
 export default defineComponent({
   name: 'CandidateScoreList',
@@ -45,12 +42,14 @@ export default defineComponent({
   setup (props) {
     const store = useStore()
     const ranges = computed(() => store.getters['candidate/ranges'])
+    const denoms = computed(() => store.getters['candidate/denoms'])
     const model = ref(props.candidate)
     watch(() => props.candidate, (newVal) => {
       model.value = newVal
     })
     return {
       ranges,
+      denoms,
       model
     }
   },
@@ -82,27 +81,6 @@ export default defineComponent({
         randomness: { title: 'Randomness' },
         total: { title: 'Total' }
       } as Record<string, any>,
-      denoms: {
-        // "_id": "62700be629cee192f7723e41",
-        updated: 1652607338086,
-        // "address": "HyLisujX7Cr6D7xzb6qadFdedLt8hmArB6ZVGJ6xsCUHqmx",
-        // "total": 381.7721771213124,
-        // "aggregate": 339.9612269074931,
-        spanInclusion: 100,
-        inclusion: 100,
-        discovered: 5,
-        nominated: 30,
-        rank: 5,
-        // "unclaimed": 0,
-        bonded: 50,
-        faults: 5,
-        offline: 2,
-        location: 40,
-        councilStake: 50
-        // "democracy": 96,
-        // "randomness": 1.1229874082822877,
-        // "__v": 0
-      } as Record<string, number>
     }
   },
   methods: {

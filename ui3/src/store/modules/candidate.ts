@@ -53,6 +53,7 @@ interface IChainState {
   apiConnected: boolean
   updatedAt: string // null | moment.Moment
   chainInfo: any
+  scoreDenoms: Record<string, string>
   list: ICandidate[]
   candidate: ICandidate
   filteredList: ICandidate[]
@@ -82,6 +83,50 @@ interface IState {
   referenda: any[]
 }
 
+// https://github.com/w3f/1k-validators-be/blob/master/helmfile.d/config/kusama/otv-backend-prod.yaml.gotmpl#L59
+const kusamaScoreDenoms: Record<string, string> = {
+  "inclusion": "200",
+  "spanInclusion": "200",
+  "discovered": "5",
+  "nominated": "30",
+  "rank": "5",
+  "bonded": "50",
+  "faults": "5",
+  "offline": "2",
+  "location": "40",
+  "region": "10",
+  "country": "10",
+  "provider": "100",
+  "council": "50",
+  "democracy": "100",
+  "nominations": "100",
+  "delegations": "60",
+  "openGov": "100",
+  "openGovDelegation": "100"
+};
+
+// https://github.com/w3f/1k-validators-be/blob/master/helmfile.d/config/polkadot/otv-backend-prod.yaml.gotmpl#58
+const polkadotScoreDenoms: Record<string, string> = {
+  "inclusion": "200",
+  "spanInclusion": "200",
+  "discovered": "5",
+  "nominated": "30",
+  "rank": "5",
+  "bonded": "50",
+  "faults": "5",
+  "offline": "2",
+  "location": "40",
+  "region": "10",
+  "country": "10",
+  "provider": "100",
+  "council": "50",
+  "democracy": "100",
+  "nominations": "100",
+  "delegations": "60",
+  "openGov": "100",
+  "openGovDelegation": "100"
+};
+
 const initialState = {
   initial: true,
   chainId: 'kusama',
@@ -92,6 +137,7 @@ const initialState = {
       apiConnected: false,
       updatedAt: moment().add(-1, 'day').utc().format(),
       chainInfo: {},
+      scoreDenoms: polkadotScoreDenoms,
       loading: { list: false, candidate: false },
       loadingTimeout: null,
       filtering: false,
@@ -120,6 +166,7 @@ const initialState = {
       apiConnected: false,
       updatedAt: moment().add(-1, 'day').utc().format(),
       chainInfo: {},
+      scoreDenoms: kusamaScoreDenoms,
       loading: { list: false, candidate: false },
       loadingTimeout: null,
       filtering: false,
@@ -225,6 +272,11 @@ const candidate = {
     },
     options (state: IState) { return state.chains[state.chainId]?.options || {} },
     ranges (state: IState) { return state.chains[state.chainId]?.ranges || [] },
+    denoms (state: IState) { 
+      console.debug('candidate.ts: getters.denoms()', state.chainId)
+      console.debug(state.chains[state.chainId])
+      return state.chains[state.chainId]?.scoreDenoms || [] 
+    },
     updatedAt (state: IState) { return moment(state.chains[state.chainId]?.updatedAt) }
   },
   mutations: {
