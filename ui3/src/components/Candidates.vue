@@ -4,9 +4,6 @@
     <v-toolbar>
       <v-toolbar-title>Candidates</v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-btn text class="text-none">
-          <span class="d-none d-sm-inline">Updated: </span>{{ timeAgo(updatedAt) }}
-        </v-btn>
 
         <v-btn :loading="loading" icon @click="reload++">
           <v-icon>mdi-reload</v-icon>
@@ -18,9 +15,6 @@
 
     </v-toolbar>
 
-    <!-- <CirclesTest></CirclesTest> -->
-
-    <!-- <v-toolbar class="d-none d-sm-block" flat elevation="0"> -->
     <v-container fluid class="d-none d-sm-block">
       <v-row align="center">
         <v-col cols="6">
@@ -85,8 +79,6 @@
       </v-window>
     </v-dialog>
 
-    <!-- {{windowSize}} -->
-
     <!-- <CandidatesTable v-if="windowSize.x >= 600" :filter="xfilter" :search="search"
       @click-item="gotoCandidate"></CandidatesTable> -->
 
@@ -105,16 +97,13 @@
 import { defineComponent, computed, watch, ref } from 'vue'
 import { useStore } from 'vuex'
 import moment from 'moment'
-// import * as d3 from 'd3'
-// import CandidatesHisto from './CandidatesHisto.vue'
-import CandidatesTable from './CandidatesTable.vue'
+// import CandidatesTable from './CandidatesTable.vue'
 import CandidatesList from './CandidatesList.vue'
 import { ICandidate } from '../types/global'
 import Loading from './Loading.vue'
 import { debounce } from 'lodash'
 
-// import WalletAddDialog from './WalletAddDialog.vue';
-import CirclesTest from './identicon/CirclesTest.vue'
+// import CirclesTest from './identicon/CirclesTest.vue'
 
 interface IWindowSize {
   x: number
@@ -156,8 +145,8 @@ export default defineComponent({
   name: 'Candidates',
   components: {
     // CandidatesHisto,
-    CirclesTest,
-    CandidatesTable,
+    // CirclesTest,
+    // CandidatesTable,
     CandidatesList,
     Loading
   },
@@ -316,9 +305,6 @@ export default defineComponent({
     // console.debug('state', state)
     this.fetchFilter()
   },
-  async beforeDestroy () {
-    console.debug('Candidates.vue: beforeDestroy()')
-  }
 })
 </script>
 
