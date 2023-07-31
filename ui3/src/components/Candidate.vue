@@ -1,6 +1,6 @@
 <template>
 
-  <v-container fluid class="ma-0 pa-0">
+  <v-container class="mt-0 pt-0">
     <v-toolbar flat elevation="0">
       <v-btn small icon @click="$router.go(-1)"><v-icon>mdi-arrow-left</v-icon></v-btn>
       <!-- <v-spacer></v-spacer> -->

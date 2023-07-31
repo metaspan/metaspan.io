@@ -1,5 +1,5 @@
 <template>
-  <v-container :loading="loading" fluid class="pa-0 ma-0">
+  <v-container :loading="loading" class="pt-0 mt-0">
 
     <v-toolbar>
       <v-toolbar-title>Candidates</v-toolbar-title>
@@ -27,7 +27,7 @@
           <v-text-field v-model="xfilter.rank" label="Rank" class="mx-4"></v-text-field>
         </v-col>
         <v-col cols="2">
-          <v-text-field v-model="xfilter.score" label="Score" class="mx-4"></v-text-field>
+          <v-text-field v-model="xfilter.total" label="Total" class="mx-4"></v-text-field>
         </v-col> -->
         <v-col cols="2">
           <v-switch v-model="xfilter.valid" label="Valid"></v-switch>
@@ -59,7 +59,7 @@
               <v-switch v-model="xfilter.favourite" label="Fav."></v-switch>
               <v-text-field v-model="search" label="Search" class="mx-4"></v-text-field>
               <v-text-field v-model="xfilter.rank" type="number" label="Rank" class="mx-4"></v-text-field>
-              <v-text-field v-model="xfilter.score" type="number" label="Score" class="mx-4"></v-text-field>
+              <v-text-field v-model="xfilter.total" type="number" label="Total" class="mx-4"></v-text-field>
               <v-switch v-model="xfilter.valid" label="Valid"></v-switch>
               <v-switch v-model="xfilter.active" label="Active"></v-switch>
             </v-card-text>
@@ -71,7 +71,7 @@
             <v-card-title>Sort</v-card-title>
             <v-card-text>
               <!-- <v-select v-model="xfilter.sort" :items="sortItems" item-text="text" item-value="value" label="Sort"></v-select> -->
-              <v-select v-model="xfilter.sort" :items="['name', 'stash', 'score', 'rank']" label="Sort"></v-select>
+              <v-select v-model="xfilter.sort" :items="['name', 'stash', 'total', 'rank']" label="Sort"></v-select>
               <v-switch v-model="xfilter.sortAsc" value="asc" label="Ascending"></v-switch>
             </v-card-text>
           </v-card>
@@ -117,7 +117,7 @@ interface ISortItem {
 
 interface IFilter {
   rank: number
-  score: number
+  total: number
   valid: boolean
   active: boolean
   favourite: boolean
@@ -193,11 +193,11 @@ export default defineComponent({
       sortItems: [
         { text: 'Name', value: 'name' },
         { text: 'Rank', value: 'rank' },
-        { text: 'Score', value: 'score' }
+        { text: 'Score', value: 'total' }
       ],
       xfilter: {
         rank: 0,
-        score: 0,
+        total: 0,
         valid: false,
         active: false,
         favourite: false,
@@ -245,7 +245,7 @@ export default defineComponent({
       this.filterActive = this.xfilter.active ||
         this.xfilter.favourite ||
         this.xfilter.rank > 0 ||
-        this.xfilter.score > 0 ||
+        this.xfilter.total > 0 ||
         this.xfilter.valid ||
         this.search !== ''
     },

@@ -1,6 +1,6 @@
 <template>
 
-  <v-container fluid class="ma-0 pa-0">
+  <v-container class="mt-0 pt-0">
     <v-toolbar>
       <v-btn small icon @click="$router.go(-1)"><v-icon>mdi-arrow-left</v-icon></v-btn>
       <!-- <v-toolbar-title>
@@ -28,19 +28,32 @@
               <table width="100%">
                 <tr>
                   <td width="30%">Root</td><td align="right">
-                    <AccountLink :accountId="pool.roles?.root || ''" />
+                    {{ shortStash(pool?.roles?.root || '') }}
+                    <AccountLink :accountId="pool?.roles?.root || ''" />
                   </td>
-                </tr><tr>
+                </tr>
+                <tr>
                   <td>Nominator</td><td align="right">
-                    <AccountLink :accountId="pool.roles?.nominator || ''" />
+                    {{ shortStash(pool?.roles?.nominator || '') }}
+                    <AccountLink :accountId="pool?.roles?.nominator || ''" />
                   </td>
-                </tr><tr>
+                </tr>
+                <tr>
                   <td>Depositor</td><td align="right">
-                    <AccountLink :accountId="pool.roles?.depositor || ''" />
+                    {{ shortStash(pool?.roles?.depositor || '') }}
+                    <AccountLink :accountId="pool?.roles?.depositor || ''" />
                   </td>
-                </tr><tr>
+                </tr>
+                <tr>
+                  <td>Bouncer</td><td align="right">
+                    {{ shortStash(pool?.roles?.bouncer || '') }}
+                    <AccountLink :accountId="pool?.roles?.bouncer || ''" />
+                  </td>
+                </tr>
+                <tr v-if="pool?.roles?.stateToggler">
                   <td>State Toggler</td><td align="right">
-                    <AccountLink :accountId="pool.roles?.stateToggler || ''" />
+                    {{ shortStash(pool?.roles?.stateToggler || '') }}
+                    <AccountLink :accountId="pool?.roles?.stateToggler || ''" />
                   </td>
                 </tr>
               </table>
@@ -60,32 +73,34 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref, onBeforeMount } from 'vue'
+import { defineComponent, computed, ref, onBeforeMount, inject } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
+import { SubstrateAPI } from '@/plugins/substrate'
+
 import { IPool } from '../types/global'
 import AccountLink from './AccountLink.vue'
 import PoolMembers from './PoolMembers.vue'
 import { useQuery } from '@vue/apollo-composable'
 import { GET_POOL_VIEW } from '../graphql/queries/pools'
-
-interface IData {
-  loading: boolean
-}
-// eslint-disable-next-line
-interface IMethods {
-  // toCoin (val: number): string
-}
-interface IComputed {
-  chainId: string
-  chainInfo: any
-  pool: IPool
-  decimals: any
-  // getStash: string
-}
-interface IProps {
-  id: string
-}
+import { shortStash } from '../global/utils'
+// interface IData {
+//   loading: boolean
+// }
+// // eslint-disable-next-line
+// interface IMethods {
+//   // toCoin (val: number): string
+// }
+// interface IComputed {
+//   chainId: string
+//   chainInfo: any
+//   pool: IPool
+//   decimals: any
+//   // getStash: string
+// }
+// interface IProps {
+//   id: string
+// }
 
 export default defineComponent({
   props: {
@@ -99,25 +114,57 @@ export default defineComponent({
     PoolMembers
   },
   setup (props) {
+    const substrate: SubstrateAPI = inject('$substrate') || new SubstrateAPI({ lite: false })
+
     const store = useStore()
     const route = useRoute()
     const chainId = computed(() => store.state.chainId)
     const chainInfo = computed(() => store.getters['substrate/chainInfo'])
     const decimals = computed(() => store.state['substrate/decimals'])
-    const pool = ref<IPool>({ roles: {} } as IPool)
-    var { result, loading, error, refetch, onResult } = useQuery(GET_POOL_VIEW, {
-      chain: chainId.value,
-      poolId: parseInt(props.id)
-    }, {
-      fetchPolicy: 'cache-and-network'
-    })
-    onResult((event: any) => {
-      console.debug('onResult', event)
-      const { loading, data, networkStatus } = event
-      pool.value = {...data.Pool}
-    })
+    const pool = ref<IPool>({ id: Number(props.id), name: '', roles: {} } as IPool)
+    // var { result, loading, error, refetch, onResult } = useQuery(GET_POOL_VIEW, {
+    //   chain: chainId.value,
+    //   poolId: parseInt(props.id)
+    // }, {
+    //   fetchPolicy: 'cache-and-network'
+    // })
+    // onResult((event: any) => {
+    //   console.debug('onResult', event)
+    //   const { loading, data, networkStatus } = event
+    //   pool.value = {...data.Pool}
+    // })
+
+    const getPool = async () => {
+      if(!substrate.connected) {
+        console.debug('substrate not connected... waiting')
+        await substrate.connect(chainId.value)
+        // return
+      }
+      try {
+        await substrate.api?.isReady
+        if (!pool.value || !pool.value.id) return
+        var res = await substrate.api?.query.nominationPools.bondedPools(props.id)
+        const bondedPool: any = res?.toJSON()
+        res = await substrate.api?.query.nominationPools.metadata(props.id)
+        const metadata: any = res?.toJSON()
+        console.debug('bondedPool', bondedPool)
+        console.debug('metadata', metadata)
+        pool.value = bondedPool // ?.toJSON()?.points
+        // pool.value.points = bondedPool?.points
+        // pool.value.state = bondedPool?.state
+        // pool.value.roles = bondedPool?.roles
+        // pool.value.name = metadata?.name
+        res = await substrate.api?.query.nominationPools.poolMembers(bondedPool.roles.root)
+        console.debug('poolMembers', res)
+        const members: any = res?.toJSON()
+        console.debug('members', members)
+      } catch (e) {
+        console.error('error', e)
+      }
+    }
 
     onBeforeMount(() => {
+      getPool()
       console.debug('Pool.vue created()', chainId.value, pool.value, route.params)
       if (!pool.value || pool.value.id !== parseInt(route.params.id.toString())) {
         console.debug('ID not same, loading id')
@@ -125,7 +172,6 @@ export default defineComponent({
         console.debug('pool.id', typeof pool.value.id)
         store.dispatch('pool/setPool', { id: parseInt(route.params.id.toString()) })
       }
-
     })
 
     return {
@@ -133,7 +179,8 @@ export default defineComponent({
       chainId,
       chainInfo,
       decimals,
-      pool
+      pool,
+      shortStash
     }
   },
   data () {

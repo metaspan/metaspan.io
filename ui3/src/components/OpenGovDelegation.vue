@@ -1,6 +1,6 @@
 <template>
-  <v-container fluid class="ma-0 pa-0" style="min-height:800px">
-    <v-toolbar color="none" density="compact">
+  <v-container class="mt-0 pt-0" style="min-height:800px">
+    <v-toolbar color="none">
       <v-toolbar-title>
         OpenGov Delegation
       </v-toolbar-title>

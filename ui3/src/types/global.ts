@@ -212,6 +212,7 @@ export interface IPoolMember {
 }
 
 export interface IPoolRoles {
+  bouncer: undefined | string
   creator: undefined | string
   depositor: undefined | string
   root: undefined | string
@@ -223,11 +224,11 @@ export interface IPool {
   id: number
   name: undefined | string
   roles: IPoolRoles
-  state: undefined | string
-  points: number
-  claimable: number
-  nominees: IPoolNominee[]
-  members: IPoolMember[]
+  state?: undefined | string
+  points?: number
+  claimable?: number
+  nominees?: IPoolNominee[]
+  members?: IPoolMember[]
 }
 
 export class Pool implements IPool {

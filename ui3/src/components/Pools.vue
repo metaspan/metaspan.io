@@ -1,6 +1,6 @@
 <template>
 
-  <v-container fluid class="ma-0 pa-0">
+  <v-container class="mt-0 pt-0">
 
     <v-toolbar>
       <v-toolbar-title>Pools</v-toolbar-title>

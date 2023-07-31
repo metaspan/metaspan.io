@@ -328,9 +328,9 @@ const candidate = {
       state.chains[state.chainId].updatedAt = moment().utc().format()
 
       ranks = list.map((m: ICandidate) => {
-        return m.rank
+        return m.score // rank
       }).sort((a: number, b: number) => {
-        return a - b
+        return Number(a) - Number(b)
       })
       udata = [...new Set(ranks)]
       udata = udata.slice(udata.length * 0.055, udata.length * 0.854)
