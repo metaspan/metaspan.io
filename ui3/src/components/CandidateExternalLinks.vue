@@ -3,7 +3,7 @@
   <v-menu offset-y>
 
     <template v-slot:activator="{ props }">
-      <v-btn icon text
+      <v-btn icon
         v-bind="props"
         >
         <v-icon>mdi-link-variant</v-icon>

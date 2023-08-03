@@ -4,21 +4,21 @@
     :items="list"
     @click:row="clickRow">
 
-    <template v-slot:[`item.accountId`]="{item}">
+    <template v-slot:item.accountId="{ item }">
       <div style="cursor:pointer" @click="clickRow(item)">
         <!-- <ClickToCopy :display="item.shortStash" :text="item.accountId" /> -->
-        {{item.accountId}}
+        {{ item.columns.accountId }}
         <!-- <AccountLink :accountId="item.accountId" /> -->
       </div>
     </template>
 
-    <template v-slot:[`item.points`]="{item}">
-      {{ toCoin(item.points) }}
+    <template v-slot:item.points="{ item }">
+      {{ toCoin(item.columns.points) }}
     </template>
 
-    <template v-slot:[`item.menu`]="{item}">
+    <template v-slot:item.menu="{ item }">
       <!-- <a :href="`https://${chainId}.subscan.io/account/${item.accountId}`" target="_blank">[link]</a> -->
-      <AccountLink :accountId="item.accountId" text="link" />
+      <AccountLink :accountId="item.columns.accountId" text="link" />
     </template>
 
   </v-data-table>
@@ -26,81 +26,55 @@
 </template>
 
 <script lang="ts">
-import { IPool } from '@/types/global'
-import { defineComponent } from 'vue'
-import { mapState, mapGetters } from 'vuex'
+import { defineComponent, computed, ref, defineEmits, PropType } from 'vue'
+import { useStore } from 'vuex'
+import { IPoolMember } from '@/types/global'
 import AccountLink from './AccountLink.vue'
-
-interface IData {
-  // loading: boolean
-  headers: any[]
-}
-interface IMethods {
-  clickRow (item: IPool): void
-  // shortStash (stash: string): string
-  toCoin(value: number): string
-  // getMembers (): void
-}
-interface IComputed {
-  chainId: string
-  chainInfo: any // IChainInfo
-  decimals: Record<number, number>
-  // mapItems: any[]
-  // totalNominations: string
-  // tokenSymbol: string
-}
-interface IProps {
-  // poolId: number
-  list: any[] // IPool[]
-}
+// import { VDataTable } from 'vuetify/lib/labs/components.mjs'
 
 export default defineComponent({
   name: 'PoolMemberTable',
   components: {
+    // VDataTable,
     AccountLink
   },
   props: {
     list: {
-      type: Array,
+      type: Array as PropType<IPoolMember[]>,
       required: true
     }
   },
-  computed: {
-    ...mapState(['chainId']),
-    ...mapState('substrate', ['decimals']),
-    ...mapGetters('substrate', ['chainInfo'])
-    // mapItems () {
-    //   // return this.items
-    //   console.log(this.list)
-    //   return this.list.map((m: any) => {
-    //     m.shortStash = this.$utils.shortStash(m.accountId)
-    //     m.balance = this.toCoin(m.account.data.free)
-    //     return m
-    //   })
-    // }
-  },
-  data () {
-    return {
-      items: [],
-      headers: [
-        { text: 'Member', value: 'accountId' },
-        // { text: 'Id.', value: 'identity' },
-        { text: 'Points', value: 'points', align: 'right' },
-        // { text: '1KV', value: 'is1kv', width: '15px', align: 'right' },
-        { text: '#', value: 'menu', width: '75px', align: 'right', sortable: false }
-      ]
-    }
-  },
-  methods: {
-    toCoin (v: any) {
+  setup () {
+    const store = useStore()
+    const chainId = computed(() => store.state.substrate.chainId)
+    const chainInfo = computed(() => store.state.substrate.chainInfo)
+    const decimals = computed(() => store.state.substrate.decimals)
+    const emit = defineEmits(['clickRow'])
+    const headers = ref([
+      { title: 'Member', key: 'accountId' },
+      // { text: 'Id.', value: 'identity' },
+      { title: 'Points', key: 'points' }, // , align: 'right' },
+      // { text: '1KV', value: 'is1kv', width: '15px', align: 'right' },
+      { title: '#', key: 'menu' }, // , width: '75px', align: 'right', sortable: false }
+    ])
+    const toCoin = (v: any) => {
       // console.debug('CandidateNominators.vue', this.chainInfo)
-      const decimalPlaces = this.chainInfo?.tokenDecimals?.toJSON()[0] || 0
+      const decimalPlaces = chainInfo.value?.tokenDecimals?.toJSON()[0] || 0
       // const denom = this.denoms[this.chainInfo.tokenDecimals]
-      return (v / this.decimals[decimalPlaces]).toLocaleString('en-GB', { maximumFractionDigits: 4 }) // .toFixed(4)
-    },
-    clickRow (item: any) {
-      this.$emit('clickRow', item)
+      return (v / decimals.value[decimalPlaces]).toLocaleString('en-GB', { maximumFractionDigits: 4 }) // .toFixed(4)
     }
-  }
+    const clickRow = (item: any) => {
+      emit('clickRow', item)
+    }
+
+    return {
+      chainId,
+      chainInfo,
+      decimals,
+      headers,
+      toCoin,
+      clickRow
+    }
+  },
 })
 </script>

@@ -3,7 +3,7 @@
     <v-toolbar flat dense>
       <v-toolbar-title>Validators</v-toolbar-title>
       <v-spacer></v-spacer>
-        <v-btn text>
+        <v-btn>
         Updated: {{timeAgo(updatedAt)}}
         </v-btn>
         <v-btn :loading="loading" icon @click="getList()">
@@ -20,7 +20,7 @@
         <v-switch v-model="xfilter.favourite" label="Fav."></v-switch>
         <v-text-field v-model="search" label="Search" class="mx-4"></v-text-field>
         <v-text-field v-model="xfilter.rank" label="Rank" class="mx-4"></v-text-field>
-        <v-text-field v-model="xfilter.score" label="Score" class="mx-4"></v-text-field>
+        <v-text-field v-model="xfilter.total" label="Total" class="mx-4"></v-text-field>
         <!-- <v-btn rounded> -->
           <v-switch v-model="xfilter.valid" label="Valid"></v-switch>
           <!-- <v-radio-group class='small-radio' v-model="xfilter.valid" label="Valid" row>
@@ -81,35 +81,35 @@
 
       <template v-slot:[`item.favourite`]="{item}">
         <v-btn small icon @click="toggleFav(item)">
-          <v-icon small :color="item.favourite?'orange':'grey'">mdi-star</v-icon>
+          <v-icon small :color="item.columns.favourite?'orange':'grey'">mdi-star</v-icon>
         </v-btn>
       </template>
 
       <template v-slot:[`item.name`]="{item}">
         <div style="cursor:pointer" @click="gotoValidator(item)">
-          <Identicon class="identicon" :value="item.stash" :size="16"></Identicon> &nbsp;&nbsp;
-          <v-btn text class="text-none">{{item.name}}</v-btn>
+          <Identicon class="identicon" :value="item.columns.stash" :size="16"></Identicon> &nbsp;&nbsp;
+          <v-btn class="text-none">{{item.columns.name}}</v-btn>
         </div>
       </template>
 
       <template v-slot:[`item.discoveredAt`]="{item}">
         <!-- <div align="center"> -->
-        {{timeAgo(item.discoveredAt) }}
+        {{timeAgo(item.columns.discoveredAt) }}
         <!-- </div> -->
       </template>
 
       <template v-slot:[`item.valid`]="{item}">
         <div align="center">
-          <v-icon small :color="item.valid?'green':'red'">mdi-{{ item.valid ? 'check-circle' : 'close-circle'}}</v-icon>
+          <v-icon small :color="item.columns.valid?'green':'red'">mdi-{{ item.columns.valid ? 'check-circle' : 'close-circle'}}</v-icon>
         </div>
       </template>
 
       <template v-slot:[`item.active`]="{item}">
-          <v-icon small :color="item.active?'green':'grey'">mdi-{{ item.active ? 'check-circle' : 'minus-circle'}}</v-icon>
+          <v-icon small :color="item.columns.active?'green':'grey'">mdi-{{ item.columns.active ? 'check-circle' : 'minus-circle'}}</v-icon>
       </template>
 
       <template v-slot:[`item.totalScore`]="{ item }">
-        {{item.score ? item.score.toFixed(2) : 0.00 }}
+        {{item.columns.total ? item.columns.total.toFixed(2) : 0.00 }}
       </template>
 
     </v-data-table>
@@ -121,6 +121,7 @@
 import { defineComponent, computed, ref, watch, inject, onBeforeMount } from 'vue'
 import moment from 'moment'
 import { useStore } from 'vuex'
+import { VDataTable } from 'vuetify/lib/labs/components.mjs'
 // import { Identicon } from '@polkadot/vue-identicon'
 import Identicon from './identicon/Identicon.vue'
 import { IValidator } from '../types/global'
@@ -132,17 +133,17 @@ interface ITableItem {
   stash: string
   name: string
   discoveredAt: number | Date
-  // valid: boolean
-  // active: boolean
+  valid?: boolean
+  active?: boolean
   rank: number
-  totalScore: number
+  total: number
 }
 
 // eslint-disable-next-line
 interface IOptions {
   page: number
   itemsPerPage: number
-  sortBy: string[]
+  sortBy: any[] // string[]
   sortDesc: string[]
 }
 
@@ -150,7 +151,7 @@ interface IFilter {
   favourite: boolean
   valid: boolean
   active: boolean
-  score: number | null
+  total: number | null
   rank: number | null
 }
 
@@ -167,7 +168,7 @@ interface IVueTableHeader {
 export default defineComponent({
   name: 'Validators',
   components: {
-    // ValidatorsHisto,
+    VDataTable,
     Identicon
   },
   props: {
@@ -176,15 +177,16 @@ export default defineComponent({
       required: true
     }
   },
-  setup (props) {
+  setup () {
     const store = useStore()
     const router = useRouter()
     const substrate = inject<SubstrateAPI>('$substrate') || new SubstrateAPI({ lite: false })
 
-    const loading = computed(() => store.state['validator/loading'])
-    const list = computed(() => store.state['validator/list'])
+    const loading = computed<boolean>(() => store.state['validator/loading'])
+    const list = computed<any[]>(() => store.state['validator/list'])
+    // const list = ref<DataTableItem<ITableItem>[]>()
     const updatedAt = computed(() => store.state['validator/updatedAt'])
-    const favourites = computed(() => store.state['validator/favourites'])
+    const favourites = computed<string[]>(() => store.state['validator/favourites'])
 
     const dateTimeFormat = ref( 'YYYY/MM/DD hh:mm')
     const search = ref('')
@@ -197,12 +199,12 @@ export default defineComponent({
     const xfilter = ref<IFilter>({
       favourite: false,
       rank: null,
-      score: null,
+      total: null,
       valid: false,
       active: false
     })
     const updated = computed(() => { return moment(updatedAt.value).format(dateTimeFormat.value) })
-    const headers = computed((): IVueTableHeader[] => {
+    const headers = computed<any[]>(() => {
       return [
         {
           text: 'Favourite', align: 'center', sortable: true, value: 'favourite', width: '5%',
@@ -239,16 +241,16 @@ export default defineComponent({
           }
         },
         {
-          text: 'Score', align: 'center', sortable: true, value: 'score', width: '5%',
+          text: 'Total', align: 'center', sortable: true, value: 'total', width: '5%',
           filter: (value: number) => {
-            if (!xfilter.value.score) return true
-            return value >= parseInt(xfilter.value.score.toString())
+            if (!xfilter.value.total) return true
+            return value >= parseInt(xfilter.value.total.toString())
           }
         }
       ]
     })
-    const items = computed((): ITableItem[] => {
-      return list.value.map((item: IValidator) => {
+    const items = computed(() => {
+      return list.value?.map((item: IValidator) => {
         return {
           favourite: favourites.value.includes(item.stash),
           stash: item.stash,
@@ -282,7 +284,7 @@ export default defineComponent({
       // await this.$store.dispatch('validator/setList', vals)
       await store.dispatch('validator/loading', false)
     }
-    const toggleFav = (item: ITableItem) => {
+    const toggleFav = (item: any) => {
       store.dispatch('validator/toggleFav', item.stash)
     }
 
@@ -293,7 +295,7 @@ export default defineComponent({
     const handleOptions = (evt: IOptions) => {
       store.dispatch('validator/handleOptions', evt)
     }
-    const gotoValidator = (item: ITableItem) => {
+    const gotoValidator = (item: any) => {
       // console.debug('gotoValidator', item)
       store.dispatch('validator/setValidator', item.stash)
       router.push('/validator/' + item.stash)
@@ -335,15 +337,15 @@ export default defineComponent({
       gotoValidator
     }
   },
-  watch: {
-    search (newval) {
-    },
-    xfilter: {
-      deep: true,
-      handler (newval, oldval) {
-      }
-    }
-  },
+  // watch: {
+  //   search (newval) {
+  //   },
+  //   xfilter: {
+  //     deep: true,
+  //     handler (newval, oldval) {
+  //     }
+  //   }
+  // },
   methods: {
     formatDate (d: string|number): string {
       return moment(d).format(this.dateTimeFormat)

@@ -2,7 +2,6 @@
   <v-menu offset-y>
     <template v-slot:activator="{ props }">
       <v-btn
-        text
         class="text-none"
         v-bind="props"
       >

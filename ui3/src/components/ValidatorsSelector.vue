@@ -30,9 +30,9 @@
     <v-toolbar dense dark elevation="2">
       <v-spacer></v-spacer>
       <div>{{filteredList.length}} of {{list.length}} vals.</div>
-      <v-btn text @click="reload()"><v-icon>mdi-refresh</v-icon></v-btn>
-      <v-btn text @click="calcActivity()"><v-icon>mdi-radioactive</v-icon></v-btn>
-      <v-btn text @click="calcNominations()"><v-icon>mdi-calculator-variant-outline</v-icon></v-btn>
+      <v-btn @click="reload()"><v-icon>mdi-refresh</v-icon></v-btn>
+      <v-btn @click="calcActivity()"><v-icon>mdi-radioactive</v-icon></v-btn>
+      <v-btn @click="calcNominations()"><v-icon>mdi-calculator-variant-outline</v-icon></v-btn>
     </v-toolbar>
 
     <v-simple-table>

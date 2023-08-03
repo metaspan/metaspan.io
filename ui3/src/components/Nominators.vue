@@ -4,7 +4,7 @@
     <v-toolbar flat dense>
       <v-toolbar-title>Nominators</v-toolbar-title>
       <v-spacer></v-spacer>
-        <v-btn text class="text-none">
+        <v-btn class="text-none">
           <span class="d-none d-sm-inline">Updated: </span>{{ timeAgo(updatedAt) }}
         </v-btn>
         <v-btn :loading="loading" icon @click="reload()">

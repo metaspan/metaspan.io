@@ -235,6 +235,7 @@ export class Pool implements IPool {
   id = 0
   name = ''
   roles = {
+    bouncer: undefined,
     creator: undefined,
     root: undefined,
     depositor: undefined,
