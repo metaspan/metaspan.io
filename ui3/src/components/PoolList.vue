@@ -9,7 +9,8 @@
         </template>
         <v-list-item-title> {{item.name}}</v-list-item-title>
         <v-list-item-subtitle>
-          {{item.state}}: {{item.memberCounter}} members, {{toCoin(item.points)}} {{tokenSymbol}}
+          {{item.state}}: {{item.memberCounter}} members, {{toCoin(item.points)}} {{tokenSymbol}}<br>
+          Commission: {{ getCommission(item)[0] }}%
         </v-list-item-subtitle>
         <template v-slot:append>
           <v-icon>mdi-chevron-right</v-icon>
@@ -39,6 +40,10 @@ export default defineComponent({
     onClickRow (item: any, event: any) {
       console.log('PoolList.vue: onClickRow()', item, event)
       this.$emit('clickRow', item)
+    },
+    getCommission (item: any): any[] {
+      const [commission, target] = item?.commission?.current || [0, '']
+      return [commission/10000000, target]
     },
     toCoin (v: number): string {
       // console.debug('toCoin()', v)

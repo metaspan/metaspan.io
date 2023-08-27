@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid  style="min-height:800px">
+  <v-container fluid style="min-height:800px">
     <v-toolbar elevation="0">
       <v-toolbar-title>Nominators (
         {{totalNominations}} 

@@ -12,7 +12,7 @@
     "@apollo/client": "^3.7.17",
     "@mdi/font": "^7.2.96",
     "@polkadot/api": "^10.9.1",
-    "@polkadot/vue-identicon": "^3.5.1",
+    "@polkadot/vue-identicon": "^3.6.2",
     "@vue/apollo-composable": "^4.0.0-beta.8",
     "@vue/apollo-option": "^4.0.0-beta.5",
     "apollo3-cache-persist": "^0.14.1",
@@ -27,7 +27,7 @@
     "roboto-fontface": "*",
     "vue": "^3.3.4",
     "vue-router": "^4.2.4",
-    "vuetify": "^3.3.10",
+    "vuetify": "^3.3.14",
     "vuex": "^4.1.0",
     "webfontloader": "^1.6.28"
   },

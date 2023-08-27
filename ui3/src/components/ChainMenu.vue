@@ -80,8 +80,8 @@ export default defineComponent({
       console.debug('ChainMenu.vue: setChain', chainId.value, _chain.id)
       // console.debug('ChainMenu.vue: setChain', route, router)
       if (chainId.value === _chain.id) return
-      // const newPath = route.fullPath.replace(chainId.value, _chain.id)
-      // console.debug('ChainMenu.vue: setChain', route.fullPath, newPath)
+      const newPath = route.fullPath.replace(chainId.value, _chain.id)
+      console.debug('ChainMenu.vue: setChain', route.fullPath, newPath)
       // this.$store.dispatch('setChainId', _chain.id)
       await substrate.connect(_chain.id)
       //chainInfo = await substrate.api?.isReady
@@ -93,8 +93,8 @@ export default defineComponent({
       // TODO: let parent do this?
       await store.dispatch('setChainId', _chain.id)
       await store.dispatch('substrate/setChainInfo', { chainId: _chain.id, chainInfo })
-      // await nextTick()
-      // router.push(newPath)
+      await nextTick()
+      router.push(newPath)
     }
     return {
       // icons,

@@ -8,10 +8,16 @@
         <span class="d-none d-sm-inline">1KV</span>
       </v-btn>
 
+      <v-btn :to="`/${chainId}/nomination1kv`">
+        <v-icon size="large">mdi-water-plus-outline</v-icon>
+        <span class="d-none d-sm-inline">1kv Noms</span>
+      </v-btn>
+
       <v-btn :to="`/${chainId}/delegate`">
         <v-icon size="large">mdi-vote-outline</v-icon>
         <span class="d-none d-sm-inline">Delegate</span>
       </v-btn>
+
       <v-btn :to="`/${chainId}/pool`">
         <v-icon size="large">mdi-waves</v-icon>
         <span class="d-none d-sm-inline">1KV</span>

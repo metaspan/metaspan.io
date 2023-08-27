@@ -15,6 +15,7 @@ import ValidatorsSelector from '@/components/ValidatorsSelector.vue'
 import ValidatorSelector from '@/components/ValidatorSelector.vue'
 import Identities from '@/components/Identities.vue'
 import OpenGovDelegation from '@/components/OpenGovDelegation.vue'
+import Nominations1kv from '@/components/Nominations1kv.vue'
 
 import store from '@/store'
 
@@ -48,7 +49,8 @@ const routes = [
       { path: 'identity', name: 'KusamaIdentities', component: Identities, meta: { title: 'metaspan.io - identity' }, props: true },
       // { path: 'network', name: 'KusamaNetwork', component: Network, meta: { title: 'metaspan.io - network' }, props: true }
       { path: 'delegate', name: 'KusamaOpenGovDelegation', component: OpenGovDelegation, meta: { title: 'metaspan.io - opengov delegation' }, props: true },
-      { path: 'delegate/:address', name: 'KusamaOpenGovDelegation2', component: OpenGovDelegation, meta: { title: 'metaspan.io - opengov delegation' }, props: true }
+      { path: 'delegate/:address', name: 'KusamaOpenGovDelegation2', component: OpenGovDelegation, meta: { title: 'metaspan.io - opengov delegation' }, props: true },
+      { path: 'nomination1kv', name: 'KusamaNominations1kv', component: Nominations1kv, meta: { title: 'metaspan.io - 1kv nominations' }, props: true }
     ]
   },
   {
@@ -65,7 +67,8 @@ const routes = [
       { path: 'selector', name: 'PolkadotSelector', component: ValidatorSelector, meta: { title: 'metaspan.io - validator selector' }, props: true },
       { path: 'identity', name: 'PolkadotIdentities', component: Identities, meta: { title: 'metaspan.io - identity' }, props: true },
       { path: 'delegate', name: 'PolkadotOpenGovDelegation', component: OpenGovDelegation, meta: { title: 'metaspan.io - opengov delegation' }, props: true },
-      { path: 'delegate/:address', name: 'PolkadotOpenGovDelegation2', component: OpenGovDelegation, meta: { title: 'metaspan.io - opengov delegation' }, props: true }
+      { path: 'delegate/:address', name: 'PolkadotOpenGovDelegation2', component: OpenGovDelegation, meta: { title: 'metaspan.io - opengov delegation' }, props: true },
+      { path: 'nomination1kv', name: 'PolkadotNominations1kv', component: Nominations1kv, meta: { title: 'metaspan.io - 1kv nominations' }, props: true }
     ]
   },
 ]
