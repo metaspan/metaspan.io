@@ -33,7 +33,7 @@
       <v-card-text>
         <p>Blending data from API and on-chain (realtime)</p>
         <p>
-          <a href="https://gql.metaspan.io/" target="_blank">try it here</a> <v-icon small class="mdi">mdi-open-in-new</v-icon>
+          <a href="https://gql.metaspan.io/graphql" target="_blank">try it here</a> <v-icon small class="mdi">mdi-open-in-new</v-icon>
         </p>
       </v-card-text>
     </v-card>
@@ -70,7 +70,7 @@ scrape_configs:
           </thead>
           <tbody>
             <tr>
-              <td><a href="https://gql.metaspan.io" target="_blank">https://gql.metaspan.io</a> <v-icon small class="mdi">mdi-open-in-new</v-icon></td>
+              <td><a href="https://gql.metaspan.io/graphql" target="_blank">https://gql.metaspan.io/graphql</a> <v-icon small class="mdi">mdi-open-in-new</v-icon></td>
               <td>combination of metaspan api and on-chain</td>
             </tr>
             <tr>
