@@ -184,8 +184,10 @@ export interface ICandidateListFilter {
   favourite?: boolean
   valid: boolean
   active: boolean
+  nominated: boolean
   rank?: number
-  score?: number
+  // score?: number
+  total?: number
   // TODO do we need to split this out?
   sort: string
   sortAsc: boolean

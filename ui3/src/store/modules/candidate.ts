@@ -31,13 +31,6 @@ interface ISort {
   sortAsc: boolean
 }
 
-// interface IFilter {
-//   valid: boolean
-//   active: boolean
-//   sort: string
-//   sortAsc: boolean
-// }
-
 // eslint-disable-next-line
 interface IOption {}
 
@@ -146,14 +139,15 @@ const initialState = {
         itemsPerPage: 15
       },
       sort: {
-        sort: 'score',
+        // sort: 'score',
+        sort: 'total',
         sortAsc: false
       },
       search: '',
-      filter: { valid: false, active: false, sort: 'score', sortAsc: true },
+      filter: { valid: false, active: false, nominated: false, sort: 'total', sortAsc: true },
       options: {} as IOption[],
       ranges: {
-        score: { min: 0, max: 0 },
+        total: { min: 0, max: 0 },
         rank: { min: 0, max: 0 },
         bonded: { min: 0, max: 0 }
       },
@@ -175,14 +169,14 @@ const initialState = {
         itemsPerPage: 15
       },
       sort: {
-        sort: 'score',
+        sort: 'total',
         sortAsc: false
       },
       search: '',
-      filter: { valid: false, active: false, sort: 'score', sortAsc: false },
+      filter: { valid: false, active: false, nominated: false, sort: 'total', sortAsc: false },
       options: {} as IOption[],
       ranges: {
-        score: { min: 0, max: 0 },
+        total: { min: 0, max: 0 },
         rank: { min: 0, max: 0 },
         bonded: { min: 0, max: 0 }
       },
@@ -319,6 +313,9 @@ const candidate = {
       }
     },
     // eslint-disable-next-line
+    /**
+     * @param state @deprecated using graphql now...
+     */
     async SET_LIST (state: IState, { list }: any): Promise<void> {
       console.debug('candidate.ts: mutations.SET_LIST()', state.chainId, list)
       let udata = [] as number[]
@@ -328,7 +325,7 @@ const candidate = {
       state.chains[state.chainId].updatedAt = moment().utc().format()
 
       ranks = list.map((m: ICandidate) => {
-        return m.score // rank
+        return m.total // rank
       }).sort((a: number, b: number) => {
         return Number(a) - Number(b)
       })
@@ -337,8 +334,9 @@ const candidate = {
       // console.debug('length', udata.length, 'min:', Math.min(...udata), 'max:', Math.max(...udata))
       state.chains[state.chainId].ranges.rank = { min: Math.min(...udata), max: Math.max(...udata) }
 
-      state.chains[state.chainId].ranges.score = list
-        .map((m: ICandidate) => m.score?.total)
+      state.chains[state.chainId].ranges.total = list
+        // .map((m: ICandidate) => m.score?.total)
+        .map((m: ICandidate) => m.total)
         .reduce(function (result: IMinMax, item: number) {
           return item
             ? {
@@ -346,8 +344,9 @@ const candidate = {
                 max: Math.max(result.max, item)
               }
             : result
-        }, { min: 50, max: 0 })
+        }, { min: 0, max: 0 })
 
+      console.debug('ranges.total', state.chains[state.chainId].ranges.total)
       // // TODO work out the selfStake / bonded from the api...
       // var bonds = list.map(m => m.bonded).sort( (a,b) => {return a-b} )
       // udata = [...new Set(bonds)]
@@ -529,8 +528,10 @@ const candidate = {
           if ((filter.favourite && !favourites.includes(item.stash)) ||
             (filter.valid && !item.valid) ||
             (filter.active && !item.active) ||
+            (filter.nominated && !item.nominated_1kv) ||
             (filter.rank && !(item.rank > filter.rank)) ||
-            (filter.score && !(item.score.total > filter.score))
+            // (filter.score && !(item.score.total > filter.score))
+            (filter.total && !(item.total > filter.total))
           ) {
             // console.debug('filter', filter.valid, 'item', item.valid)
             return false

@@ -2,7 +2,7 @@
   <v-container :loading="loading" class="pt-0 mt-0">
 
     <v-toolbar>
-      <v-toolbar-title>Candidates</v-toolbar-title>
+      <v-toolbar-title>Candidates ({{ chainId }})</v-toolbar-title>
         <v-spacer></v-spacer>
 
         <v-btn :loading="loading" icon @click="reload++">
@@ -15,31 +15,26 @@
 
     </v-toolbar>
 
-    <v-container fluid class="d-none d-sm-block">
+    <v-container fluid class="d-none d-md-block">
       <v-row align="center">
-        <v-col cols="6">
-          <v-text-field v-model="search" label="Search" :loading="searching" class="mx-4"></v-text-field>
+        <v-col cols="7">
+          <v-text-field v-model="search" label="Search" :loading="searching"></v-text-field>
         </v-col>
-        <v-col cols="2">
-          <v-switch v-model="xfilter.favourite" label="Fav."></v-switch>
+        <v-col cols="5" align="right">
+          <v-input>
+            <v-btn @click="xfilter.favourite = !xfilter.favourite"
+              :variant="xfilter.favourite?'flat': 'tonal'"
+              :color="xfilter.favourite ? 'primary': ''">Fav</v-btn>&nbsp;
+            <v-btn @click="xfilter.valid = !xfilter.valid" :variant="xfilter.valid?'flat': 'tonal'"
+              :color="xfilter.valid ? 'primary': ''">Valid</v-btn>&nbsp;
+            <v-btn @click="xfilter.active = !xfilter.active" :variant="xfilter.active?'flat': 'tonal'"
+              :color="xfilter.active ? 'primary': ''">Active</v-btn>&nbsp;
+            <v-btn @click="xfilter.nominated = !xfilter.nominated" :variant="xfilter.nominated?'flat': 'tonal'"
+              :color="xfilter.nominated ? 'primary': ''">Nom'd</v-btn>
+          </v-input>
         </v-col>
-        <!-- <v-col cols="2">
-          <v-text-field v-model="xfilter.rank" label="Rank" class="mx-4"></v-text-field>
-        </v-col>
-        <v-col cols="2">
-          <v-text-field v-model="xfilter.total" label="Total" class="mx-4"></v-text-field>
-        </v-col> -->
-        <v-col cols="2">
-          <v-switch v-model="xfilter.valid" label="Valid"></v-switch>
-        </v-col>
-        <v-col cols="2">
-          <v-switch v-model="xfilter.active" label="Active"></v-switch>
-        </v-col>
-        <!-- <v-progress-linear striped absolute
-          bottom v-show="debouncing" :indeterminate="debouncing"></v-progress-linear> -->
       </v-row>
     </v-container>
-    <!-- </v-toolbar> -->
 
     <v-dialog v-model="showFilterDialog" width="400">
       <v-toolbar dense :dark="!dark">
@@ -62,6 +57,7 @@
               <v-text-field v-model="xfilter.total" type="number" label="Total" class="mx-4"></v-text-field>
               <v-switch v-model="xfilter.valid" label="Valid"></v-switch>
               <v-switch v-model="xfilter.active" label="Active"></v-switch>
+              <v-switch v-model="xfilter.nominated" label="Nominated"></v-switch>
             </v-card-text>
           </v-card>
         </v-window-item>
@@ -88,7 +84,7 @@
       :reload="reload"
       @click-item="gotoCandidate"></CandidatesList>
 
-    <Loading :loading="loading"></Loading>
+    <Loading :loading="loading || debouncing"></Loading>
 
   </v-container>
 </template>
@@ -200,6 +196,7 @@ export default defineComponent({
         total: 0,
         valid: false,
         active: false,
+        nominated: false,
         favourite: false,
         sort: 'rank', // {text: 'Rank', value: 'rank'},
         sortAsc: false
@@ -233,6 +230,7 @@ export default defineComponent({
     },
     debouncedFilter (f: IFilter) {
       console.debug(f)
+      this.store.dispatch('candidate/handleFilter', { chainId: this.chainId, filter: {...f} })
     },
     fetchFilter () {
       console.debug('fetchFilter', this.store.state.candidate.chains[this.chainId])
@@ -246,7 +244,9 @@ export default defineComponent({
         this.xfilter.favourite ||
         this.xfilter.rank > 0 ||
         this.xfilter.total > 0 ||
+        this.xfilter.active ||
         this.xfilter.valid ||
+        this.xfilter.nominated ||
         this.search !== ''
     },
     // eslint-disable-next-line

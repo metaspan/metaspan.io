@@ -5,7 +5,7 @@
         class="text-none"
         v-bind="props"
       >
-        <v-img :src="getImageUrl(chainId)" width="20px" height="20px"></v-img>
+        <v-img :src="getImageUrl(chainId)" width="24px" height="24px"></v-img>
         <span class="d-none d-sm-inline">&nbsp;{{chainId}}</span>
         <v-icon class="d-none d-sm-inline">mdi-chevron-down</v-icon>
       </v-btn>
@@ -80,22 +80,23 @@ export default defineComponent({
       console.debug('ChainMenu.vue: setChain', chainId.value, _chain.id)
       // console.debug('ChainMenu.vue: setChain', route, router)
       if (chainId.value === _chain.id) return
+      
       const newPath = route.fullPath.replace(chainId.value, _chain.id)
-      console.debug('ChainMenu.vue: setChain', route.fullPath, newPath)
+      console.debug('ChainMenu.vue: setChain', route, newPath)
       // this.$store.dispatch('setChainId', _chain.id)
       await substrate.connect(_chain.id)
       //chainInfo = await substrate.api?.isReady
       const chainInfo = JSON.parse(substrate.api?.registry?.getChainProperties()?.toString() || '{}')
       // console.debug('ChainMenu.vue: chainInfo', chainInfo)
-      // console.debug('ChainHome.vue: reading chainId info()...')
       // const chainInfo = await substrate.api?.registry.getChainProperties()
       console.log('chainInfo.tokenDecimals', {...chainInfo})
-      // TODO: let parent do this?
       await store.dispatch('setChainId', _chain.id)
       await store.dispatch('substrate/setChainInfo', { chainId: _chain.id, chainInfo })
-      await nextTick()
-      router.push(newPath)
+      // NO redirect HERE, let the individual /${chain}/${component} do this
+      // await nextTick()
+      // router.push(newPath)
     }
+
     return {
       // icons,
       // getIcon,

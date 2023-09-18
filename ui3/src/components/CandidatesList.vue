@@ -76,9 +76,9 @@ import { useDisplay } from 'vuetify'
 
 const QUERY_CANDIDATES = gql`
   query Data($chain: String!, $search: String, $stashes: [String], $active: Boolean, 
-    $valid: Boolean, $rank: Int, $score: Int, $order: String, $orderDir: String, $cursor: String!, $limit: Int) {
+    $valid: Boolean, $nominated_1kv: Boolean, $rank: Int, $score: Int, $order: String, $orderDir: String, $cursor: String!, $limit: Int) {
     CandidatesFeed(chain: $chain, search: $search, stashes: $stashes, active: $active, 
-      valid: $valid, rank: $rank, score: $score, order: $order, orderDir: $orderDir, cursor: $cursor, limit: $limit) {
+      valid: $valid, nominated_1kv: $nominated_1kv, rank: $rank, score: $score, order: $order, orderDir: $orderDir, cursor: $cursor, limit: $limit) {
       cursor
       Candidates {
         chain
@@ -133,6 +133,7 @@ export default defineComponent({
         search: search.value,
         active: filter.value.active,
         valid: filter.value.valid,
+        nominated_1kv: filter.value.nominated,
         order: filter.value.sort,
         orderDir: filter.value.sortAsc ? 'asc' : 'desc',
         cursor: fresh ? '' : cursor.value,

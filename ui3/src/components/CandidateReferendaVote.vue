@@ -27,38 +27,7 @@
       </v-col>
       <!-- </v-list-item> -->
     </v-row>
-  </small>
-    <!-- <v-row density="compact">
-      <v-col align-self="center" cols="12" sm="4">
-        <div v-if="casting">
-          <v-icon size="18">mdi-arrow-right</v-icon><small>Casting:</small>
-        </div>
-        <div v-if="delegating">
-          <v-icon size="18">mdi-arrow-decision-auto</v-icon><small>Delegating:</small>
-        </div>
-        <div v-if="!(casting || delegating)">
-          <v-icon size="18">mdi-arrow-decision-auto</v-icon><small>???:</small>
-        </div>
-      </v-col>
-
-      <v-col align-self="center" cols="12" sm="8">
-        <span v-show="(!(refVote?.voted?.standard || refVote?.voted?.splitAbstain))"> <small>No vote</small> </span>
-        <span v-if="refVote?.voted?.splitAbstain">
-          <v-icon size="18" color="purple">mdi-call-split</v-icon>
-          <small>(
-          <v-icon size="12">mdi-arrow-up</v-icon>{{ formatAmount(refVote?.voted?.splitAbstain?.aye, 1) }},
-          <v-icon size="12">mdi-arrow-down</v-icon>{{ formatAmount(refVote?.voted?.splitAbstain?.nay, 1) }},
-          <v-icon size="12">mdi-arrow-left-right</v-icon>{{ formatAmount(refVote?.voted?.splitAbstain?.abstain, 1) }}
-          )</small>
-        </span>
-        <span v-if="refVote?.voted?.standard">
-          <v-icon size="18" :color="ayeOrNay(refVote.voted.standard.vote).aye ? 'success' : 'red'">mdi-thumb-{{ayeOrNay(refVote.voted.standard.vote).aye ? 'up' : 'down'}}-outline</v-icon>
-          {{ formatAmount(refVote?.voted?.standard?.balance, 2)}} {{ symbol }}
-          ({{ getConviction(refVote) }})
-        </span>
-      </v-col>
-
-    </v-row> -->
+    </small>
 
   </v-container>
 

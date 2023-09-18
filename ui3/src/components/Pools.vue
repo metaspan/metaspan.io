@@ -3,7 +3,7 @@
   <v-container class="mt-0 pt-0">
 
     <v-toolbar>
-      <v-toolbar-title>Pools</v-toolbar-title>
+      <v-toolbar-title>Pools ({{ chainId }})</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items>
         <v-btn small icon @click="reload()"><v-icon>mdi-refresh</v-icon></v-btn>
@@ -18,21 +18,22 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref, watch, inject } from 'vue'
+import { defineComponent, computed, ref, watch, inject, onBeforeMount, nextTick} from 'vue'
 import { useStore } from 'vuex'
 import { hexToString } from '@polkadot/util'
 import { IPool } from '../types/global'
-import PoolTable from './PoolTable.vue'
+// import PoolTable from './PoolTable.vue'
 import PoolList from './PoolList.vue'
 import { SubstrateAPI } from '../plugins/substrate'
 import Loading from './Loading.vue'
+import router from '@/router'
 
 type TF = ReturnType<typeof setInterval>
 
 export default defineComponent({
   name: 'Pools',
   components: {
-    PoolTable,
+    // PoolTable,
     PoolList,
     Loading
   },
@@ -47,22 +48,25 @@ export default defineComponent({
     const loading = ref(false)
   
     watch(() => chainId.value, (newVal) => {
-      store.dispatch('pool/setChainId', newVal)
+      store.dispatch('pool/setChainId', newVal) // ChainHome will see this..!
+      router.push(`/${newVal}/pool`)
+      loadPools()
     })
 
-    const loadPools = async (): Promise<number> => {
+    const loadPools = async (): Promise<void> => {
       // console.debug('Pools.vue: searching for api', chainId.value)
       await substrate.api?.isReady
+      console.debug('Pools.vue: api ready', chainId.value)
       if (!loading.value) {
         try {
           const api = substrate.api
           // console.debug('Pools.vue', api)
-          let t: any
-          const x: any = await api?.query.nominationPools.lastPoolId()
-          // console.log('lastPool', x.toNumber())
+          // let t: any
+          const x: any = Number((await api?.query.nominationPools.lastPoolId() || 0).toString())
+          console.log('lastPool', x)
           loading.value = true
           let promises = [] as any[]
-          for (let i = 1; i <= x.toNumber(); i++) { promises.push(api?.query.nominationPools.bondedPools(i)) }
+          for (let i = 1; i <= x; i++) { promises.push(api?.query.nominationPools.bondedPools(i)) }
           let pools = await Promise.all(promises)
           // console.debug(pools)
 
@@ -97,8 +101,17 @@ export default defineComponent({
           loading.value = false
         }
       }
-      return 1
     }
+
+    onBeforeMount(() => {
+      // nextTick(async () => {
+      setTimeout(async () => {
+        if (list.value.length === 0) {
+          loadPools()
+        }
+      }, 250)
+      // })
+    })
   
     return {
       store,
@@ -125,8 +138,8 @@ export default defineComponent({
       this.$router.push(`/${this.chainId}/pool/${item.id}`)
     },
 
-    reload () {
-      this.loadPools()
+    async reload () {
+      await this.loadPools()
     },
     clearAllIntervals () {
       const int = parseInt(this.interval.toString())
@@ -142,14 +155,17 @@ export default defineComponent({
   async created () {
     // console.debug('Pools.vue created()', this.chainId, this.list?.length)
     // await this.substrate.api.connect(this.chainId)
-    if (!this.list || this.list.length === 0) {
-      this.reload()
-    }
+    // if (this.list.length === 0) {
+    //   nextTick(async () => {
+    //     await this.loadPools()
+    //     // await this.reload()
+    //   })
+    // }
   },
   // async mounted () {
   //   // this.$ga.page(`/${this.chainId}/pool`)
   // },
-  beforeDestroy () {
+  beforeUnmount () {
     // console.debug('Pools.vue: beforeDestroy()')
     if (this.interval) clearInterval(this.interval)
   }

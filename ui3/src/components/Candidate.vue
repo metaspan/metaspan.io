@@ -2,8 +2,8 @@
 
   <v-container class="mt-0 pt-0">
     <v-toolbar flat elevation="0">
-      <v-btn small icon @click="$router.go(-1)"><v-icon>mdi-arrow-left</v-icon></v-btn>
-      <!-- <v-spacer></v-spacer> -->
+      <!-- <v-btn small icon @click="$router.go(-1)"><v-icon>mdi-arrow-left</v-icon></v-btn> -->
+      <v-btn small icon :to="`/${chainId}/candidate`"><v-icon>mdi-arrow-left</v-icon></v-btn>
       <v-toolbar-title>
         <span class="text-h7 text-sm-h6 text-md-h5">
           <v-avatar>
@@ -16,10 +16,6 @@
       <v-spacer></v-spacer>
       <CandidateExternalLinks :candidate="candidate"></CandidateExternalLinks> &nbsp;
     </v-toolbar>
-    <!-- {{candidate}} -->
-    <!-- {{ loading }} <v-btn @click="test()" :loading="loading">Load</v-btn> -->
-
-    <!-- <CandidateBalance class="d-none d-md-block" :candidate="candidate"></CandidateBalance> -->
 
     <v-row>
       <v-col>
@@ -32,7 +28,6 @@
 
     <CandidateIcons :candidate="candidate" class="d-block d-md-none"></CandidateIcons>
 
-    <!-- {{ranges}} -->
     <v-container class="d-none d-md-block">
       <v-row justify="center">
         <v-col class="outlined col-4 col-sm-3 col-md-2" align="center">Rank<br>{{ candidate?.rank }}</v-col>
@@ -107,7 +102,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, computed, watch, ref } from 'vue'
+import { defineComponent, inject, computed, watch, ref, nextTick } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter, useRoute } from 'vue-router'
 import Plausible from 'plausible-tracker'
@@ -300,6 +295,14 @@ export default defineComponent({
       const { loading, data, networkStatus } = event
       candidate.value = {...data.Candidate}
     })
+    watch(() => chainId.value, (newVal) => {
+      console.debug('watch: chainId', newVal)
+      // refetch({ chain: newVal, stash: stash })
+      nextTick(() => {
+        console.debug('nextTick: chainId', newVal)
+        router.push({ path: `/${newVal}/candidate` })
+      })
+    })
     watch(() => route.params.stash, (newVal) => {
       console.debug('watch: route.params.stash', newVal)
     })
@@ -333,11 +336,11 @@ export default defineComponent({
       // tab: 'score'
     }
   },
-  watch: {
-    chainId (val) {
-      this.$router.push(`/${val}/candidate`)
-    }
-  },
+  // watch: {
+  //   chainId (val) {
+  //     this.$router.push(`/${val}/candidate`)
+  //   }
+  // },
   filters: {
     // eslint-disable-next-line
     formatDate (v: any): string {
@@ -382,7 +385,7 @@ export default defineComponent({
   async mounted () {
     window.scrollTo(0, 0)
   },
-  beforeDestroy () {
+  beforeUnmount () {
     console.debug('unmounting...')
     if (this.unsubscribe !== null) this.unsubscribe()
   }

@@ -13,36 +13,40 @@
 <script lang="ts">
 import { defineComponent, ref, inject, watch, onBeforeMount } from 'vue'
 import { useStore } from 'vuex'
+import { useRoute } from 'vue-router'
 import { SubstrateAPI } from '../plugins/substrate'
 
 export default defineComponent({
   name: 'ChainHome',
+  // these props come from the router !!
   props: {
     chainId: {
       type: String,
-      required: true
+      required: false
     }
   },
   setup (props) {
     const store = useStore()
-    const chainId = ref(props.chainId)
+    const route = useRoute()
+    console.debug('ChainHome.vue: setup(): route', route)
+    const chainId = ref(props.chainId || store.state.chainId)
     const substrate: SubstrateAPI = inject('$substrate') || new SubstrateAPI({ lite: false })
     substrate.connect(chainId.value)
 
-    watch(() => chainId.value, (newVal) => {
-      substrate.connect(chainId.value)
+    // props will not change, so we need to watch the route
+    watch(() => chainId.value, async (newVal) => {
+      await substrate.connect(chainId.value)
     })
 
     onBeforeMount(() => {
-      console.debug('ChainHome.vue: created()', chainId.value, store.state.chainId)
+      console.debug('ChainHome.vue: onBeforeMount()', chainId.value, store.state.chainId)
       if (chainId.value !== store.state.chainId) {
+        console.debug('ChainHome.vue: setting chainId', chainId.value)
         store.dispatch('setChainId', chainId.value)
+        const chainInfo = JSON.parse(substrate.api?.registry?.getChainProperties()?.toString() || '{}')
+        store.dispatch('substrate/setChainInfo', { chainId: chainId.value, chainInfo })
       }
     })
-
-    return {
-      chainId
-    }
   }
 })
 </script>

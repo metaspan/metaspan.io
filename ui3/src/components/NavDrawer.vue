@@ -16,11 +16,27 @@
           <v-icon small>mdi-git</v-icon>
           App version: {{appVersion}}</v-list-item-title>
       </v-list-item>
+
+      <v-list-item :to="`/${chainId}/delegate`" >
+        <v-list-item-title>
+          <v-icon size="large">mdi-vote-outline</v-icon>
+          Delegate
+        </v-list-item-title>
+      </v-list-item>
+
+      <v-list-item :to="`/${chainId}/nomination1kv`" >
+        <v-list-item-title>
+          <v-icon size="large">mdi-water-plus-outline</v-icon>
+          1kv Nominations 
+          </v-list-item-title>
+      </v-list-item>
+
       <v-list-item @click="resetCache()">
         <v-list-item-title>
           <v-icon small>mdi-cached</v-icon>
             Reset cache</v-list-item-title>
       </v-list-item>
+
       <v-list-item @click="toggleDark()">
         <v-list-item-title>
           <v-icon small>mdi-theme-light-dark</v-icon>
@@ -43,6 +59,7 @@ export default defineComponent({
   setup () {
     const theme = useTheme()
     const store = useStore()
+    const chainId = computed(() => store.state.chainId)
     const apolloClient = useApolloClient()
     const drawer = ref(false)
     const appVersion = computed(() => store.state.appVersion)
@@ -70,6 +87,7 @@ export default defineComponent({
     return {
       store,
       theme,
+      chainId,
       showNavDrawer,
       appVersion,
       dark,

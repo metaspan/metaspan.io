@@ -59,7 +59,7 @@ export default defineComponent({
     })
     const toCoin = (v: number) => {
       // return v / 1000000000000
-      if (v === 0) return "0.00"
+      if (!v || v === 0) return "0.000000"
       // console.debug('CandidateBalance.vue: toCoin()', v, {...chainInfo})
       // console.debug('decimals', this.chainInfo?.tokenDecimals?.toJSON()[0])
       const info = {...chainInfo.value}

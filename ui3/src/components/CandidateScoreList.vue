@@ -4,26 +4,22 @@
   <div>
     <v-card tile elevation="1" width="100%">
       <v-card-title>
-        <span class="text-h5">Score: {{model.score?.total?.toFixed(3) | 0.00}}</span>
+        <span class="text-h5">Score: {{ model.total?.toFixed(3) | 0.00 }}</span>
       </v-card-title>
     </v-card>
 
     <v-list>
-      <v-list-item>
-        <!-- Headers...? -->
-        <v-progress-linear :value="(model.score?.total | 0)/ranges.score.max*100"></v-progress-linear>
-
-      </v-list-item>
+      <!-- <v-list-item>
+        <v-progress-linear :value="(model?.total | 0)/(ranges.total?.max||1)*100"></v-progress-linear>
+      </v-list-item> -->
 
       <v-list-item v-for="item in Object.keys(fields)" v-bind:key="item">
-        <!-- <v-list-item-content> -->
-          <v-list-item-title>
-            <v-row>
-              <v-col>{{fields[item].title}}</v-col>
-              <v-col class="text-right">{{getScore(item)}} <small v-show="denoms[item]">/{{denoms[item]}}</small></v-col>
-            </v-row>
-          </v-list-item-title>
-        <!-- </v-list-item-content> -->
+        <v-list-item-title>
+          <v-row>
+            <v-col>{{fields[item].title}}</v-col>
+            <v-col class="text-right">{{getScore(item)}} <small v-show="denoms[item]">/{{denoms[item]}}</small></v-col>
+          </v-row>
+        </v-list-item-title>
       </v-list-item>
     </v-list>
 
