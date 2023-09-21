@@ -38,14 +38,15 @@ export default defineComponent({
       await substrate.connect(chainId.value)
     })
 
-    onBeforeMount(() => {
+    onBeforeMount(async () => {
       console.debug('ChainHome.vue: onBeforeMount()', chainId.value, store.state.chainId)
       if (chainId.value !== store.state.chainId) {
         console.debug('ChainHome.vue: setting chainId', chainId.value)
         store.dispatch('setChainId', chainId.value)
-        const chainInfo = JSON.parse(substrate.api?.registry?.getChainProperties()?.toString() || '{}')
-        store.dispatch('substrate/setChainInfo', { chainId: chainId.value, chainInfo })
       }
+      await substrate.api?.isReady
+      const chainInfo = JSON.parse(substrate.api?.registry?.getChainProperties()?.toString() || '{}')
+      store.dispatch('substrate/setChainInfo', { chainId: chainId.value, chainInfo })
     })
   }
 })
