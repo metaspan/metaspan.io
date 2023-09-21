@@ -82,17 +82,17 @@ export default defineComponent({
       try {
         await substrate.api?.isReady
         if (!candidate || !candidate.stash) return
-        var acct = await substrate.api?.query.system.account(candidate.stash)
+        var acct = await substrate.api?.query.system.account(candidate.stash) || {}
         // console.log('CandidateBalance.vue: acct', acct)
         // acct = acct?.toJSON() || {}
         // console.debug(acct)
         const { nonce, data }: any = acct
-        const balance = data.toJSON()
+        const balance = data?.toJSON() || {}
         // console.debug('nonce, account', nonce.toNumber(), account)
         // const now = await this.$substrate[this.chainId].query.timestamp.now()
         // console.log(`: balance of ${balance.free} and a nonce of ${nonce}`)
         account.value.balance = balance
-        account.value.nonce = nonce.toNumber()
+        account.value.nonce = nonce?.toNumber() || 0
         loading.value = false
         // console.debug('CandidateBalance.vue: getBalance(): account', {...account.value})
         // clearInterval(int)
@@ -113,31 +113,17 @@ export default defineComponent({
       if(newVal.stash !== '') getBalance(newVal)
     }, { immediate: true })
 
-    // onMounted(() => {
-    //   let count = 0
-    //   const int = setInterval(async () => {
-    //     count++
-    //     if (substrate.api) {
-    //       if (await getBalance(candidate)) clearInterval(int)
-    //     }
-    //     if (count > 10) {
-    //       console.debug('CandidateBalance.vue: no api found, clearing interval...')
-    //       loading.value = false
-    //       clearInterval(int)
-    //     }
-    //   }, 1000)
-    // })
-    getBalance(candidate)
+    onMounted(() => {
+      getBalance(candidate)
+    })
 
     return {
       chainId,
       decimals,
       chainInfo,
-      // candidate,
       model,
       loading,
       account,
-      // getBalance,
       toCoin
     }
   }
