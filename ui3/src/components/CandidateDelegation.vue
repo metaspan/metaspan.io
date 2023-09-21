@@ -21,6 +21,11 @@
           <v-row>
             <v-col><ClickToCopy :text="item.target" :display="shortStash(item.target)"></ClickToCopy></v-col>
             <v-col>{{ item.conviction }} - {{ formatAmount(item.balance) }} {{ tokenSymbol }}</v-col>
+            <v-col>
+              <span v-show="item.votes.length > 0">
+                votes {{ item.votes }}
+              </span>
+            </v-col>
           </v-row>
         </v-list-item-subtitle>
 
@@ -92,6 +97,7 @@ interface IDelegation {
   target: string
   conviction: string
   balance: number
+  votes: string[]
 }
 
 export default defineComponent({
@@ -112,7 +118,7 @@ export default defineComponent({
     const chainInfo = computed(() => store.getters['substrate/chainInfo'])
     const chainId = computed(() => store.state.chainId)
     // const decimals = computed(() => store.state['substrate/decimals'])
-    const tokenSymbol = ref(chainInfo.value.tokenSymbol)
+    const tokenSymbol = computed(() => chainInfo.value.tokenSymbol?.[0] || '')
     const substrate = inject<SubstrateAPI>('$substrate') || new SubstrateAPI({ lite: false })
     //const denom = Math.pow(10, chainInfo.value.tokenDecimals[0]) || -1000000000000
 
@@ -162,7 +168,8 @@ export default defineComponent({
             trackId,
             target: '',
             conviction: '',
-            balance: 0
+            balance: 0,
+            votes: trackVote.casting.votes.map((v: any) => v[0])
           })
         }
         if (!trackVote.delegating && !trackVote.casting) {
@@ -229,6 +236,7 @@ export default defineComponent({
 
     return {
       chainId,
+      chainInfo,
       loading,
       // referenda,
       tokenSymbol,
