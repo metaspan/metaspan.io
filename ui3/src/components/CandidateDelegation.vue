@@ -159,7 +159,8 @@ export default defineComponent({
             trackId,
             target: trackVote.delegating.target,
             conviction: trackVote.delegating.conviction,
-            balance: trackVote.delegating.balance //)/Number(decimals.value)
+            balance: trackVote.delegating.balance, //)/Number(decimals.value)
+            votes: []
           })
         }
         if (trackVote.casting) {
