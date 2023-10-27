@@ -1,7 +1,7 @@
 <template>
-  <v-container :loading="loading" class="pt-0 mt-0">
+  <v-container :loading="loading" style="max-width: 900px" class="pt-0 mt-0">
 
-    <v-toolbar>
+    <v-toolbar color="#FFFFFF00">
       <v-toolbar-title>Candidates ({{ chainId }})</v-toolbar-title>
         <v-spacer></v-spacer>
 

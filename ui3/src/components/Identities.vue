@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container style="max-width: 900px" >
     Identities
     <v-text-field v-model="search" label="Search" :loading="debouncing"></v-text-field>
     <v-list>

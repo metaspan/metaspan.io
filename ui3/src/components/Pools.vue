@@ -1,8 +1,7 @@
 <template>
 
-  <v-container class="mt-0 pt-0">
-
-    <v-toolbar>
+  <v-container style="max-width: 900px" class="mt-0 pt-0">
+    <v-toolbar color="#FFFFFF00">
       <v-toolbar-title>Pools ({{ chainId }})</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items>

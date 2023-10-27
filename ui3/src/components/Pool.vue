@@ -1,7 +1,7 @@
 <template>
 
-  <v-container class="mt-0 pt-0">
-    <v-toolbar>
+  <v-container style="max-width: 900px" class="mt-0 pt-0">
+    <v-toolbar color="#FFFFFF00">
       <!-- <v-btn small icon @click="$router.go(-1)"><v-icon>mdi-arrow-left</v-icon></v-btn> -->
       <v-btn small icon :to="`/${chainId}/pool`"><v-icon>mdi-arrow-left</v-icon></v-btn>
       <v-toolbar-title class="nowrap">Pool {{pool.id}}. {{pool.name}}</v-toolbar-title>
