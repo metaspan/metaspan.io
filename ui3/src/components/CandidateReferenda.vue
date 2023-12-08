@@ -5,6 +5,22 @@
         Referenda
       </v-toolbar-title>
       <v-spacer></v-spacer>
+      <!-- <v-select max-width="20px" density="compact" v-model="numRefs" :items="[20, 50, 100, 150]"></v-select> -->
+      <v-menu>
+        <template v-slot:activator="{ props }">
+          <v-btn v-bind="props">
+            {{ numRefs }}
+            <template v-slot:append>
+              <v-icon>mdi-chevron-down</v-icon>
+            </template>
+          </v-btn>
+        </template>
+        <v-list density="compact">
+          <v-list-item v-for="num in [20, 50, 100, 150]" @click="numRefs = num">
+            {{ num }}
+          </v-list-item>
+        </v-list>
+      </v-menu>
       <v-btn icon @click="refresh()"><v-icon>mdi-refresh</v-icon></v-btn>
     </v-toolbar>
       <!-- {{referenda}} -->
@@ -185,6 +201,7 @@ export default defineComponent({
     const decimals = computed(() => store.state['substrate/decimals'])
     const tokenSymbol = ref(chainInfo.value.tokenSymbol)
     const substrate = inject<SubstrateAPI>('$substrate') || new SubstrateAPI({ lite: false })
+    const numRefs = ref(20)
 
     watch(() => props.candidate, (newVal) => {
       candidate.value = newVal
@@ -210,7 +227,7 @@ export default defineComponent({
       const referendumCount = await substrate.api?.query.referenda?.referendumCount() || 0
       const count = Number(referendumCount.toString())
       console.log('referendumCount', count)
-      const history = 25
+      const history = numRefs.value
       // const ids = tracks.value?.map((m, idx) => { return { idx: m.idx, id: m.id } }).reverse().slice(0, history)
       // console.debug(ids)
       const refs = []
@@ -377,6 +394,10 @@ export default defineComponent({
       // refresh()
     })
 
+    watch((numRefs), (newVal: any) => {
+      console.debug('numRefs', newVal)
+    })
+
     refresh()
 
     return {
@@ -390,6 +411,7 @@ export default defineComponent({
       referenda,
       tracks,
       refVoting,
+      numRefs,
       refresh,
       getTrack,
       hasVotedInRef,
