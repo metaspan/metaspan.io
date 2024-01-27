@@ -71,8 +71,8 @@ export default defineComponent({
         democracy: { title: 'Democracy' },
         nominatorStake: { title: 'Nominator Stake' },
         delegations: { title: 'Delegations' },
-        openGov: { title: 'OpenGov' },
-        openGovDelegations: { title: 'OpenGov Delegations' },
+        // openGov: { title: 'OpenGov' },
+        // openGovDelegations: { title: 'OpenGov Delegations' },
         aggregate: { title: 'Aggregate' },
         randomness: { title: 'Randomness' },
         total: { title: 'Total' }

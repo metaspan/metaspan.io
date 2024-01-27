@@ -41,26 +41,29 @@
         <v-col class="outlined col-4 col-sm-3 col-md-2" align="center">Discovered<br>{{ timeAgo(candidate?.discoveredAt) }}</v-col>
         <v-col class="outlined col-4 col-sm-3 col-md-2" align="center">Nominated<br>{{ timeAgo(candidate?.nominatedAt) }}</v-col>
         <v-col class="outlined col-4 col-sm-3 col-md-2" align="center">Online<br>{{ timeAgo(candidate?.onlineSince) }}</v-col>
-        <v-col class="outlined col-4 col-sm-3 col-md-2" align="center">Node version<br>TBC</v-col>
+        <v-col class="outlined col-4 col-sm-3 col-md-2" align="center">Node version<br>{{ candidate.version }}</v-col>
       </v-row>
       <v-row justify="center">
         <v-col align="center">Stash<br>{{ formatStash(stash) }}</v-col>
-        <v-col align="center">Controller<br>TBC</v-col>
-        <v-col align="center">Queued key<br>TBC</v-col>
-        <v-col align="center">Next Key<br>TBC</v-col>
-      </v-row>
-      <v-row justify="center">
-        <v-col align="center">Node location<br>{{ candidate.location }}</v-col>
-        <v-col align="center">Reward Destination<br>TBC</v-col>
+        <v-col align="center">Reward Destination<br>{{ formatStash(candidate.rewardDestination || '') }}</v-col>
         <v-col align="center">Faults<br>{{candidate.faults}}</v-col>
         <v-col align="center">Unclaimed Eras<br>{{candidate.unclaimedEras ? candidate.unclaimedEras.length : 0}}</v-col>
+        <!-- 
+        <v-col align="center">Queued key<br>TBC</v-col>
+        <v-col align="center">Next Key<br>TBC</v-col> -->
       </v-row>
       <v-row justify="center">
+        <v-col align="center">Country<br>{{ candidate.country }}</v-col>
+        <v-col align="center">Region<br>{{ candidate.region }}</v-col>
+        <v-col align="center">Location<br>{{ candidate.location }}</v-col>
+        <v-col align="center">Provider<br>{{ candidate.provider }}</v-col>
+      </v-row>
+      <!-- <v-row justify="center">
         <v-col align="center">Democracy Vote Count<br>{{ candidate.democracyVoteCount }}</v-col>
         <v-col align="center">Democracy Votes<br>{{candidate.democracyVotes}}</v-col>
         <v-col align="center">Council Stake<br>{{candidate.councilStake}}</v-col>
         <v-col align="center">Council Votes<br>{{candidate.unclaimedEras ? candidate.unclaimedEras.length : 0}}</v-col>
-      </v-row>
+      </v-row> -->
     </v-container>
     
     <CandidateValidity :candidate="candidate"></CandidateValidity>
@@ -130,6 +133,7 @@ import gql from 'graphql-tag'
 import Identicon from './identicon/Identicon.vue'
 
 import { ICandidateScore } from '../types/global'
+import { shortStash } from '../global/utils'
 
 interface IData {
   // eslint-disable-next-line
@@ -172,16 +176,22 @@ const QUERY_CANDIDATE = gql`
 query Data($chain: String!, $stash: String) {
   Candidate(chain: $chain, stash: $stash) {
     stash
-    valid
     active
     commission
-    councilStake
+    # councilStake
+    # councilVotes
+    # democracyVotes
+    location
+    region
+    country
     name
     rank
-    total
     nominated_1kv
-    councilVotes
-    democracyVotes
+    provider
+    valid
+    version
+    rewardDestination
+    total
     identity {
       info {
         display
@@ -323,7 +333,8 @@ export default defineComponent({
       loading,
       refetch,
       candidate,
-      ranges
+      ranges,
+      shortStash
     }
   },
   data () {

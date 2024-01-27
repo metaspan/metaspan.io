@@ -88,12 +88,14 @@ export interface ICandidate {
   onlineSince: number | string
   provider: string
   region: string
+  rewardDestination?: string
   unclaimedEras: string[]
   valid: boolean
   validity: ICandidateValidityItem[]
   // eslint-disable-next-line
   nominated_1kv: boolean
   nominations?: number | INomination[]
+  version?: string
 }
 
 export interface INomination {}
