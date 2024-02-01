@@ -78,70 +78,41 @@ interface IState {
 
 // https://github.com/w3f/1k-validators-be/blob/master/helmfile.d/config/kusama/otv-backend-prod.yaml.gotmpl#L59
 const kusamaScoreDenoms: Record<string, string> = {
-  // "inclusion": "140",
-  // "spanInclusion": "140",
-  // "discovered": "5",
-  // "nominated": "30",
-  // "rank": "5",
-  // "bonded": "50",
-  // "faults": "5",
-  // "offline": "2",
-  // "location": "40",
-  // "region": "10",
-  // "country": "10",
-  // "provider": "50",
-  "council": "50",
-  "democracy": "100",
-  // "nominations": "100",
-  "delegations": "60",
   // as per message from Will
-  "inclusion": "250",
-  "spanInclusion": "250",
+  "inclusion": "220",
+  "spanInclusion": "220",
   "discovered": "5",
   "nominated": "30",
   "rank": "5",
-  "bonded": "100",
+  "bonded": "50",
   "faults": "5",
   "offline": "2",
   "location": "40",
   "region": "10",
   "country": "10",
   "provider": "100",
-  "nominations": "150",
+  "council": "10",
+  "democracy": "30",
+  "nominations": "100",
 };
 
 // https://github.com/w3f/1k-validators-be/blob/master/helmfile.d/config/polkadot/otv-backend-prod.yaml.gotmpl#58
 const polkadotScoreDenoms: Record<string, string> = {
-  // "inclusion": "140",
-  // "spanInclusion": "140",
-  // "discovered": "5",
-  // "nominated": "30",
-  // "rank": "5",
-  // "bonded": "50",
-  // "faults": "5",
-  // "offline": "2",
-  // "location": "40",
-  // "region": "10",
-  // "country": "10",
-  // "provider": "50",
-  "council": "50",
-  "democracy": "100",
-  // "nominations": "100",
-  "delegations": "60",
-  // as per message from Will
-  "inclusion": "250",
-  "spanInclusion": "250",
+  "inclusion": "220",
+  "spanInclusion": "220",
   "discovered": "5",
   "nominated": "30",
   "rank": "5",
-  "bonded": "100",
+  "bonded": "50",
   "faults": "5",
   "offline": "2",
   "location": "40",
   "region": "10",
   "country": "10",
   "provider": "100",
-  "nominations": "150",
+  "council": "10",
+  "democracy": "30",
+  "nominations": "100",
 };
 
 const initialState = {
@@ -293,7 +264,7 @@ const candidate = {
     denoms (state: IState) { 
       console.debug('candidate.ts: getters.denoms()', state.chainId)
       console.debug(state.chains[state.chainId])
-      return state.chains[state.chainId]?.scoreDenoms || [] 
+      return state.chains[state.chainId]?.scoreDenoms || []
     },
     updatedAt (state: IState) { return moment(state.chains[state.chainId]?.updatedAt) }
   },

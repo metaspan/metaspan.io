@@ -39,6 +39,7 @@ export default defineComponent({
     const dateTimeFormat = ref('YYYY/MM/DD hh:mm')
     const texts = ref<Record<string, string>>( {
       ACCUMULATED_OFFLINE_TIME: 'On/Offline',
+      BEEFY: 'Beefy',
       BLOCKED: 'Blocked',
       CLIENT_UPGRADE: 'Upgrade',
       COMMISION: 'Commission',
