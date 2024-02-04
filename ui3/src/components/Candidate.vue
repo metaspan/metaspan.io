@@ -184,6 +184,7 @@ query Data($chain: String!, $stash: String) {
     location
     region
     country
+    faults
     name
     rank
     nominated_1kv
