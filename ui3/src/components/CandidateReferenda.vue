@@ -16,7 +16,7 @@
           </v-btn>
         </template>
         <v-list density="compact">
-          <v-list-item v-for="num in [20, 50, 100, 150]" @click="numRefs = num">
+          <v-list-item v-for="num in [20, 50, 100, 150]" v-bind:key="num" @click="numRefs = num">
             {{ num }}
           </v-list-item>
         </v-list>
@@ -63,7 +63,7 @@
           <v-col cols="4" v-if="!item.approved && !item.rejected && !item.timedOut">
             <!-- <div> -->
               <v-progress-linear :model-value="getAyes(item)"
-                height="15" background-color="grey"
+                height="15" bg-color="grey"
                 color="success">
                 <template v-slot:default>
                   <small>{{ formatAmount(item.ongoing?.tally?.ayes, 2) }} {{tokenSymbol}}</small>
@@ -71,7 +71,7 @@
               </v-progress-linear>
               <!-- <br> -->
               <v-progress-linear :model-value="getNays(item)"
-                height="15" background-color="grey"
+                height="15" bg-color="grey"
                 color="red">
               <template v-slot:default="{}">
                 <small>{{ formatAmount(item.ongoing?.tally?.nays, 2) }} {{tokenSymbol}}</small>

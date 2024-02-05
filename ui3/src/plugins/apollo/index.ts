@@ -24,8 +24,12 @@ function createApolloClient (ssr = false) {
 
   const cache = new InMemoryCache({
     typePolicies: {
-      Candidate: { keyFields: ['chain', 'stash'] },
-      CandidateScore: { keyFields: ['address'] }
+      Candidate: {
+        keyFields: ['chain', 'stash']
+      },
+      CandidateScore: {
+        keyFields: ['address']
+      }
     }
   })
 

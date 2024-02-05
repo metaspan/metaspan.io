@@ -71,14 +71,35 @@ import Identicon from './identicon/Identicon.vue'
 import { ICandidate, ICandidateListFilter, ICandidateValidityItem } from '../types/global'
 import { useQuery, useMutation, useApolloClient } from '@vue/apollo-composable'
 import gql from 'graphql-tag'
-import Loading from '@/components/Loading.vue'
-import { useDisplay } from 'vuetify'
+// import Loading from '@/components/Loading.vue'
 
 const QUERY_CANDIDATES = gql`
-  query Data($chain: String!, $search: String, $stashes: [String], $active: Boolean, 
-    $valid: Boolean, $nominated_1kv: Boolean, $rank: Int, $score: Int, $order: String, $orderDir: String, $cursor: String!, $limit: Int) {
-    CandidatesFeed(chain: $chain, search: $search, stashes: $stashes, active: $active, 
-      valid: $valid, nominated_1kv: $nominated_1kv, rank: $rank, score: $score, order: $order, orderDir: $orderDir, cursor: $cursor, limit: $limit) {
+  query Data($chain: String!,
+    $search: String,
+    $stashes: [String],
+    $active: Boolean, 
+    $valid: Boolean,
+    $nominated_1kv: Boolean,
+    $rank: Int,
+    $score: Int,
+    $order: String,
+    $orderDir: String,
+    $cursor: String!,
+    $limit: Int) {
+    CandidatesFeed(
+        chain: $chain,
+        search: $search,
+        stashes: $stashes,
+        active: $active, 
+        valid: $valid,
+        nominated_1kv: $nominated_1kv,
+        rank: $rank,
+        score: $score,
+        order: $order,
+        orderDir: $orderDir,
+        cursor: $cursor,
+        limit: $limit
+      ) {
       cursor
       Candidates {
         chain
@@ -99,7 +120,7 @@ export default defineComponent({
   name: 'CandidatesList',
   components: {
     Identicon,
-    Loading
+    // Loading
   },
   props: {
     list: {
@@ -130,22 +151,22 @@ export default defineComponent({
     const prepQuery = (fresh=false) => {
       const params = {
         chain: chainId.value,
-        search: search.value,
-        active: filter.value.active,
-        valid: filter.value.valid,
-        nominated_1kv: filter.value.nominated,
-        order: filter.value.sort,
-        orderDir: filter.value.sortAsc ? 'asc' : 'desc',
-        cursor: fresh ? '' : cursor.value,
-        limit: limit.value,
-        stashes: filter.value.favourite? favourites.value : null
+        // search: search.value,
+        // active: filter.value.active,
+        // valid: filter.value.valid,
+        // nominated_1kv: filter.value.nominated,
+        // order: filter.value.sort,
+        // orderDir: filter.value.sortAsc ? 'asc' : 'desc',
+        // cursor: fresh ? '' : cursor.value,
+        // limit: limit.value,
+        // stashes: filter.value.favourite? favourites.value : null
       }
       // if (filter.value.rank) params.rank = parseInt(filter.value.rank)
       // if (filter.value.score) params.score = parseInt(filter.value.score)
       return params
     }
     const { query, result, loading, error, refetch, fetchMore, onResult } = useQuery(QUERY_CANDIDATES, prepQuery(true), {
-      fetchPolicy: 'cache-and-network'
+      fetchPolicy: 'cache-first'
     })
 
     onResult((event: any) => {
@@ -191,13 +212,17 @@ export default defineComponent({
     watch(() => chainId.value, async (newVal) => {
       if (newVal !== undefined) onReload()
     })
+
     watch(() => search.value, (newVal) => {
       console.debug('CandidatesList.vue: watch.search:', newVal)
       onReload()
     })
+
     watch(() => filter.value, (newVal) => {
       console.debug('CandidatesList.vue: watch.filter:', {...newVal})
       onReload()
+    }, {
+      deep: true
     })
 
     const clickItem = (item: any) => { emit('click-item', {...item}) }
@@ -222,9 +247,10 @@ export default defineComponent({
     }
 
     // const display = useDisplay()
-    // onMounted(() => {
-    //   console.log('CandidatesList.vue: onMounted() mobile', display) // false
-    // })
+    onMounted(() => {
+      // console.log('CandidatesList.vue: onMounted() mobile', display) // false
+      // refetch()
+    })
 
     return {
       store,

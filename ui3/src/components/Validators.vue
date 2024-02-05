@@ -46,7 +46,6 @@
       :page="options.page"
       :items-per-page="options.itemsPerPage"
       :sort-by="options.sortBy"
-      :sort-desc="options.sortDesc"
       item-key="stash"
       :search="search"
       @pagination="handlePaginate"
@@ -79,37 +78,37 @@
         </v-row>
       </template> -->
 
-      <template v-slot:[`item.favourite`]="{item}">
-        <v-btn small icon @click="toggleFav(item)">
-          <v-icon small :color="item.columns.favourite?'orange':'grey'">mdi-star</v-icon>
+      <template v-slot:[`item.favourite`]="{ item }">
+        <v-btn size="small" icon @click="toggleFav(item)">
+          <v-icon size="small" :color="item.favourite?'orange':'grey'">mdi-star</v-icon>
         </v-btn>
       </template>
 
-      <template v-slot:[`item.name`]="{item}">
+      <template v-slot:[`item.name`]="{ item }">
         <div style="cursor:pointer" @click="gotoValidator(item)">
-          <Identicon class="identicon" :value="item.columns.stash" :size="16"></Identicon> &nbsp;&nbsp;
-          <v-btn class="text-none">{{item.columns.name}}</v-btn>
+          <Identicon class="identicon" :value="item.stash" :size="16"></Identicon> &nbsp;&nbsp;
+          <v-btn class="text-none">{{item.name}}</v-btn>
         </div>
       </template>
 
-      <template v-slot:[`item.discoveredAt`]="{item}">
+      <template v-slot:item.discoveredAt="{ item }">
         <!-- <div align="center"> -->
-        {{timeAgo(item.columns.discoveredAt) }}
+        {{timeAgo(item.discoverdAt) }}
         <!-- </div> -->
       </template>
 
-      <template v-slot:[`item.valid`]="{item}">
+      <template v-slot:item.valid="{ item }">
         <div align="center">
-          <v-icon small :color="item.columns.valid?'green':'red'">mdi-{{ item.columns.valid ? 'check-circle' : 'close-circle'}}</v-icon>
+          <v-icon size="small" :color="item ? 'green':'red'">mdi-{{ item.valid ? 'check-circle' : 'close-circle'}}</v-icon>
         </div>
       </template>
 
-      <template v-slot:[`item.active`]="{item}">
-          <v-icon small :color="item.columns.active?'green':'grey'">mdi-{{ item.columns.active ? 'check-circle' : 'minus-circle'}}</v-icon>
+      <template v-slot:[`item.active`]="{ item }">
+          <v-icon size="small" :color="item.active?'green':'grey'">mdi-{{ item.active ? 'check-circle' : 'minus-circle'}}</v-icon>
       </template>
 
       <template v-slot:[`item.totalScore`]="{ item }">
-        {{item.columns.total ? item.columns.total.toFixed(2) : 0.00 }}
+        {{ item.total ? item.total.toFixed(2) : 0.00 }}
       </template>
 
     </v-data-table>
@@ -118,28 +117,26 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref, watch, inject, onBeforeMount } from 'vue'
-import moment from 'moment'
-import { useStore } from 'vuex'
-import { VDataTable } from 'vuetify/lib/labs/components.mjs'
-// import { Identicon } from '@polkadot/vue-identicon'
-import Identicon from './identicon/Identicon.vue'
-import { IValidator } from '../types/global'
-import { SubstrateAPI } from '@/plugins/substrate'
-import { useRouter } from 'vue-router'
+import { defineComponent, computed, ref, watch, inject, onBeforeMount } from 'vue';
+import moment from 'moment';
+import { useStore } from 'vuex';
+// import { Identicon } from '@polkadot/vue-identicon';
+import Identicon from './identicon/Identicon.vue';
+import { IValidator } from '../types/global';
+import { SubstrateAPI } from '@/plugins/substrate';
+import { useRouter } from 'vue-router';
 
-interface ITableItem {
-  favourite: boolean
-  stash: string
-  name: string
-  discoveredAt: number | Date
-  valid?: boolean
-  active?: boolean
-  rank: number
-  total: number
-}
+// interface ITableItem {
+//   favourite: boolean
+//   stash: string
+//   name: string
+//   discoveredAt: number | Date
+//   valid?: boolean
+//   active?: boolean
+//   rank: number
+//   total: number
+// }
 
-// eslint-disable-next-line
 interface IOptions {
   page: number
   itemsPerPage: number
@@ -155,20 +152,19 @@ interface IFilter {
   rank: number | null
 }
 
-interface IVueTableHeader {
-  text: string
-  align?: string | null
-  sortable?: boolean
-  value: string
-  width?: string
-  // eslint-disable-next-line
-  filter?: Function
-}
+// interface IVueTableHeader {
+//   text: string
+//   align?: string | null
+//   sortable?: boolean
+//   value: string
+//   width?: string
+//   // eslint-disable-next-line
+//   filter?: Function
+// }
 
 export default defineComponent({
   name: 'Validators',
   components: {
-    VDataTable,
     Identicon
   },
   props: {
@@ -183,7 +179,7 @@ export default defineComponent({
     const substrate = inject<SubstrateAPI>('$substrate') || new SubstrateAPI({ lite: false })
 
     const loading = computed<boolean>(() => store.state['validator/loading'])
-    const list = computed<any[]>(() => store.state['validator/list'])
+    const list = computed<IValidator[]>(() => store.state['validator/list'])
     // const list = ref<DataTableItem<ITableItem>[]>()
     const updatedAt = computed(() => store.state['validator/updatedAt'])
     const favourites = computed<string[]>(() => store.state['validator/favourites'])
@@ -207,14 +203,17 @@ export default defineComponent({
     const headers = computed<any[]>(() => {
       return [
         {
+          key: 'favourite',
           text: 'Favourite', align: 'center', sortable: true, value: 'favourite', width: '5%',
           filter: (value: boolean) => {
             if (xfilter.value.favourite) return value
             else return true
           }
         },
-        { text: 'Name', align: null, sortable: true, value: 'name', width: '25%' },
-        { text: 'Discovered', align: null, sortable: true, value: 'discoveredAt', width: '10%' },
+        { key: 'name',
+          text: 'Name', align: null, sortable: true, value: 'name', width: '25%' },
+        { key: 'discoveredAt',
+          text: 'Discovered', align: null, sortable: true, value: 'discoveredAt', width: '10%' },
         // {
         //   text: 'Valid',
         //   align: 'center',
@@ -227,6 +226,7 @@ export default defineComponent({
         //   }
         // },
         {
+          key: 'active',
           text: 'Active', align: 'center', sortable: true, value: 'active', width: '5%',
           filter: (value: boolean) => {
             // console.debug(this.xfilter, value)
@@ -234,6 +234,7 @@ export default defineComponent({
           }
         },
         {
+          key: 'rank',
           text: 'Rank', align: 'center', sortable: true, value: 'rank', width: '5%',
           filter: (value: number) => {
             if (!xfilter.value.rank) return true
@@ -241,6 +242,7 @@ export default defineComponent({
           }
         },
         {
+          key: 'total',
           text: 'Total', align: 'center', sortable: true, value: 'total', width: '5%',
           filter: (value: number) => {
             if (!xfilter.value.total) return true
@@ -249,7 +251,7 @@ export default defineComponent({
         }
       ]
     })
-    const items = computed(() => {
+    const items = computed((): any[] => {
       return list.value?.map((item: IValidator) => {
         return {
           favourite: favourites.value.includes(item.stash),
@@ -260,8 +262,8 @@ export default defineComponent({
           // active: item.active,
           rank: item.rank,
           totalScore: item.score?.total
-        }
-      })
+        } as any
+      }) || []
     })
 
     const getList = async () => {
@@ -269,7 +271,7 @@ export default defineComponent({
       await store.dispatch('validator/loading', true)
       const era = await substrate.api?.query.staking.activeEra()
       console.debug('era', era)
-      // let vals = await this.$substrate.polkadot.api.query.staking.erasValidatorPrefs.entries(era.value.index)
+      // let vals = await this.$substrate.polkadot.api.query.staking.erasValidatorPrefs.entries(era.index)
       // let vals = await this.$substrate.polkadot.api.query.staking.validators(account_hash_stash)
       // let vals = await this.$substrate.polkadot.api.query.session.validators()
       // const vals = await this.$substrate.polkadot.api.query.staking.validators.entries()

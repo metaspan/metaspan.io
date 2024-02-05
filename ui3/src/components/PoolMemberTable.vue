@@ -1,24 +1,24 @@
 <template>
   <v-data-table
     :headers="headers"
-    :items="list"
+    :items="items"
     @click:row="clickRow">
 
     <template v-slot:item.accountId="{ item }">
       <div style="cursor:pointer" @click="clickRow(item)">
         <!-- <ClickToCopy :display="item.shortStash" :text="item.accountId" /> -->
-        {{ item.columns.accountId }}
+        {{ item.accountId }}
         <!-- <AccountLink :accountId="item.accountId" /> -->
       </div>
     </template>
 
     <template v-slot:item.points="{ item }">
-      {{ toCoin(item.columns.points) }}
+      {{ toCoin(item) }}
     </template>
 
     <template v-slot:item.menu="{ item }">
       <!-- <a :href="`https://${chainId}.subscan.io/account/${item.accountId}`" target="_blank">[link]</a> -->
-      <AccountLink :accountId="item.columns.accountId" text="link" />
+      <AccountLink :chain-id="chainId" :accountId="item.accountId" text="link" />
     </template>
 
   </v-data-table>
@@ -30,12 +30,10 @@ import { defineComponent, computed, ref, defineEmits, PropType } from 'vue'
 import { useStore } from 'vuex'
 import { IPoolMember } from '@/types/global'
 import AccountLink from './AccountLink.vue'
-// import { VDataTable } from 'vuetify/lib/labs/components.mjs'
 
 export default defineComponent({
   name: 'PoolMemberTable',
   components: {
-    // VDataTable,
     AccountLink
   },
   props: {
@@ -44,7 +42,7 @@ export default defineComponent({
       required: true
     }
   },
-  setup () {
+  setup (props) {
     const store = useStore()
     const chainId = computed(() => store.state.substrate.chainId)
     const chainInfo = computed(() => store.state.substrate.chainInfo)
@@ -57,6 +55,7 @@ export default defineComponent({
       // { text: '1KV', value: 'is1kv', width: '15px', align: 'right' },
       { title: '#', key: 'menu' }, // , width: '75px', align: 'right', sortable: false }
     ])
+    const items = computed(() => props.list)
     const toCoin = (v: any) => {
       // console.debug('CandidateNominators.vue', this.chainInfo)
       const decimalPlaces = chainInfo.value?.tokenDecimals?.toJSON()[0] || 0
@@ -72,6 +71,7 @@ export default defineComponent({
       chainInfo,
       decimals,
       headers,
+      items,
       toCoin,
       clickRow
     }

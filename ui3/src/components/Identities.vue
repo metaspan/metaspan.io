@@ -75,14 +75,24 @@ import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import { GET_IDENTITIES } from '../graphql/queries/identities'
 import { useQuery } from '@vue/apollo-composable'
-import { debounce } from 'lodash'
 import { shortStash, parseIdentity } from '../global/utils'
 import { hexToString } from '@polkadot/util'
 import Loading from './Loading.vue'
 import ClickToCopy from './ClickToCopy.vue'
 // import { IIdentity } from '../types/global'
 import { SubstrateAPI } from '@/plugins/substrate'
-
+// import { debounce } from 'lodash'
+function debounce(func: Function, wait: number) {
+  let timeout: number | undefined;
+  return function executedFunction(...args: any[]) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = window.setTimeout(later, wait);
+  };
+}
 interface IIdentityInfo {
   display?: string
   email?: string

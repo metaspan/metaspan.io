@@ -4,9 +4,11 @@ module.exports = {
     node: true,
   },
   extends: [
-    'plugin:vue/vue3-essential',
     'eslint:recommended',
+    'plugin:vue/vue3-essential',
     '@vue/eslint-config-typescript',
+    'plugin:vue/base',
+    'plugin:vuetify/base'
   ],
   rules: {
     'vue/multi-word-component-names': 'off',

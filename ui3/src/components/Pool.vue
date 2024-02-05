@@ -4,9 +4,11 @@
     <v-toolbar color="#FFFFFF00">
       <!-- <v-btn small icon @click="$router.go(-1)"><v-icon>mdi-arrow-left</v-icon></v-btn> -->
       <v-btn small icon :to="`/${chainId}/pool`"><v-icon>mdi-arrow-left</v-icon></v-btn>
-      <v-toolbar-title class="nowrap">Pool {{pool.id}}. {{pool.name}}</v-toolbar-title>
+      <v-toolbar-title class="nowrap">Pool {{pool?.id}}. {{pool?.name}}</v-toolbar-title>
       <v-spacer></v-spacer>
     </v-toolbar>
+
+    <!-- |{{ pool }}| -->
 
     <v-sheet>
       <table width="100%">
@@ -15,9 +17,9 @@
         </thead> -->
         <tbody>
           <tr>
-            <td width="20%">Points</td><td>{{toCoin(pool.points)}} {{chainInfo.tokenSymbol}}</td>
+            <td width="20%">Points</td><td>{{toCoin(pool?.points)}} {{chainInfo.tokenSymbol[0]}}</td>
           </tr><tr>
-            <td>State</td><td>{{pool.state}}</td>
+            <td>State</td><td>{{pool?.state}}</td>
           </tr>
           <!-- <tr>
             <td>Member count</td><td>{{pool.memberCounter}}</td>
@@ -28,31 +30,31 @@
                 <tr>
                   <td width="30%">Root</td><td align="right">
                     {{ shortStash(pool?.roles?.root || '') }}
-                    <AccountLink :accountId="pool?.roles?.root || ''" />
+                    <AccountLink :chain-id="chainId" :account-id="pool?.roles?.root || ''" />
                   </td>
                 </tr>
                 <tr>
                   <td>Nominator</td><td align="right">
                     {{ shortStash(pool?.roles?.nominator || '') }}
-                    <AccountLink :accountId="pool?.roles?.nominator || ''" />
+                    <AccountLink :chain-id="chainId" :accountId="pool?.roles?.nominator || ''" />
                   </td>
                 </tr>
                 <tr>
                   <td>Depositor</td><td align="right">
                     {{ shortStash(pool?.roles?.depositor || '') }}
-                    <AccountLink :accountId="pool?.roles?.depositor || ''" />
+                    <AccountLink :chain-id="chainId" :accountId="pool?.roles?.depositor || ''" />
                   </td>
                 </tr>
                 <tr>
                   <td>Bouncer</td><td align="right">
                     {{ shortStash(pool?.roles?.bouncer || '') }}
-                    <AccountLink :accountId="pool?.roles?.bouncer || ''" />
+                    <AccountLink :chain-id="chainId" :accountId="pool?.roles?.bouncer || ''" />
                   </td>
                 </tr>
                 <tr v-if="pool?.roles?.stateToggler">
                   <td>State Toggler</td><td align="right">
                     {{ shortStash(pool?.roles?.stateToggler || '') }}
-                    <AccountLink :accountId="pool?.roles?.stateToggler || ''" />
+                    <AccountLink :chain-id="chainId" :accountId="pool?.roles?.stateToggler || ''" />
                   </td>
                 </tr>
               </table>
@@ -65,19 +67,19 @@
       </table>
     </v-sheet>
 
-    <PoolMembers :poolId="id" :members="pool.members || []"></PoolMembers>
+    <PoolMembers :poolId="id" :members="pool?.members || []"></PoolMembers>
 
   </v-container>
 
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref, onBeforeMount, inject, watch } from 'vue'
+import { defineComponent, computed, ref, onBeforeMount, watch } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute, useRouter } from 'vue-router'
-import { SubstrateAPI } from '@/plugins/substrate'
+// import { SubstrateAPI } from '@/plugins/substrate'
 
-import { IPool } from '../types/global'
+import { IPool, IPoolMember } from '../types/global'
 import AccountLink from './AccountLink.vue'
 import PoolMembers from './PoolMembers.vue'
 import { shortStash } from '../global/utils'
@@ -94,15 +96,16 @@ export default defineComponent({
     PoolMembers
   },
   setup (props) {
-    const substrate: SubstrateAPI = inject('$substrate') || new SubstrateAPI({ lite: false })
+    // const substrate: SubstrateAPI = inject('$substrate') || new SubstrateAPI({ lite: false })
 
     const store = useStore()
-    const route = useRoute()
+    // const route = useRoute()
     const router = useRouter()
     const chainId = computed(() => store.state.chainId)
     const chainInfo = computed(() => store.getters['substrate/chainInfo'])
     const decimals = computed(() => store.state.substrate.decimals)
-    const pool = ref<IPool>({ id: Number(props.id), name: '', roles: {} } as IPool)
+    const pools = computed<IPool[]>(() => store.getters['pool/list'] || [])
+    const pool = computed<IPool | undefined>(() => getPool())
     const loading = ref(false)
 
     watch(() => chainId.value, async (newVal) => {
@@ -113,45 +116,15 @@ export default defineComponent({
       router.push(`/${newVal}/pool`)
     })
 
-    const getPool = async () => {
-      if(!substrate.connected) {
-        console.debug('substrate not connected... waiting')
-        await substrate.connect(chainId.value)
-        // return
+    const getPool = (): IPool | undefined => {
+      console.debug('getPool...', pool.value)
+      if (pools.value.length === 0) {
+        router.push(`/${chainId.value}/pool`)
       }
-      try {
-        await substrate.api?.isReady
-        if (!pool.value || !pool.value.id) return
-        var res = await substrate.api?.query.nominationPools.bondedPools(props.id)
-        const bondedPool: any = res?.toJSON()
-        res = await substrate.api?.query.nominationPools.metadata(props.id)
-        const metadata: any = res?.toJSON()
-        console.debug('bondedPool', bondedPool)
-        console.debug('metadata', metadata)
-        pool.value = bondedPool // ?.toJSON()?.points
-        // pool.value.points = bondedPool?.points
-        // pool.value.state = bondedPool?.state
-        // pool.value.roles = bondedPool?.roles
-        // pool.value.name = metadata?.name
-        res = await substrate.api?.query.nominationPools.poolMembers(bondedPool.roles.root)
-        console.debug('poolMembers', res)
-        const members: any = res?.toJSON()
-        console.debug('members', members)
-      } catch (e) {
-        console.error('error', e)
-      }
+      const p = pools.value.find((pool: IPool) => Number(pool.id) === Number(props.id) )
+      // console.debug('done', pool.value)
+      return p
     }
-
-    onBeforeMount(() => {
-      getPool()
-      console.debug('Pool.vue created()', chainId.value, pool.value, route.params)
-      if (!pool.value || pool.value.id !== parseInt(route.params.id.toString())) {
-        console.debug('ID not same, loading id')
-        console.debug('params.id', typeof parseInt(route.params.id.toString()))
-        console.debug('pool.id', typeof pool.value.id)
-        store.dispatch('pool/setPool', { id: parseInt(route.params.id.toString()) })
-      }
-    })
 
     const toCoin = (v: any) => {
       // console.debug('CandidateNominators.vue', this.chainInfo)

@@ -1,9 +1,10 @@
 <template>
   <v-app :dark="dark">
+
     <Toolbar v-on:onSettingsDialog="onSettingsDialog"></Toolbar>
     <v-main>
       <router-view v-slot="{ Component }">
-        <transition name="fade" mode="out-in" :duration="400">
+        <transition name="fade" mode="out-in" :duration="500">
           <component :is="Component" />
         </transition>
       </router-view>
@@ -12,14 +13,14 @@
     <bottom-nav></bottom-nav>
 
     <SettingsDialog></SettingsDialog>
-    <Loading :loading="appLoading"></Loading>
+    <Loading :loading="appLoading || loading"></Loading>
 
   </v-app>
 </template>
 
 <script lang="ts">
 import { useStore } from 'vuex'
-import { defineComponent, ref, computed, inject, onMounted } from 'vue'
+import { defineComponent, ref, computed, inject, onBeforeMount, onMounted } from 'vue'
 import { useTheme } from "vuetify"
 
 import Toolbar from './components/Toolbar.vue'
@@ -39,11 +40,12 @@ export default defineComponent({
     Loading
   },
   setup () {
+    console.debug('App.vue: setup() starting...')
     const store = useStore()
     const theme = useTheme()
     const dark = computed(() => store.state.dark)
-    const loading = computed(() => store.state.polkadot.loading)
-    const appLoading = computed(() => store.state.loading)
+    const loading = computed(() => store.state.loading)
+    const appLoading = ref(true)
     const chains = computed(() => store.state.chains)
     const showSettingsDialog = computed(() => store.state.showSettingsDialog)
     const $substrate: SubstrateAPI = inject('$substrate') || new SubstrateAPI({ lite: false })
@@ -60,6 +62,13 @@ export default defineComponent({
       theme.global.name.value = evt.matches ? 'dark' : 'light'
     }
 
+    onBeforeMount(async () => {
+      const splash = document.getElementById('splash')
+      if (splash) {
+        const parent = splash.parentElement
+        if (parent) parent.removeChild(splash)
+      }
+    })
     onMounted(async () => {
       console.debug('App.vue: mounted')
       matcher.value = window.matchMedia('(prefers-color-scheme: dark)')
@@ -67,6 +76,7 @@ export default defineComponent({
       matcher.value.addListener(onDark)
       onDark(matcher.value)
       store.dispatch('init')
+      appLoading.value = false
     })
 
     return {

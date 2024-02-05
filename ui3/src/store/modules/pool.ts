@@ -1,11 +1,6 @@
 
-import Vue from 'vue'
 import { IPool } from '@/types/global'
-// import axios from 'axios'
-// import { stat } from 'fs'
-// import { SubstrateAPI } from '../../plugins/substrate'
 import { StateManager } from '../state-manager'
-// import test from 'node:test'
 const stateManager = new StateManager('metaspan.io')
 const STORAGE_KEY = 'pool'
 
@@ -34,17 +29,6 @@ interface IChainState {
   options: IOptions,
   search: string
   filter: IFilter
-  // // ranges: TRanges // Record<string, IMinMax>
-  // // {
-  // //   rank: {
-  // //     min: 0,
-  // //     max: 0,
-  // //   },
-  // //   bonded: {
-  // //     min: 0,
-  // //     max: 0,
-  // //   },
-  // // },
   favourites: string[]
   list: IPool[]
   filteredList: IPool[]
@@ -54,8 +38,6 @@ interface IState {
   initial: boolean
   chainId: string
   chains: Record<string, IChainState>
-  // kusama: IChainState
-  // polkadot: IChainState
 }
 
 const initialState = {
@@ -81,16 +63,6 @@ const initialState = {
         valid: false,
         active: false
       } as IFilter,
-      // ranges: {
-      //   rank: {
-      //     min: 0,
-      //     max: 0
-      //   },
-      //   bonded: {
-      //     min: 0,
-      //     max: 0
-      //   }
-      // } as TRanges,
       favourites: [],
       list: [] as IPool[],
       filteredList: [],
@@ -115,16 +87,6 @@ const initialState = {
         valid: false,
         active: false
       } as IFilter,
-      // ranges: {
-      //   rank: {
-      //     min: 0,
-      //     max: 0
-      //   },
-      //   bonded: {
-      //     min: 0,
-      //     max: 0
-      //   }
-      // } as TRanges,
       favourites: [],
       list: [] as IPool[],
       filteredList: [],
@@ -133,36 +95,10 @@ const initialState = {
   }
 } as IState
 
-// TODO what is this used for?
-async function initState () {
-  return await stateManager.getState(STORAGE_KEY, initialState)
-}
-
-// function saveState (state: IState) {
-//   localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
-// }
-
-// function clearState () {
-//   console.debug('store/modules/pool.ts: clearState()', STORAGE_KEY)
-//   localStorage.removeItem(STORAGE_KEY)
-// }
-
-// function getState () {
-//   const savedState = localStorage.getItem(STORAGE_KEY)
-//   if (savedState) {
-//     console.debug('store/modules/pool.ts: getState(): restoring from localStorage')
-//     return JSON.parse(savedState)
-//   } else {
-//     console.debug('store/modules/pool.ts: getState(): using initialState')
-//     return initialState
-//   }
-// }
-
-/* eslint-disable no-new */
 const pool = {
   namespaced: true,
   modules: {},
-  state: stateManager.getStateSync(STORAGE_KEY, initialState), // .then(s => s),
+  state: stateManager.getStateSync(STORAGE_KEY, initialState),
   getters: {
     list (state: IState) {
       console.debug('store/modules/pool.ts: getters.list()', state.chainId)
@@ -174,6 +110,9 @@ const pool = {
     }
   },
   mutations: {
+    async INIT(state: IState) {
+      state.initial = false
+    },
     async SET_CHAIN_ID (state: IState, chainId: string): Promise<void> {
       console.debug('store/modules/pool.ts: SET_CHAIN_ID()', chainId)
       state.chainId = chainId
@@ -200,12 +139,6 @@ const pool = {
       console.debug('SET_LIST', list)
       state.chains[state.chainId].list = list
       state.chains[state.chainId].updatedAt = new Date()
-
-      // var ranks = list.map(m => m.rank).sort( (a,b) => {return a-b} )
-      // var udata = [...new Set(ranks)]
-      // udata = udata.slice(udata.length*0.055, udata.length*0.854)
-      // console.debug('length', udata.length, 'min:', Math.min(...udata), 'max:', Math.max(...udata))
-      // state.chains[state.chainId].ranges.rank = {min: Math.min(...udata), max: Math.max(...udata)}
       await stateManager.saveState(STORAGE_KEY, state)
     },
     async SET_FILTERED_LIST (state: IState, filteredList: IPool[]) {
@@ -214,7 +147,6 @@ const pool = {
     },
     async SET_POOL (state: IState, model: IPool) {
       console.debug('store/modules/pool.ts: SET_POOL()', model)
-      // Vue.set(state, 'pool', model) // no longer needed in vue3?
       state.chains[state.chainId].pool = model
       await stateManager.saveState(STORAGE_KEY, state)
     },
@@ -238,7 +170,6 @@ const pool = {
       const idx = state.chains[state.chainId].favourites.findIndex((v) => {
         return v === stash
       })
-      // console.debug('idx', idx)
       if (idx > -1) {
         state.chains[state.chainId].favourites = state.chains[state.chainId].favourites.filter((f) => {
           return f !== stash
@@ -251,8 +182,9 @@ const pool = {
   },
   actions: {
     // eslint-disable-next-line
-    async init ({ dispatch }: any): Promise<void> {
+    async init ({ commit }: any): Promise<void> {
       // await dispatch('getList')
+      commit('INIT')
     },
     async setChainId ({ commit }: any, chainId: string) {
       await commit('SET_CHAIN_ID', chainId)
@@ -264,7 +196,6 @@ const pool = {
     async apiStatus ({ commit }: any, { connected, chainId }: any) {
       await commit('API_STATUS', { connected, chainId })
     },
-    // eslint-disable-next-line
     async loading ({ commit }: any, loading: boolean) {
       commit('SET_LOADING', loading)
     },
@@ -272,14 +203,11 @@ const pool = {
       // console.debug('store/modules/pool.ts: addPool()', pool)
       await commit('ADD_POOL', pool)
     },
-    // async getList ({ commit }) {
-    // },
-    // eslint-disable-next-line
     async setList ({ commit, dispatch }: any, list: IPool[]) {
+      console.debug('pool.ts: action.setList()', list)
       await commit('SET_LIST', list)
       await dispatch('filterList')
     },
-    // eslint-disable-next-line
     async setIds ({ state, commit, dispatch }: any, ids: any[]) {
       const list = state.list.map((m: any) => {
         const id = ids.find(f => f.id === m.id)
@@ -291,28 +219,22 @@ const pool = {
       commit('SET_LIST', list)
       dispatch('filterList')
     },
-    // eslint-disable-next-line
     async filterList ({ commit }: any) {
       const filteredList: IPool[] = []
       await commit('SET_FILTERED_LIST', filteredList)
     },
-    // eslint-disable-next-line
     async paginate ({ commit }: any, pagination: IPagination) {
       await commit('SET_PAGINATION', pagination)
     },
-    // eslint-disable-next-line
     async handleOptions ({ commit }: any, options: any) {
       await commit('SET_OPTIONS', options)
     },
-    // eslint-disable-next-line
     async handleFilter ({ commit }: any, filter: IFilter) {
       await commit('SET_FILTER', filter)
     },
-    // eslint-disable-next-line
     async setSearch ({ commit }: any, search: string) {
       await commit('SET_SEARCH', search)
     },
-    // eslint-disable-next-line
     async setPool ({ state, commit }: any, { id }: any) {
       console.debug('store/modules/pool.ts: setPool()', id)
       const v = state.chains[state.chainId].list.find((i: IPool) => {
@@ -327,7 +249,6 @@ const pool = {
       // }
       await commit('SET_POOL', v)
     },
-    // eslint-disable-next-line
     async toggleFav ({ commit }: any, stash: string) {
       await commit('TOGGLE_FAV', stash)
     },

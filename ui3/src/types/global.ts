@@ -225,7 +225,7 @@ export interface IPoolRoles {
 }
 
 export interface IPool {
-  id: number
+  id: number | string
   name: undefined | string
   roles: IPoolRoles
   state?: undefined | string
@@ -264,7 +264,7 @@ interface IValidatorPrefs {
   blocked: boolean
 }
 export interface IValidator {
-  // active: boolean
+  active: boolean
   commission: number
   councilStake: number
   councilVotes: number[]
@@ -287,8 +287,9 @@ export interface IValidator {
   // eslint-disable-next-line
   onlineSince: any
   // eslint-disable-next-line
+  total: number
   unclaimedEras: any[]
-  // valid(): boolean
+  valid: boolean
   // validity: ICandidateValidityItem[]
   StorageKey: number[]
   // eslint-disable-next-line

@@ -78,27 +78,41 @@
     <!-- <CandidatesTable v-if="windowSize.x >= 600" :filter="xfilter" :search="search"
       @click-item="gotoCandidate"></CandidatesTable> -->
 
-    <CandidatesList 
+    <CandidatesList2 
       :filter="xfilter"
       :search="search"
       :reload="reload"
-      @click-item="gotoCandidate"></CandidatesList>
+      @click-item="gotoCandidate"></CandidatesList2>
 
-    <Loading :loading="loading || debouncing"></Loading>
+    <Loading :loading="loading"></Loading>
 
   </v-container>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, watch, ref } from 'vue'
+import { defineComponent, computed, watch, ref, onBeforeMount } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import moment from 'moment'
 // import CandidatesTable from './CandidatesTable.vue'
 import CandidatesList from './CandidatesList.vue'
+import CandidatesList2 from './CandidatesList2.vue'
 import { ICandidate } from '../types/global'
 import Loading from './Loading.vue'
-import { debounce } from 'lodash'
+import { chain } from 'lodash'
 
+// import { debounce } from 'lodash'
+function debounce(func: Function, wait: number) {
+  let timeout: number | undefined;
+  return function executedFunction(...args: any[]) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = window.setTimeout(later, wait);
+  };
+}
 // import CirclesTest from './identicon/CirclesTest.vue'
 
 interface IWindowSize {
@@ -121,33 +135,18 @@ interface IFilter {
   sortAsc: boolean
 }
 
-interface IData {
-  reload: number
-  tab: number
-  windowSize: IWindowSize
-  debouncing: boolean
-  filterActive: boolean
-  showFilterDialog: boolean
-  dateTimeFormat: string
-  search: string
-  searching: boolean
-  // sort: string
-  // sortAsc: boolean
-  sortItems: ISortItem[]
-  xfilter: IFilter
-}
-
 export default defineComponent({
   name: 'Candidates',
   components: {
     // CandidatesHisto,
-    // CirclesTest,
     // CandidatesTable,
-    CandidatesList,
+    CandidatesList2,
     Loading
   },
   setup () {
     const store = useStore()
+    const router = useRouter()
+    const route = useRoute()
     const chainId = computed(() => store.state.chainId)
     const dark = computed(() => store.state.dark)
     const apiConnected = computed(() => store.getters['candidate/apiConnected'])
@@ -162,6 +161,112 @@ export default defineComponent({
       search.value = savedSearch.value
     })
 
+    const xfilter = ref({
+      rank: 0,
+      total: 0,
+      valid: false,
+      active: false,
+      nominated: false,
+      favourite: false,
+      sort: 'rank', // {text: 'Rank', value: 'rank'},
+      sortAsc: false
+    })
+
+    const reload = ref(0) // increment this to trigger reload in child
+    const tab = ref(0)
+    const windowSize = ref({ x: 0, y: 0 })
+    const debouncing = ref(false)
+    const filterActive = ref(false)
+    const showFilterDialog = ref(false)
+    const dateTimeFormat = ref('YYYY/MM/DD hh:mm')
+    const searching = ref(false)
+    const sortItems = ref([
+      { text: 'Name', value: 'name' },
+      { text: 'Rank', value: 'rank' },
+      { text: 'Score', value: 'total' }
+    ])
+
+    const fetchFilter = () => {
+      console.debug('fetchFilter', store.state.candidate.chains[chainId.value])
+      if (store.state.candidate.chains[chainId.value]) {
+        xfilter.value = store.state.candidate.chains[chainId.value].filter
+        search.value = store.state.candidate.chains[chainId.value].search
+      }
+    }
+    const checkFilterActive = () => {
+      filterActive.value = xfilter.value.active ||
+        xfilter.value.favourite ||
+        xfilter.value.rank > 0 ||
+        xfilter.value.total > 0 ||
+        xfilter.value.active ||
+        xfilter.value.valid ||
+        xfilter.value.nominated ||
+        search.value !== ''
+    }
+
+    const gotoCandidate = (item: ICandidate) => {
+      console.debug('gotoCandidate', chainId.value, item)
+      // this.store.dispatch('candidate/setCandidate', { chainId: this.chainId, stash: item.stash })
+      router.push(`/${chainId.value}/candidate/${item.stash}`)
+    }
+
+    const debouncedSearch = debounce((newVal: string) => {
+      console.debug('debouncedSearch()', newVal)
+      checkFilterActive()
+      store.dispatch('candidate/setSearch', { chainId: chainId.value, search: newVal })
+      debouncing.value = false
+      searching.value = false
+    }, 1000)
+
+    const debouncedFilter = debounce((newVal: IFilter) => {
+      console.debug('debouncedFilter()', newVal)
+      checkFilterActive()
+      store.dispatch('candidate/handleFilter', { chainId: chainId.value, filter: {...newVal} })
+      debouncing.value = false
+      searching.value = false
+    }, 400)
+
+    watch(() => chainId.value, (val) => {
+      router.push(`/${val}/candidate`)
+      // set up the filter
+      fetchFilter()
+    })
+
+    watch(() => search.value, (newval: string) => {
+      console.debug('Candidates.vue: watch.search', newval)
+      debouncing.value = true
+      searching.value = true
+      debouncedSearch(newval)
+    })
+
+    watch(() => xfilter.value, (newVal) => {
+      console.debug('watch.xfilter', newVal)
+      debouncing.value = true
+      debouncedFilter(newVal)
+    }, {
+      deep: true
+    })
+
+    onBeforeMount(async () => {
+      console.debug('Candidates.vue: created()', chainId.value)
+      // if (this.$route.params.chainId !== this.chainId) {
+      //   await this.$store.dispatch('setChainId', this.$route.params.chainId)
+      // }
+      windowSize.value = { x: window.innerWidth, y: window.innerHeight }
+      // this.options = this.$store.state.candidate.options // .pagination.page
+      // this.itemsPerPage = this.$store.state.candidate.pagination.itemsPerPage
+
+      if (!chainId.value || chainId.value === undefined) {
+        console.debug('setting chainId to', route.params.chainId)
+        await store.dispatch('setChainId', route.params.chainId)
+      }
+
+      console.debug('Candidates.vue: mounted()', chainId.value, route.params)
+      // const state = this.$store.state.candidate // [this.chain]
+      // console.debug('state', state)
+      fetchFilter()
+    })
+
     return {
       store,
       chainId,
@@ -169,142 +274,21 @@ export default defineComponent({
       apiConnected,
       search,
       loading,
-      // list: result?.data?.Candidates || [],
-      // result,
-      // reload: refetch,
       updatedAt,
-      favourites
+      favourites,
+      xfilter,
+      reload,
+      tab,
+      windowSize,
+      debouncing,
+      filterActive,
+      showFilterDialog,
+      dateTimeFormat,
+      searching,
+      sortItems,
+      gotoCandidate,
     }
-  },
-  data: () => {
-    return {
-      reload: 0, // increment this to trigger reload in child
-      tab: 0,
-      windowSize: { x: 0, y: 0 },
-      debouncing: false,
-      filterActive: false,
-      showFilterDialog: false,
-      dateTimeFormat: 'YYYY/MM/DD hh:mm',
-      searching: false,
-      sortItems: [
-        { text: 'Name', value: 'name' },
-        { text: 'Rank', value: 'rank' },
-        { text: 'Score', value: 'total' }
-      ],
-      xfilter: {
-        rank: 0,
-        total: 0,
-        valid: false,
-        active: false,
-        nominated: false,
-        favourite: false,
-        sort: 'rank', // {text: 'Rank', value: 'rank'},
-        sortAsc: false
-      }
-    }
-  },
-  watch: {
-    chainId (val) {
-      this.$router.push(`/${val}/candidate`)
-      // set up the filter
-      this.fetchFilter()
-    },
-    search (newval: string) {
-      console.debug('Candidates.vue: watch.search', newval)
-      this.debouncing = true
-      this.searching = true
-      this.debouncedSearch(newval)
-    },
-    xfilter: {
-      deep: true,
-      handler (newVal) {
-        console.debug('watch.xfilter', newVal)
-        this.debouncing = true
-        this.debouncedFilter(newVal)
-      }
-    }
-  },
-  methods: {
-    debouncedSearch (s: string) {
-      console.debug(s)
-    },
-    debouncedFilter (f: IFilter) {
-      console.debug(f)
-      this.store.dispatch('candidate/handleFilter', { chainId: this.chainId, filter: {...f} })
-    },
-    fetchFilter () {
-      console.debug('fetchFilter', this.store.state.candidate.chains[this.chainId])
-      if (this.store.state.candidate.chains[this.chainId]) {
-        this.xfilter = this.store.state.candidate.chains[this.chainId].filter
-        this.search = this.store.state.candidate.chains[this.chainId].search
-      }
-    },
-    checkFilterActive () {
-      this.filterActive = this.xfilter.active ||
-        this.xfilter.favourite ||
-        this.xfilter.rank > 0 ||
-        this.xfilter.total > 0 ||
-        this.xfilter.active ||
-        this.xfilter.valid ||
-        this.xfilter.nominated ||
-        this.search !== ''
-    },
-    // eslint-disable-next-line
-    timeAgo (d: any) {
-      return moment(d).fromNow()
-    },
-    formatDate (d: any) {
-      return moment(d).format(this.dateTimeFormat)
-    },
-    // reload () {
-    //   // console.debug('reload...')
-    //   this.store.dispatch('candidate/getList')
-    // },
-    gotoCandidate (item: ICandidate) {
-      console.debug('gotoCandidate', this.chainId, item)
-      // this.store.dispatch('candidate/setCandidate', { chainId: this.chainId, stash: item.stash })
-      this.$router.push(`/${this.chainId}/candidate/${item.stash}`)
-    }
-    // handleResize (evt: any) {
-    //   console.debug('handleResize', evt)
-    // }
-  },
-  async created () {
-    console.debug('Candidates.vue: created()', this.chainId)
-    // if (this.$route.params.chainId !== this.chainId) {
-    //   await this.$store.dispatch('setChainId', this.$route.params.chainId)
-    // }
-    this.windowSize = { x: window.innerWidth, y: window.innerHeight }
-    // this.options = this.$store.state.candidate.options // .pagination.page
-    // this.itemsPerPage = this.$store.state.candidate.pagination.itemsPerPage
-
-    this.debouncedSearch = debounce((newVal: string) => {
-      console.debug('debouncedSearch()', newVal)
-      this.checkFilterActive()
-      this.store.dispatch('candidate/setSearch', { chainId: this.chainId, search: newVal })
-      this.debouncing = false
-      this.searching = false
-    }, 1000)
-
-    this.debouncedFilter = debounce((newVal: IFilter) => {
-      console.debug('debouncedFilter()', newVal)
-      this.checkFilterActive()
-      this.store.dispatch('candidate/handleFilter', { chainId: this.chainId, filter: {...newVal} })
-      this.debouncing = false
-      this.searching = false
-    }, 1000)
-
-    if (!this.chainId || this.chainId === undefined) {
-      console.debug('setting chainId to', this.$route.params.chainId)
-      await this.store.dispatch('setChainId', this.$route.params.chainId)
-    }
-  },
-  async mounted () {
-    console.debug('Candidates.vue: mounted()', this.chainId, this.$route.params)
-    // const state = this.$store.state.candidate // [this.chain]
-    // console.debug('state', state)
-    this.fetchFilter()
-  },
+  }
 })
 </script>
 

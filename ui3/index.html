@@ -8,11 +8,58 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>metaspan.io</title>
+
+    <style>
+      #splash {
+        
+      }
+    
+      @keyframes rotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    
+      .loader {
+        border: 4px solid #f3f3f3; /* Light grey */
+        border-top: 4px solid #ffffff; /* White */
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: rotate 2s linear infinite;
+        margin: 0 auto;
+      }
+    </style>
 </head>
 
 <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
+
+  <!-- App.vue will remove the splash -->
+  <div id="splash" style="
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: grey;
+    ">
+    <div id="splash-inner"
+      style="
+        color: white;
+        font-family: 'Roboto', sans-serif;
+        text-align: center;
+        padding: 20px;
+        border-radius: 4px;
+        background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+      <div class="loader"></div>
+      <p>App loading...</p>
+    </div>
+  </div>
+
+  <div id="app"></div>
+  <script type="module" src="/src/main.ts"></script>
 </body>
 
 </html>

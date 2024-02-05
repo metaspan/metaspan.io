@@ -104,7 +104,7 @@ import moment from 'moment'
 // import Identicon from '@polkadot/vue-identicon'
 import Identicon from './identicon/Identicon.vue'
 import { ICandidate, ICandidateValidityItem } from '../types/global'
-import { VDataTable } from 'vuetify/labs/VDataTable'
+// import { VDataTable } from 'vuetify/labs/VDataTable'
 
 interface IOptions {
   page: number
@@ -145,7 +145,7 @@ export default defineComponent({
     filter: { type: Object }
   },
   components: {
-    VDataTable,
+    // VDataTable,
     Identicon
   },
   setup () {

@@ -18,6 +18,10 @@ import { shortStash } from '../global/utils'
 export default defineComponent({
   // inject: [utilsPluginKey.toString()],
   props: {
+    chainId: {
+      type: String,
+      required: true
+    },
     accountId: {
       type: String,
       required: true
@@ -30,7 +34,7 @@ export default defineComponent({
     provider: {
       type: String,
       required: false,
-      default: 'https://kusama.subscan.io/§role§/§accountId§'
+      default: 'https://§chainId§.subscan.io/§role§/§accountId§'
     },
     text: {
       type: String,
@@ -38,7 +42,10 @@ export default defineComponent({
     }
   },
   computed: {
-    href () { return (this.provider).replace('§role§', this.role).replace('§accountId§', this.accountId) },
+    href () { return (this.provider)
+      .replace('§chainId§', this.chainId)
+      .replace('§role§', this.role)
+      .replace('§accountId§', this.accountId) },
     textStr () { return this.text ? this.text : shortStash(this.accountId) }
   },
   data: () => {

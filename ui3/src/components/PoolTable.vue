@@ -20,12 +20,8 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { mapState, mapGetters } from 'vuex'
-import { VDataTable } from 'vuetify/labs/VDataTable'
 
 export default defineComponent({
-  components: {
-    VDataTable
-  },
   props: {
     loading: {
       type: Boolean

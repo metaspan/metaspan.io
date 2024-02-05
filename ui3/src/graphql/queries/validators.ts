@@ -63,8 +63,9 @@ export const GET_VALIDATOR = gql`
 
 export const GET_VALIDATOR_NOMINATORS = gql`
   query ValidatorNominators($chain: String!, $stash: String) {
-    Validator(chain: $chain, stash: $stash) {
+    Candidate(chain: $chain, stash: $stash) {
       stash
+      chain
       nominators {
         accountId
         is1kv {

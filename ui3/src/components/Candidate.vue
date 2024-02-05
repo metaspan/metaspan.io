@@ -3,7 +3,7 @@
   <v-container style="max-width: 900px" class="mt-0 pt-0">
     <v-toolbar flat elevation="0" color="#FFFFFF00">
       <!-- <v-btn small icon @click="$router.go(-1)"><v-icon>mdi-arrow-left</v-icon></v-btn> -->
-      <v-btn small icon :to="`/${chainId}/candidate`"><v-icon>mdi-arrow-left</v-icon></v-btn>
+      <v-btn size="small" icon :to="`/${chainId}/candidate`"><v-icon>mdi-arrow-left</v-icon></v-btn>
       <v-toolbar-title>
         <span class="text-h7 text-sm-h6 text-md-h5">
           <v-avatar>
@@ -14,6 +14,9 @@
         </span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
+      <v-btn icon @click="toggleFav(candidate)">
+        <v-icon :color="isFavourite ? 'yellow' : 'grey'">mdi-star</v-icon>
+      </v-btn>
       <CandidateExternalLinks :candidate="candidate"></CandidateExternalLinks> &nbsp;
     </v-toolbar>
 
@@ -100,6 +103,9 @@
     </v-card>
 
     <Loading :loading="loading"></Loading>
+    <v-snackbar v-model="showSnackbar" :timeout="2000">
+      Candidate is {{ isFavourite ? '' : 'not' }} a favourite
+    </v-snackbar>
   </v-container>
 
 </template>
@@ -281,6 +287,8 @@ export default defineComponent({
     const router = useRouter()
     const route = useRoute()
     const plausible = inject<typeof p>('$plausible')
+    const favourites = computed<string[]>(() => store.getters['candidate/favourites'])
+
     const stash = route.params.stash.toString()
     console.debug('Candidate.vue: setup(), stash', stash)
     const chainId = computed(() => store.state.chainId)
@@ -291,6 +299,7 @@ export default defineComponent({
     // const loading = computed(() => store.state['candidate/loading'])
     const ranges = computed(() => store.state['candidate/ranges'])
     const tab = ref('score')
+    const showSnackbar = ref(false)
 
     var { result, loading, error, refetch, onResult }: any = useQuery(QUERY_CANDIDATE, {
       chain: chainId.value,
@@ -325,6 +334,20 @@ export default defineComponent({
       }
     })
 
+    const isFavourite = computed(() => {
+      // console.debug('isFavourite', stash, favourites.value.includes(stash))
+      return favourites.value.includes(candidate.value.stash)
+    })
+
+    const toggleFav = (item: any) => {
+      console.debug('toggleFav', item.stash)
+      store.dispatch('candidate/toggleFav', { chain: chainId.value, stash: item.stash })
+      showSnackbar.value = true
+      // setTimeout(() => {
+      //   showSnackbar.value = false
+      // }, 2000)
+    }
+
     return {
       store,
       substrate,
@@ -335,7 +358,10 @@ export default defineComponent({
       refetch,
       candidate,
       ranges,
-      shortStash
+      shortStash,
+      isFavourite,
+      toggleFav,
+      showSnackbar,
     }
   },
   data () {
