@@ -18,6 +18,7 @@
             v-model="address2"
             label="Address"
             hint="Address/stash to check for delegations"
+            autocomplete="on"
             @keyup.enter="refresh()"
           ></v-text-field>
           <v-row>
@@ -39,6 +40,11 @@
                 <v-row>
                   <v-col><ClickToCopy :text="item.target" :display="shortStash(item.target)"></ClickToCopy></v-col>
                   <v-col>{{ item.conviction }} - {{ formatAmount(item.balance) }} {{ tokenSymbol }}</v-col>
+                  <v-col>
+                    <span v-show="item.votes.length > 0">
+                      votes {{ item.votes }}
+                    </span>
+                  </v-col>
                 </v-row>
               </v-list-item-subtitle>
             </v-list-item>
@@ -78,6 +84,37 @@
       </v-col>
     </v-row>
 
+    <v-row>
+      <v-col>
+        <!-- <v-select
+          :items="extensions"
+          :item-title="(item) => item.name"
+          :item-value="(item) => item"></v-select> -->
+        <v-select
+          v-model="signer"
+          :items="allAccounts"
+          :item-title="(item) => item.meta.name + '\n(' + item.address2 + ')'"
+          :item-value="(item) => item"
+          :hint="`Be sure the wallet matches chain (${chainId})`"
+          :error-messages="[
+            walletMatchesAddress ? '' : 'Wallet does not match address (' + address2 + ')',
+            walletMatchesChain ? '' : 'Wallet does not match chain (' + chainId + ')',
+          ]">
+        </v-select>
+      </v-col>
+      <v-col>
+        <v-btn @click="buildBatch"
+          :color="walletMatchesChain ? 'primary' : 'red'">Build & Sign Batch</v-btn>
+        
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <v-textarea v-model="txBatch"></v-textarea>
+        <!-- <pre>{{ txBatch }}</pre> -->
+      </v-col>
+    </v-row>
+
     <v-snackbar
       v-model="snackbar"
       :timeout="3000"
@@ -104,11 +141,18 @@
 <script lang="ts">
 import { defineComponent, ref, PropType, computed, inject, watch, onBeforeMount, nextTick } from 'vue'
 import { useStore } from 'vuex'
+
+// imports for signing
+import { web3Accounts, web3Enable, web3FromSource } from '@polkadot/extension-dapp'
+import { decodeAddress, encodeAddress } from '@polkadot/util-crypto'
+// end of imports for signing
+
 // import { ICandidate } from '../types/global'
 import { SubstrateAPI } from '../plugins/substrate'
 import ClickToCopy from './ClickToCopy.vue'
 import { shortStash } from '@/global/utils'
 import router from '@/router'
+import { useRoute } from 'vue-router'
 
 const trackNames: Record<string, string> = {
   root:               'Root', // 0
@@ -157,6 +201,17 @@ interface IDelegation {
   target: string
   conviction: string
   balance: number
+  votes: string[]
+}
+
+class CDefaultTracks {
+  data: any[]
+  constructor () {
+    this.data = []
+  }
+  toJSON () {
+    return this.data
+  }
 }
 
 export default defineComponent({
@@ -172,8 +227,10 @@ export default defineComponent({
     } 
   },
   setup (props: any) {
+    // console.debug('OpenGovDelegation.setup()', props)
     // const candidate = ref(props.candidate)
     const store = useStore()
+    const route = useRoute()
     const chainInfo = computed(() => store.getters['substrate/chainInfo'])
     const chainId = computed(() => store.state.chainId)
     // const decimals = computed(() => store.state['substrate/decimals'])
@@ -190,8 +247,48 @@ export default defineComponent({
     const delegations = ref<IDelegation[]>([])
     const refVoting = ref<any[]>([])
 
+    var extensions = ref<any[]>([])
+    var allAccounts = ref<any[]>([])
+    var signer = ref<any>(null)
+
+    const init = async () => {
+      console.debug('init')
+      extensions.value = await web3Enable('metaspan.io')
+      if (extensions.value.length === 0) {
+        console.warn('no extensions installed')
+        return
+      }
+      allAccounts.value = await web3Accounts()
+      // const ss58Prefix = substrate.api?.registry.chainSS58;
+      allAccounts.value.forEach((account: any) => {
+        // account.meta.source = extensions.value.find((ex: any) => ex.address === account.meta.source)
+        const publicKey = decodeAddress(account.address)
+        // polkadot (0) or kusama (2)
+        const ss58Prefix = account.meta.genesisHash === "0x91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3" ? 0 : 2
+        account.address2 = encodeAddress(publicKey, ss58Prefix)
+      })
+      console.log(allAccounts)
+    }
+    init()
+
+    const walletMatchesAddress = computed(() => {
+      console.debug('walletMatchesAddress', signer.value?.address2, address2.value)
+      return signer.value?.address2 === address2.value
+    })
+    const walletMatchesChain = computed(() => {
+      console.debug('walletMatchesChain', signer.value?.meta.genesisHash, substrate.api?.genesisHash)
+      return substrate.api?.genesisHash.toString() === signer.value?.meta.genesisHash
+    })
+
     watch(() => chainId.value, (newVal: any) => {
       router.push(`/${newVal}/delegate`)
+    })
+
+    watch(() => address2.value, (newVal: any) => {
+      const url = new URL(window.location.href)
+      const newPath = `/${chainId.value}/delegate/${newVal}`
+      const newURL = `${url.protocol}//${url.host}${newPath}`;
+      history.pushState({}, '', newURL);
     })
 
     const refresh =  async () => {
@@ -209,12 +306,17 @@ export default defineComponent({
     const getTracks = async (): Promise<any[]> => {
       console.debug('getTracks', chainId.value)
       // tracks.value = []
-      try { await substrate.api?.isReady } catch (err) {
+      try {
+        await substrate.api?.isReady
+      } catch (err) {
         console.warn('getTracks', err)
+        return Promise.reject()
       }
-      let tracks: any = await substrate.api?.consts.referenda?.tracks || JSON.parse('[]')
+      let tracks: any = await substrate.api?.consts.referenda?.tracks || new CDefaultTracks()
       console.debug('tracks', tracks)
-      try { tracks = tracks.toJSON() } catch (err) {
+      try {
+        tracks = tracks.toJSON()
+      } catch (err) {
         console.warn('getTracks', err)
         snackbar.value = true
         errorMessage.value = 'Error getting delegations for address' // err.message
@@ -267,7 +369,8 @@ export default defineComponent({
             trackId,
             target: trackVote.delegating.target,
             conviction: trackVote.delegating.conviction,
-            balance: trackVote.delegating.balance //)/Number(decimals.value)
+            balance: trackVote.delegating.balance, //)/Number(decimals.value)
+            votes: []
           })
         }
         if (trackVote?.casting) {
@@ -276,7 +379,8 @@ export default defineComponent({
             trackId,
             target: '',
             conviction: '',
-            balance: 0
+            balance: 0,
+            votes: trackVote.casting.votes.map((v: any) => v[0])
           })
         }
         if (!trackVote.delegating && !trackVote.casting) {
@@ -306,10 +410,57 @@ export default defineComponent({
       return track.name
     }
 
-    onBeforeMount(() => {
+    onBeforeMount(async () => {
       console.debug('CandidateDelegation.onBeforeMount()')
-      // refresh()
+      setTimeout(async () => {
+        await substrate.api?.isReady
+        console.debug('CandidateDelegation.onBeforeMount() isReady')
+        refresh()
+      }, 1000)
     })
+
+    const txBatch: any = ref() // ref<any[]>([])
+    const buildBatch = async (api: any, calls: any[]) => {
+      // txBatch.value = [] as any[]
+      const txs = [] as any[]
+      for (let i = 0; i < delegations.value.length; i++) {
+        const delegation: IDelegation = delegations.value[i]
+        // const txs = [] as any[]
+        for (let j = 0; j < delegation.votes.length; j++) {
+          const tx = substrate.api?.tx.convictionVoting.removeVote(delegation.trackId, delegation.votes[j])
+          txs.push(tx)
+          // DEBUG
+          // j = delegation.votes.length
+        }
+        // DEBUG
+        // i = delegations.value.length
+        console.debug('buildBatch', txs)
+        // txBatch.value.push(...txs)
+      }
+      const txb = substrate.api?.tx.utility.batch(txs)
+
+      const account = signer.value
+      console.debug('account', account)
+      const injector = await web3FromSource(account?.meta.source)
+      console.debug('injector', injector)
+      
+      txb?.signAndSend(account.address, { signer: injector.signer }, (result: any) => {
+        console.debug('result', result)
+        if (result.status.isInBlock) {
+          console.debug(`Completed at block hash #${result.status.asInBlock.toString()}`)
+        } else {
+          console.debug(`Current status: ${result.status.type}`)
+        }
+      })
+      
+      // const signed = await txb?.signAsync(address2.value, { signer: await web3FromSource(extensions[0].name) })
+      // console.debug('buildBatch', signed)
+      // const txU8a = txb?.method.toU8a()
+      // const txHex = substrate.api?.createType('Extrinsic', txU8a).toHex();
+
+      // console.debug('buildBatch', txHex)
+      // txBatch.value = txHex // ?.method.args[0]
+    }
 
     // refresh()
 
@@ -325,11 +476,18 @@ export default defineComponent({
       tracks,
       delegations,
       refVoting,
+      txBatch,
+      extensions,
+      allAccounts,
+      signer,
       refresh,
       getTrack,
       // hasVotedInRef,
       shortStash,
-      getTrackName
+      getTrackName,
+      buildBatch,
+      walletMatchesChain,
+      walletMatchesAddress
     }
   },
   methods: {
