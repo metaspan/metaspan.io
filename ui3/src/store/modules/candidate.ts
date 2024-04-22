@@ -76,14 +76,14 @@ interface IState {
   referenda: any[]
 }
 
-// https://github.com/w3f/1k-validators-be/blob/master/helmfile.d/config/kusama/otv-backend-prod.yaml.gotmpl#L59
+// https://github.com/w3f/1k-validators-be/blob/master/apps/1kv-backend/config/kusama-score.json
 const kusamaScoreDenoms: Record<string, string> = {
   // as per message from Will
   "inclusion": "220",
   "spanInclusion": "220",
-  "discovered": "5",
-  "nominated": "30",
-  "rank": "5",
+  "discovered": "30",
+  "nominated": "100",
+  "rank": "50",
   "bonded": "50",
   "faults": "5",
   "offline": "2",
@@ -91,18 +91,16 @@ const kusamaScoreDenoms: Record<string, string> = {
   "region": "10",
   "country": "10",
   "provider": "100",
-  "council": "10",
-  "democracy": "30",
-  "nominations": "100",
+  "nominations": "100"
 };
 
-// https://github.com/w3f/1k-validators-be/blob/master/helmfile.d/config/polkadot/otv-backend-prod.yaml.gotmpl#58
+// https://github.com/w3f/1k-validators-be/blob/master/apps/1kv-backend/config/polkadot-score.json
 const polkadotScoreDenoms: Record<string, string> = {
   "inclusion": "220",
   "spanInclusion": "220",
-  "discovered": "5",
-  "nominated": "30",
-  "rank": "5",
+  "discovered": "30",
+  "nominated": "100",
+  "rank": "50",
   "bonded": "50",
   "faults": "5",
   "offline": "2",
@@ -110,9 +108,7 @@ const polkadotScoreDenoms: Record<string, string> = {
   "region": "10",
   "country": "10",
   "provider": "100",
-  "council": "10",
-  "democracy": "30",
-  "nominations": "100",
+  "nominations": "100"
 };
 
 const initialState = {
