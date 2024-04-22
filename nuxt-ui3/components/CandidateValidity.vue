@@ -48,6 +48,7 @@ export default defineComponent({
       ONLINE: 'Online',
       PROVIDER: 'Provider',
       REWARD_DESTINATION: 'Reward Destination',
+      SANCTIONED_GEO_AREA: 'Sanctioned',
       SELF_STAKE: 'Self stake',
       UNCLAIMED_REWARDS: 'Unclaimed',
       VALIDATE_INTENTION: 'Intention'
