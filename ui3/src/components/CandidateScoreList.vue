@@ -32,13 +32,48 @@ import { defineComponent, computed, watch, ref } from 'vue'
 import moment from 'moment'
 import { useStore } from 'vuex'
 
+const kusamaScoreDenoms: Record<string, string> = {
+  // as per message from Will
+  "inclusion": "220",
+  "spanInclusion": "220",
+  "discovered": "30",
+  "nominated": "100",
+  "rank": "50",
+  "bonded": "50",
+  "faults": "5",
+  "offline": "2",
+  "location": "40",
+  "region": "10",
+  "country": "10",
+  "provider": "100",
+  "nominations": "100"
+};
+const polkadotScoreDenoms: Record<string, string> = {
+  "inclusion": "220",
+  "spanInclusion": "220",
+  "discovered": "30",
+  "nominated": "100",
+  "rank": "50",
+  "bonded": "50",
+  "faults": "5",
+  "offline": "2",
+  "location": "40",
+  "region": "10",
+  "country": "10",
+  "provider": "100",
+  "nominations": "100"
+};
+
 export default defineComponent({
   name: 'CandidateScoreList',
   props: ['candidate'],
   setup (props) {
     const store = useStore()
+    const chainId = computed<string>(() => store.state.chainId)
     const ranges = computed(() => store.getters['candidate/ranges'])
-    const denoms = computed(() => store.getters['candidate/denoms'])
+    // const denoms = computed(() => store.getters['candidate/denoms'])
+    const denoms = chainId.value === 'kusama' ? kusamaScoreDenoms : polkadotScoreDenoms
+    console.debug('CandidateScoreList', denoms.value, ranges.value)
     const model = ref(props.candidate)
     watch(() => props.candidate, (newVal) => {
       model.value = newVal

@@ -444,14 +444,14 @@ export default defineComponent({
       const injector = await web3FromSource(account?.meta.source)
       console.debug('injector', injector)
       
-      txb?.signAndSend(account.address, { signer: injector.signer }, (result: any) => {
-        console.debug('result', result)
-        if (result.status.isInBlock) {
-          console.debug(`Completed at block hash #${result.status.asInBlock.toString()}`)
-        } else {
-          console.debug(`Current status: ${result.status.type}`)
-        }
-      })
+      // txb?.signAndSend(account.address, { signer: injector.signer }, (result: any) => {
+      //   console.debug('result', result)
+      //   if (result.status.isInBlock) {
+      //     console.debug(`Completed at block hash #${result.status.asInBlock.toString()}`)
+      //   } else {
+      //     console.debug(`Current status: ${result.status.type}`)
+      //   }
+      // })
       
       // const signed = await txb?.signAsync(address2.value, { signer: await web3FromSource(extensions[0].name) })
       // console.debug('buildBatch', signed)
