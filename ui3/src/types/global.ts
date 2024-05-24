@@ -78,6 +78,7 @@ export interface ICandidate {
   discoveredAt: string | number //| Date
   faults: string[]
   stash: string
+  stale: boolean
   total: number
   score: ICandidateScore
   rank: number
@@ -111,6 +112,7 @@ export class Candidate implements ICandidate {
   discoveredAt: any = 0 // as number //| Date
   faults = [] as string[]
   stash = ''
+  stale = false
   total = 0
   score = { total: 0 } as ICandidateScore
   rank = 0
@@ -137,6 +139,7 @@ export class Candidate implements ICandidate {
     this.discoveredAt = data.discoveredAt || 0
     this.faults = data.faults || [] as string[]
     this.stash = data.stash || ''
+    this.stale = !!data.stale
     this.total = data.total || 0
     this.score = data.score || { total: 0 } as ICandidateScore
     this.rank = data.rank || 0

@@ -11,7 +11,7 @@
     <template v-slot:default="{ items }">
       <v-list density="compact">
         <template v-for="item in items" :key="item.stash">
-          <v-list-item @click="clickItem(item.raw)" style="cursor: pointer">
+          <v-list-item @click="item.raw.stale ? null : clickItem(item.raw)" style="cursor: pointer" :class="item.raw.stale ? 'candidate-stale': ''">
 
             <template v-slot:prepend>
               <v-avatar size="v-small">
@@ -22,7 +22,7 @@
             <v-row>
               <v-col cols="6">
                 <v-list-item-title>
-                  {{item.raw.name}} {{item.raw.identity ? `/ ${item.raw.identity.name}` : ''}}
+                  {{item.raw.name}} {{item.raw.identity ? `/ ${item.raw.identity.name}` : ''}}{{ item.raw.stale ? ' (stale)' : '' }}
                 </v-list-item-title>
                 <v-list-item-subtitle>Score: {{ item.raw.total.toFixed(0) }}, Rank: {{item.raw.rank}}</v-list-item-subtitle>
               </v-col>
@@ -100,6 +100,7 @@ query Candidates($chain: String!) {
     active
     name
     rank
+    stale
     stash
     total
     valid
@@ -231,3 +232,9 @@ export default defineComponent({
   }
 })
 </script>
+
+<style scoped>
+.candidate-stale {
+  background-color: #f0f0f0;
+}
+</style>

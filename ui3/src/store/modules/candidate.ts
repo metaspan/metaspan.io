@@ -142,7 +142,7 @@ const initialState = {
         rank: { min: 0, max: 0 },
         bonded: { min: 0, max: 0 }
       },
-      favourites: ['16ce9zrmiuAtdi9qv1tuiQ1RC1xR6y6NgnBcRtMoQeAobqpZ'],
+      favourites: [],
       list: [],
       filteredList: [],
       candidate: new Candidate({ stash: 'loading', valid: false, validity: [{ valid: false }] as ICandidateValidityItem[] } as ICandidate)
@@ -171,10 +171,7 @@ const initialState = {
         rank: { min: 0, max: 0 },
         bonded: { min: 0, max: 0 }
       },
-      favourites: [
-        'HyLisujX7Cr6D7xzb6qadFdedLt8hmArB6ZVGJ6xsCUHqmx',
-        'FAR296Aqh9i8W5bi7BS7a8Bkhbw5LX5xCXP22c1Jvc2tM5v'
-      ],
+      favourites: [],
       list: [],
       filteredList: [],
       candidate: new Candidate({ valid: false, validity: [{ valid: false }] as ICandidateValidityItem[] } as ICandidate)

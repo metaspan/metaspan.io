@@ -195,6 +195,7 @@ query Data($chain: String!, $stash: String) {
     rank
     nominated_1kv
     provider
+    stale
     valid
     version
     rewardDestination
