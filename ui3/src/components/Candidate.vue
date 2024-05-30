@@ -30,6 +30,8 @@
     </v-row>
 
     <CandidateIcons :candidate="candidate" class="d-block d-md-none"></CandidateIcons>
+    
+    <CandidateActive :candidate="candidate"></CandidateActive>
 
     <v-container class="d-none d-md-block">
       <v-row justify="center">
@@ -131,6 +133,7 @@ import CandidateNominators from './CandidateNominators.vue'
 // import CandidateDemocracy from './CandidateDemocracy.vue'
 import CandidateReferenda from './CandidateReferenda.vue'
 import CandidateDelegation from './CandidateDelegation.vue'
+import CandidateActive from './CandidateActive.vue'
 import { SubstrateAPI } from '@/plugins/substrate'
 
 import { useQuery } from '@vue/apollo-composable'
@@ -282,6 +285,7 @@ export default defineComponent({
     // CandidateDemocracy,
     CandidateReferenda,
     CandidateDelegation,
+    CandidateActive,
   },
   setup () {
     const store = useStore()

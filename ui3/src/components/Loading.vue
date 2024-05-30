@@ -1,5 +1,5 @@
 <template>
-    <v-overlay v-model="isLoading" :absolute="absolute" class="align-center justify-center">
+    <v-overlay v-model="isLoading" :absolute="absolute" :contained="absolute" class="align-center justify-center">
       <v-progress-circular
         :size="size"
         color="primary"
