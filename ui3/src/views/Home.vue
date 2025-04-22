@@ -1,24 +1,25 @@
 <template>
   <v-container>
-    <v-card class="my-card">
-      <v-card-title>metaspan.io - tools</v-card-title>
-      <v-card-text>
-        <p>Here you will find various tools and utilities for blockchain-related applications.</p>
-        <p>The tools are open source, and the code can be found on github, <a href="https://github.com/metaspan" target="_blank">here</a></p>
-      </v-card-text>
-    </v-card>
 
     <v-card class="my-card" elevation=1>
-      <v-card-title>Featured dApp: metaspan.io - kusama 1kv</v-card-title>
+      <v-card-title>DN tools</v-card-title>
       <v-card-text>
-        <p>Kusama 1KV (1000 validators)</p>
+        <p>Decentralised Nodes (DN)</p>
         <p>
-          <router-link to="/kusama/candidate">Candidates</router-link>
+          The <a href="https://dn.metaspan.io/polkadot/cohort/2/" target="_blank">DN Stats</a> site
         </p>
       </v-card-text>
     </v-card>
 
-    <v-card class="my-card" elevation=1>
+    <v-card class="my-card">
+      <v-card-title>1KV tools</v-card-title>
+      <v-card-text>
+        <p>This 1kv site is deprecated.</p>
+        <p>The old tools are open source, and the code can be found on github, <a href="https://github.com/orgs/interweb-it/repositories" target="_blank">here</a></p>
+      </v-card-text>
+    </v-card>
+
+    <!-- <v-card class="my-card" elevation=1>
       <v-card-title>Featured dApp: metaspan.io - met🌐pay</v-card-title>
       <v-card-text>
         <p>Pay with DOT or KSM</p>
@@ -26,9 +27,9 @@
           <a href="https://metaspan.com/#metapay" target="_blank">met🌐pay</a> <v-icon small class="mdi">mdi-open-in-new</v-icon>
         </p>
       </v-card-text>
-    </v-card>
+    </v-card> -->
 
-    <v-card class="my-card" elevation=1>
+    <!-- <v-card class="my-card" elevation=1>
       <v-card-title>Featured: metaspan.io - graphql endpoint for Kusama and Polkadot</v-card-title>
       <v-card-text>
         <p>Blending data from API and on-chain (realtime)</p>
@@ -36,9 +37,9 @@
           <a href="https://gql.metaspan.io/graphql" target="_blank">try it here</a> <v-icon small class="mdi">mdi-open-in-new</v-icon>
         </p>
       </v-card-text>
-    </v-card>
+    </v-card> -->
 
-    <v-card class="my-card" elevation=1>
+    <!-- <v-card class="my-card" elevation=1>
       <v-card-title>Featured: Prometheus monitoring for Kusama and Polkadot 1kV Candidates</v-card-title>
       <v-card-text>
         <p>Source code here: <br>
@@ -57,12 +58,12 @@ scrape_configs:
           </pre>
         </p>
       </v-card-text>
-    </v-card>
+    </v-card> -->
 
     <v-card class="my-card" elevation="2">
       <v-card-title>API Endpoints</v-card-title>
       <v-card-text>
-        <p>We provide the following endpoints (data is a cache of upstream, refreshed each 30 mins):</p>
+        <p>We provide the a legacy GQL endpoint (data is a cache of upstream, refreshed each 30 mins):</p>
         <table width="70%">
           <thead>
             <th>API</th>
@@ -73,6 +74,7 @@ scrape_configs:
               <td><a href="https://gql.metaspan.io/graphql" target="_blank">https://gql.metaspan.io/graphql</a> <v-icon small class="mdi">mdi-open-in-new</v-icon></td>
               <td>combination of metaspan api and on-chain</td>
             </tr>
+          <!--
             <tr>
               <td>https://api.metaspan.io/api/{chain}/candidate</td>
               <td>https://{chain}.w3f.community/candidates</td>
@@ -81,7 +83,6 @@ scrape_configs:
               <td>https://api.metaspan.io/api/{chain}/candidate/{stash}</td>
               <td>https://{chain}.w3f.community/candidate/{stash}</td>
             </tr>
-
             <tr>
               <td>https://api.metaspan.io/api/{chain}/score</td>
               <td>https://{chain}.w3f.community/score</td>
@@ -90,7 +91,6 @@ scrape_configs:
               <td>https://api.metaspan.io/api/{chain}/score/{stash}</td>
               <td>https://{chain}.w3f.community/score/{stash}</td>
             </tr>
-
             <tr>
               <td>https://api.metaspan.io/api/{chain}/validator</td>
               <td>https://{chain}.w3f.community/validator</td>
@@ -99,7 +99,6 @@ scrape_configs:
               <td>https://api.metaspan.io/api/{chain}/validator/{stash}</td>
               <td>https://{chain}.w3f.community/validator/{stash}</td>
             </tr>
-
             <tr>
               <td>https://api.metaspan.io/api/{chain}/nominator</td>
               <td>https://{chain}.w3f.community/nominator</td>
@@ -108,7 +107,6 @@ scrape_configs:
               <td>https://api.metaspan.io/api/{chain}/nominator/{accountId}</td>
               <td>https://{chain}.w3f.community/nominator/{accountId}</td>
             </tr>
-
             <tr>
               <td>https://api.metaspan.io/api/{chain}/locationStats[?name=Your Location]</td>
               <td>https://{chain}.w3f.community/locationStats</td>
@@ -118,8 +116,8 @@ scrape_configs:
                 <i><small>Warning: the locationId could be misleading. Please note there are multiple records for each location "name", recording changes over time</small></i></td>
               <td>https://{chain}.w3f.community/locationStats/{locationId}</td>
             </tr>
+             -->
           </tbody>
-
         </table>
       </v-card-text>
     </v-card>
@@ -129,8 +127,6 @@ scrape_configs:
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-// import HelloWorld from '@/components/HelloWorld.vue' // @ is an alias to /src
-
 export default defineComponent({})
 </script>
 

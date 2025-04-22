@@ -15,10 +15,10 @@
 
     <v-toolbar-items>
 
-      <v-btn @click="$router.push(`/${chainId}/candidate`)" class="d-none d-sm-block">
+      <!-- <v-btn @click="$router.push(`/${chainId}/candidate`)" class="d-none d-sm-block">
         <v-icon size="large">mdi-account-hard-hat-outline</v-icon>
         <span class="d-none d-sm-inline">1KV</span>
-      </v-btn>
+      </v-btn> -->
 
       <!-- <v-btn @click="$router.push(`/${chainId}/nomination1kv`)" class="d-none d-sm-block">
         <v-icon size="large">mdi-water-plus-outline</v-icon>
@@ -28,26 +28,25 @@
       <!-- <v-btn @click="$router.push(`/${chainId}/delegate`)" class="d-none d-sm-block">
         <v-icon size="large">mdi-vote-outline</v-icon>
         <span class="d-none d-sm-inline">Delegate</span>
-      </v-btn>
- -->
-      <v-btn @click="$router.push(`/${chainId}/pool`)" class="d-none d-sm-block">
+      </v-btn> -->
+
+      <!-- <v-btn @click="$router.push(`/${chainId}/pool`)" class="d-none d-sm-block">
         <v-icon>mdi-waves</v-icon>
         <span class="d-none d-sm-inline">Pools</span>
-      </v-btn>
+      </v-btn> -->
 
-      <v-btn @click="$router.push(`/${chainId}/identity`)" class="d-none d-sm-block">
+      <!-- <v-btn @click="$router.push(`/${chainId}/identity`)" class="d-none d-sm-block">
         <v-icon size="large">mdi-identifier</v-icon>
-        <!-- <span class="d-inline d-md-none">Id</span> -->
         <span class="d-none d-sm-inline text-none">Identity</span>
-      </v-btn>
+      </v-btn> -->
 
-      <ChainMenu></ChainMenu>
+      <!-- <ChainMenu></ChainMenu> -->
 
     </v-toolbar-items>
 
     <!-- <v-spacer></v-spacer> -->
 
-    <v-tooltip>
+    <!-- <v-tooltip>
       <template v-slot:activator="{ props }">
         <v-btn
           small icon
@@ -57,11 +56,11 @@
         </v-btn>
         </template>
       <span>API connected: {{apiConnected ? 'yes' : 'no'}}</span>
-    </v-tooltip>
+    </v-tooltip> -->
 
-    <Alerts></Alerts>
+    <!-- <Alerts></Alerts> -->
 
-    <v-app-bar-nav-icon @click="toggleNavDrawer()"></v-app-bar-nav-icon>
+    <!-- <v-app-bar-nav-icon @click="toggleNavDrawer()"></v-app-bar-nav-icon> -->
 
   </v-app-bar>
 
